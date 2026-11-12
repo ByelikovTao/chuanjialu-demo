@@ -1,0 +1,130 @@
+/* 三项家庭记录功能沿用既有颜色与字号；表单、来源和处理结果在窄屏自然换行。 */
+.feature-page{overflow-wrap:anywhere}
+.feature-page h2{font-size:calc(20px * var(--unit));line-height:1.6}
+.feature-page h3{font-size:calc(17px * var(--unit));line-height:1.6}
+.feature-page .card p{margin-top:9px}
+.feature-page .card .text-link{margin-right:14px}
+.feature-media{display:block;width:100%;max-height:330px;object-fit:contain;border-radius:12px;background:var(--muted)}
+.feature-prose{white-space:pre-wrap;overflow-wrap:anywhere}
+.feature-actions{display:flex;flex-wrap:wrap;gap:10px}
+.feature-actions>.btn{flex:1;min-width:120px}
+.feature-error{color:var(--danger)}
+.feature-choices{border:1px solid var(--line);border-radius:12px;padding:10px 14px;min-width:0}
+.feature-choices legend{font-size:calc(15px * var(--unit));font-weight:600}
+.feature-choices small{display:block;color:var(--secondary);font-size:calc(13px * var(--unit))}
+.feature-choices input{flex-shrink:0}
+.feature-entry{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0}
+.feature-entry .btn{font-size:calc(14px * var(--unit));padding:9px 12px}
+/* 提交页按进度切换，一次只显示一个分组；大字号允许标签与数量自然换行。 */
+.material-stage-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:5px;margin:20px 0 14px;background:var(--muted);border-radius:13px}
+.material-stage-tabs>button{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:5px;min-width:0;min-height:44px;padding:8px 5px;border-radius:9px;background:none;color:var(--secondary);font-size:calc(14px * var(--unit));line-height:1.6}
+.material-stage-tabs>button.active{background:var(--surface);color:var(--brand);font-weight:600;box-shadow:0 1px 4px #7020230D}
+.material-stage-tabs small{min-width:20px;padding:0 4px;border-radius:6px;background:#FFFFFF70;font-size:calc(11px * var(--unit))}
+.material-stage-tabs>button.active small{background:var(--soft)}
+.material-stage-panel>.caption{padding:0 2px}
+.answer-feedback-tools{border-top:1px solid var(--line);margin-top:12px;padding-top:7px}
+.answer-feedback-tools .text-link{font-size:calc(13px * var(--unit));min-height:44px}
+.feature-page details{padding:10px 0}
+.feature-page summary{cursor:pointer;color:var(--brand);min-height:44px}
+/* 家庭快速上传优先显示选文件、分享范围和保存，说明放进可展开的区域。 */
+.family-upload-form {
+  display: grid;
+  gap: 16px;
+}
+.family-upload-file {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 96px;
+  padding: 16px;
+  border: 1px dashed #C8AE8B;
+  border-radius: 8px;
+  background: var(--surface);
+  cursor: pointer;
+}
+.family-upload-file:focus-within {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+.family-upload-file > :is(.icon, img) {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  color: var(--brand);
+}
+.family-upload-file > img {
+  object-fit: cover;
+}
+.family-upload-file > span {
+  min-width: 0;
+}
+.family-upload-form small {
+  display: block;
+  color: var(--secondary);
+  font-size: calc(14px * var(--unit));
+  line-height: 1.5;
+}
+.family-upload-file input[type="file"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.family-upload-form details {
+  padding: 0;
+  border-bottom: 1px solid var(--line);
+}
+.family-upload-form summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  list-style: none;
+  font-size: calc(14px * var(--unit));
+}
+.family-upload-form summary::-webkit-details-marker {
+  display: none;
+}
+.family-upload-form summary .icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.family-upload-form details[open] > summary .icon {
+  transform: rotate(180deg);
+}
+.family-upload-form .record-members {
+  margin-bottom: 12px;
+}
+.family-upload-audience > .form-field {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin: 0;
+}
+.family-upload-audience select {
+  width: auto;
+  flex: 1 1 150px;
+}
+.modal #material-return-form label{display:block}
+.modal #material-return-form textarea{display:block;width:100%;min-height:90px;border:1px solid #C9A99A;border-radius:10px;background:var(--surface);padding:10px;font:inherit;color:var(--ink)}
+@media(max-width:380px){.feature-entry>.btn{width:100%}}
+
+/* 影片下的照片保留原图比例，说明和本地文件控件在大字号窄屏下可以自然换行。 */
+.film-photo-section{display:grid;gap:12px;overflow-wrap:anywhere}
+.film-photo-card{display:grid;gap:8px;margin:0}
+.film-photo-card img{display:block;width:100%;max-height:240px;object-fit:contain;background:var(--surface);border-radius:8px}
+.film-photo-card figcaption{font-size:calc(14px * var(--unit));line-height:1.6}
+#film-photo-form input[type=file]{max-width:100%;min-width:0}
+#film-photo-form :is([data-film-photo-error],[data-film-photo-status]):empty{display:none}
+
+/* 家人选择器沿用纸张与深绿，不另占交流页的视频高度。 */
+.family-focus{margin:6px 0 18px;padding:12px 14px}
+.family-focus p{margin:0 0 4px}
+.family-focus small{display:block;color:var(--muted);font-size:12px;line-height:1.6}
+.family-focus .text-link{justify-content:space-between;min-height:36px;font-size:18px}

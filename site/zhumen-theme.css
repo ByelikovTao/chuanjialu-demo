@@ -1,0 +1,202 @@
+/* 朱门归家：复用参考稿原始装饰资产；视觉层覆盖所有路由，不改变内容和权限。 */
+body{background:#EAE1D4;font-family:"Source Han Serif SC","Noto Serif SC","Songti SC",SimSun,serif}
+:root{--canvas:#FBF8F1;--surface:#FFFDFA;--muted:#F2EDE4;--brand:#B51E1B;--pressed:#931B18;--soft:#FAEAE0;--ink:#251C18;--secondary:#51565B;--subtle:#6B6863;--line:#E5DCD0;--action:#B51E1B}
+.studio-sidebar{background:#F4EBDD;border-color:var(--line)}
+.studio-nav button.active{background:var(--soft);color:var(--brand)}
+.studio-nav button:hover{background:#EFE1D4}
+.phone{border-color:#FFFCF6;box-shadow:0 0 0 1px #C5B29C,0 22px 55px #632D201A}
+/* 系统状态栏统一米白底深色图标，与朱红业务标题栏分开。 */
+.statusbar{color:var(--ink);background:var(--canvas)}
+.app-header{position:relative;isolation:isolate;background:var(--brand);color:#FFF6E5;border:0;padding:8px 16px;min-height:56px}
+/* 标题栏保留简洁构图，门庭主视觉集中在首页封面和个人中心。 */
+.app-header:before{content:none}
+.app-header :is(.my-button,.chat-message-trigger,.icon-button){color:inherit}
+.app-header h1{font-family:inherit;letter-spacing:1px;text-align:center;font-size:calc(20px * var(--unit))}
+.app-content{background:var(--canvas) url("assets/zhumen/ivory-rice-paper.png") center top/780px auto;background-blend-mode:soft-light;scrollbar-color:#C7A99A transparent}
+.bottom-nav{background:var(--surface);border-color:var(--line)}
+.bottom-nav button{color:#786A5F}
+.bottom-nav button.active{color:var(--brand)}
+.btn{border-radius:8px;background:var(--action)}
+.btn:hover:not(:disabled){filter:brightness(.96)}
+.btn.secondary{background:var(--soft);color:var(--brand);border:1px solid #D7B6A8}
+.btn.outline{border-color:#B85D53;color:var(--brand)}
+.btn.light{background:var(--surface);color:var(--brand)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:none}
+.badge{border-radius:4px}
+.tabs button{border-radius:6px}
+.tabs button.active{background:var(--brand)}
+.note{background:#F1E7D9;border:1px solid #E0CFBA;border-radius:8px}
+.notice{border:1px solid #DDC5A3;border-radius:8px}
+.form-field :is(input,select,textarea),.chat-form input{border-color:#CDB6A0;border-radius:8px;background:var(--surface)}
+.form-field :is(input,select,textarea):focus,.chat-form input:focus{outline:2px solid #B52D2A55;outline-offset:1px}
+.menu-row{border-color:var(--line)}
+.avatar{background:var(--soft)}
+.toast{background:#702023F5;border:1px solid #E7BFA7;border-radius:8px}
+.modal{background:var(--surface) url("assets/zhumen/ivory-rice-paper.png") center/500px;border:1px solid #C69B83;border-radius:12px;box-shadow:0 20px 80px #401B1933}
+.modal::backdrop{background:#35221D66}
+.modal-header{border-bottom:1px solid var(--line);padding-bottom:12px}
+.modal-header h2{color:var(--brand)}
+.modal-header .icon-button{color:var(--brand)}
+.message{background:#F7EDE0;border:1px solid #E2CFB9;border-radius:8px}
+.message.user{background:var(--brand);color:var(--surface)}
+.suggestion{border-color:#CDA995;background:var(--surface);border-radius:8px}
+.chat-form button{border-radius:8px}
+.avatar-page-heading h1{color:#FFFDF7;text-shadow:0 1px 6px #35221D}
+.avatar-image-shade{background:linear-gradient(180deg,#35221D66,transparent 38%,transparent 52%,#35221D33)}
+.avatar-greeting p{color:var(--ink)}
+.avatar-stage{border-radius:8px;border:1px solid #CDB6A0}
+.avatar-greeting{border-radius:8px}
+.content-chat-entry,.content-chat-context.avatar-context{background:#F5E7D9;border-color:var(--line);border-radius:8px}
+.content-chat-chip{border-color:#D2B8A5;border-radius:6px;background:var(--surface)}
+/* 归家与家族源流共用纸色和朱红。 */
+.heritage-home{background:transparent;padding-bottom:32px;line-height:1.75}
+.heritage-kinship{background:#F5EBDD;border-color:var(--line);border-radius:6px}
+.heritage-text-button:hover{background:#F0E0D1}
+.heritage-editor :is(input:not([type=checkbox]),textarea,select){border-color:#C8A58D;background:var(--surface);color:var(--ink)}
+.heritage-review-copy{background:var(--canvas);border-color:var(--line)}
+/* 入口页的独立构图由 entry-flow.css 维护，保留市场与勾选协议的交互。 */
+.entry-mode{background:var(--canvas)}
+/* 列表、档案和制作流程共用细框纸卡，圆形人像与录音控制保留自身形状。 */
+.archive-shortcut,.archive-media-card,.plan-card,.recording-card,.tree-person,.lineage-focus,.lineage-branch,.family-tree,.keepsake-entry,.profile-service-summary,.feature-choices{border-radius:8px}
+.archive-shortcut,.archive-media-card,.tree-person,.plan-card{background:var(--surface);border-color:var(--line)}
+.archive-shortcut.active,.plan-card.featured{background:var(--soft);border-color:var(--brand)}
+.profile-service-summary{border:1px solid #D5B6A0;background:#F2E1D2}
+.profile-main-menu{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:0 14px}
+.profile-main-menu>.menu-row:last-child{border-bottom:0}
+.video-type-filters button,.material-stage-tabs,.material-stage-tabs>button{border-radius:6px}
+/* 空间页收回原悬浮页眉，给标题和年代说明留出真实布局高度。 */
+.space-mode .statusbar{position:relative}
+.space-mode .app-header{position:relative;top:auto;left:auto;right:auto;padding:4px 18px 12px;pointer-events:auto}
+.space-mode .app-header .icon-button{background:transparent;border:0;color:#FFF6E5}
+.space-mode .memory-top{top:16px}
+.space-mode .scene-title{margin:0 0 12px}
+.space-mode .scene-title h1{display:none}
+.space-mode .scene-title p{margin:0;color:var(--secondary)}
+/* 大字号封面文字独立占行，装饰退到下方，避免遮盖姓名和切换入口。 */
+.large-type .heritage-viewing{max-width:100%}
+@media(prefers-reduced-motion:reduce){.btn,.heritage-home button{transition:none}}
+
+/* 全部内页共用宋体、实色文字和字号下限；媒体原生控件不覆盖。 */
+.phone,.modal{font-family:"Source Han Serif SC","Noto Serif SC","Songti SC",SimSun,serif}
+.phone :is(h1,h2,h3,h4,.serif,.plan-price,.record-time),.modal :is(h1,h2,h3){font-family:inherit;font-style:normal;text-wrap:balance}
+.phone :is(p,small,em,label),.modal :is(p,small,em,label){font-style:normal;overflow-wrap:anywhere}
+.phone .page-title{font-size:calc(30px * var(--unit));line-height:1.2}
+/* 人物切换说明位于浅色纸卡，采用正文辅助色以保持可读性。 */
+.phone .family-focus small{font-size:calc(14px * var(--unit));line-height:1.5;color:var(--secondary)}
+.phone :is(.page-subtitle,.caption,.small,.muted,.member-row em,.archive-card-copy small,.archive-card-copy em,.profile-service-summary small,.profile-service-summary em,.heritage-caption){font-size:calc(14px * var(--unit));line-height:1.5;color:var(--secondary)}
+.phone :is(.story-paragraph,.message,.source-transcript,.heritage-reader){font-size:calc(18px * var(--unit));line-height:1.5556}
+.phone :is(.menu-row,.btn,.heritage-text-button,.suggestion,.video-type-filters button,.archive-shortcut){font-size:calc(16px * var(--unit));line-height:1.5}
+.phone .bottom-nav button{font-size:calc(14px * var(--unit));line-height:1.5;white-space:normal;overflow-wrap:anywhere}
+
+/* 中国结为非交互装饰，不遮挡标题、触控区域或辅助阅读顺序。 */
+.page>.page-title,.section-heading>h2,.home-section-title,.entry-section-title{position:relative;padding-left:32px}
+.page>.page-title:before,.section-heading>h2:before,.home-section-title:before,.entry-section-title:before{content:"";position:absolute;left:0;top:0;width:24px;height:32px;background:url("assets/zhumen/chinese-knot-mark.svg") center/contain no-repeat;pointer-events:none}
+.heritage-kinship{background:var(--surface);border:1px solid var(--line)}
+
+/* 档案、资料、家庭、纪念书与服务流程统一使用纸卡和朱红选中态。 */
+.archive-bio-preview,.biography-mode-switch,.privacy-options label,.source-transcript,.feature-choices{background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.biography-mode-switch button.active,.video-type-filters button.active{background:var(--brand);color:var(--surface);border-color:var(--brand)}
+.phone :is(input:not([type=checkbox]):not([type=radio]),textarea,select),.modal :is(input:not([type=checkbox]):not([type=radio]),textarea,select){font-family:inherit;font-size:calc(16px * var(--unit));line-height:1.5;color:var(--ink);background:var(--surface);border:1px solid #8F7C68;border-radius:8px;min-width:0;max-width:100%}
+input[type=checkbox],input[type=radio]{accent-color:var(--brand)}
+.phone :is(.plan-price,.timeline-year){color:var(--brand)}
+.phone .message.user{color:var(--surface);background:var(--brand)}
+.phone .message.user :is(p,small){color:inherit}
+.phone .message-label{color:var(--brand)}
+.phone .source-transcript{border:1px solid var(--line)}
+.phone .empty{background:url("assets/zhumen/red-home-doorway-transparent.png") center 16px/96px auto no-repeat;padding-top:128px}
+.phone .empty :is(h2,p){position:relative}
+
+/* 操作状态保持可辨；可恢复失败继续使用原有说明和重试动作。 */
+.phone button:focus-visible,.phone a:focus-visible,.modal button:focus-visible,.phone input:focus-visible,.phone textarea:focus-visible,.phone select:focus-visible{outline:2px solid var(--brand);outline-offset:4px}
+.phone button:disabled,.modal button:disabled{opacity:.65;cursor:not-allowed}
+.phone button,.modal button{transition:transform 300ms cubic-bezier(.22,1,.36,1),opacity 300ms cubic-bezier(.22,1,.36,1)}
+.phone button:active:not(:disabled),.modal button:active:not(:disabled){transform:scale(.98)}
+.phone :is(.error,.entry-error,.heritage-form-error){color:var(--danger)}
+.large-type .section-heading{flex-wrap:wrap}
+.large-type :is(.plan-card,.card,.modal){overflow-wrap:anywhere}
+@media(prefers-reduced-motion:reduce){.phone button,.modal button{transition:none}}
+
+/* 参考稿采用黑色宋体标题、通透纸卡与朱红轮廓，避免所有内容泛黄泛红。 */
+.phone .page{padding-top:16px}
+.phone .bottom-nav{padding:8px 8px 16px;background:#FFFDFA}
+.phone .bottom-nav .icon{width:44px;height:28px;max-width:100%;padding-block:1px;border-radius:999px}
+.phone .bottom-nav button{color:#414950;font-size:calc(12px * var(--unit));gap:4px}
+.phone .bottom-nav button.active{color:var(--brand)}
+.phone .bottom-nav button.active .icon{background:var(--soft)}
+.phone .heritage-kinship{border-color:#C95347;background:transparent;border-radius:8px;padding:16px}
+
+/* 交流页采用设计稿的米白标题栏、长人物画幅与圆角输入，保留已有视频和对话。 */
+.phone[data-route=chat] .app-header{background:var(--canvas);color:var(--ink);padding-left:40px;min-height:56px}
+.phone[data-route=chat] .app-header:before{content:"";position:absolute;left:8px;top:0;width:24px;height:48px;background:url("assets/zhumen/chinese-knot-transparent.png") center/contain no-repeat}
+.phone[data-route=chat] .app-header h1{font-weight:600}
+.phone[data-route=chat] .my-button{font-size:calc(12px * var(--unit));padding:0}
+.phone[data-route=chat] .chat-message-trigger{font-size:calc(14px * var(--unit));padding:0 0 0 8px}
+.phone .avatar-page{padding:0 16px 12px}
+.phone .avatar-stage{border:0;box-shadow:none;border-radius:12px;min-height:368px;flex-basis:368px}
+.phone .avatar-page-heading{left:16px;right:12px;top:16px}
+.phone .avatar-page-heading h1{font-size:calc(30px * var(--unit));line-height:1.2}
+.phone .avatar-page-heading p{font-size:calc(14px * var(--unit))}
+.phone .avatar-greeting{border:0;border-radius:16px;padding:16px;background:#FFFAF1F2;box-shadow:none}
+.phone .avatar-greeting>span{display:none}
+.phone .avatar-greeting p{margin:0;font-size:calc(18px * var(--unit));line-height:1.5556}
+.phone .avatar-footer{background:transparent;gap:8px}
+.phone .avatar-topic{flex:1;border-color:var(--brand);background:transparent;border-radius:999px;font-size:calc(14px * var(--unit))}
+.phone .avatar-topic .icon{width:20px;height:20px}
+.phone .avatar-page .chat-form{border-color:#D7D0C7;box-shadow:none}
+.phone .avatar-page .chat-form input{border:0;background:transparent;border-radius:0;padding:6px 0}
+.phone .avatar-page .chat-form input:focus-visible{outline:none}
+.phone .avatar-call-action{border-radius:8px;background:transparent;color:var(--ink);font-size:calc(14px * var(--unit))}
+.phone .avatar-call-action.end{background:var(--brand);border-color:var(--brand);color:white}
+.phone .avatar-body>.billing-chat-quota{background:transparent;border:0;border-radius:0}
+
+/* 档案封面回到设计稿的左文右人构图；四个分类同排，说明仍保留供读屏读取。 */
+.archive-cover-heading{position:relative;isolation:isolate;padding:8px 0 16px;min-height:208px}
+.person-archive-page[data-archive-person=father] .archive-cover-heading:after{content:"";position:absolute;z-index:-1;right:-20px;top:-16px;bottom:0;width:62%;background:url("assets/avatar/father-portrait-v4.png") center 26%/cover no-repeat;mask-image:linear-gradient(90deg,transparent,#000 38%)}
+.archive-cover-heading .family-focus{margin:0 0 12px;padding:0;border:0;background:transparent;box-shadow:none;max-width:54%}
+.archive-cover-heading .family-focus .caption{display:inline-block;color:var(--brand);background:var(--soft);border-radius:8px;padding:4px 8px}
+.archive-cover-heading .family-focus .text-link{font-size:calc(14px * var(--unit));justify-content:flex-start;min-height:32px}
+.archive-cover-heading .family-focus small{display:none}
+.archive-cover-heading .person-heading{padding:0;margin:0;min-height:0}
+.person-archive-page[data-archive-person=father] .person-heading>.avatar{display:none}
+.archive-cover-heading .person-heading>div{max-width:55%}
+.phone .archive-cover-heading .page-title{font-size:calc(36px * var(--unit));line-height:1.1112;margin:0 0 8px}
+.archive-cover-heading>.page-subtitle{max-width:55%;font-size:calc(14px * var(--unit));margin-top:8px}
+.phone .archive-shortcuts{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:8px 0 16px}
+.phone .archive-shortcut{grid-template-columns:minmax(0,1fr);justify-items:center;gap:4px;padding:12px 4px;border-color:#D2675B;background:transparent;min-height:88px}
+.phone .archive-shortcut>.icon{width:28px;height:28px}
+.phone .archive-shortcut>strong{font-size:calc(14px * var(--unit));white-space:nowrap}
+.phone .archive-shortcut>span{grid-column:1;font-size:calc(12px * var(--unit))}
+.archive-shortcut small{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%)}
+.phone .archive-secondary-tabs{display:grid;grid-template-columns:1fr 1fr;gap:0;padding:0;border:0}
+.phone .archive-secondary-tabs button{border-radius:0;border-bottom:2px solid var(--line);font-size:calc(18px * var(--unit))}
+.phone .archive-secondary-tabs button.active{background:transparent;color:var(--brand);border-color:var(--brand)}
+.archive-preview-note{display:none}
+.archive-content [data-archive-preview]>h2{font-size:calc(24px * var(--unit));line-height:1.333;padding-left:28px;position:relative;color:var(--ink)}
+.archive-content [data-archive-preview]>h2:before{content:"";position:absolute;left:0;top:0;width:24px;height:32px;background:url("assets/zhumen/chinese-knot-mark.svg") center/contain no-repeat}
+.archive-content [data-archive-preview=video]>.archive-grid{grid-template-columns:1fr;gap:16px;margin-top:12px}
+.archive-content [data-archive-preview] .archive-media-card{border:0;background:transparent}
+.archive-content [data-archive-preview=video] .archive-cover{aspect-ratio:2.6;border-radius:8px}
+.archive-content [data-archive-preview=video] .archive-card-copy{padding:8px 0}
+.archive-content [data-archive-preview=video] .archive-card-copy strong{font-size:calc(18px * var(--unit))}
+.archive-content [data-archive-preview=work] .archive-grid{grid-template-columns:1fr}
+.archive-content [data-archive-preview=work] .archive-media-card{flex-direction:row;align-items:center;background:#FFFDFA}
+.archive-content [data-archive-preview=work] .archive-cover{width:40%;flex-shrink:0;aspect-ratio:1.8}
+.phone .archive-bio-preview{padding:0;border:0;background:transparent}
+.archive-bio-preview>p{margin-top:16px;padding:16px;background:#FFFDFA;border-radius:8px}
+
+/* 大字号以可读和可操作为先，装饰与四列分类退让为堆叠版式。 */
+.phone.large-type .archive-cover-heading:after{opacity:.15}
+.phone.large-type .archive-cover-heading :is(.family-focus,.person-heading>div,.page-subtitle){max-width:100%}
+.phone.large-type .archive-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.phone.large-type .archive-shortcut>strong{white-space:normal}
+.phone.large-type .avatar-stage{flex-basis:auto;min-height:0}
+.phone .heritage-chapter-note{font-size:calc(12px * var(--unit));line-height:1.5;color:#A07859;letter-spacing:2px}
+
+/* 淡墨山水铺在归家各段之间，纸面内容保持清晰。 */
+.phone .heritage-home{position:relative;isolation:isolate;background:#FBF7EF}
+.phone .heritage-body{position:relative;isolation:isolate}
+.phone .heritage-body:before{content:'';position:absolute;inset:0 -16px -32px;z-index:-1;pointer-events:none;background:url('assets/zhumen/home-ink-landscape.png') center top/100% 1600px repeat-y;opacity:.20;mask-image:linear-gradient(to bottom,transparent,#000 160px)}
+.phone .heritage-body>section+section{margin-top:24px}
+.phone .heritage-home .heritage-pedigree-viewport{background-color:transparent}
+.phone .heritage-home .heritage-pedigree-node{background:#FFF7E9CC}
+.phone .heritage-home .heritage-pedigree-node.is-focus{background:#FFF0D9E6}

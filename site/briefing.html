@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#A62124">
+  <meta name="description" content="传家录功能导图、陈家原型演示、目标市场与产品优势、收费方案。">
+  <title>传家录 · 汇报专栏</title>
+  <link rel="stylesheet" href="base.css">
+  <link rel="stylesheet" href="briefing.css">
+  <script src="briefing.js" defer></script>
+</head>
+<body class="briefing-page">
+  <a class="briefing-skip" href="#briefing-content">跳到汇报内容</a>
+  <div class="briefing-shell">
+    <header class="briefing-header">
+      <div>
+        <p class="briefing-kicker">产品汇报 · 陈家示例</p>
+        <h1>传家录</h1>
+        <p>从家人愿意讲的一张照片开始，慢慢留下一份全家都能回看的档案。</p>
+      </div>
+      <a class="briefing-button" href="index.html#home">← 返回原型</a>
+    </header>
+    <nav class="briefing-steps" aria-label="汇报顺序">
+      <a href="#features" data-briefing-step="features" aria-current="step"><span>01</span> 功能导图</a>
+      <a href="#demo" data-briefing-step="demo"><span>02</span> 原型演示</a>
+      <a href="#strengths" data-briefing-step="strengths"><span>03</span> 市场与优势</a>
+      <a href="#pricing" data-briefing-step="pricing"><span>04</span> 收费方案</a>
+    </nav>
+
+    <main id="briefing-content" tabindex="-1">
+      <section id="features" class="briefing-chapter" aria-labelledby="features-heading">
+        <header class="briefing-section-head">
+          <div><h2 id="features-heading" tabindex="-1">家庭档案功能导图</h2><p>沿线查看功能的上下级，点击带下划线的名称进入原型。</p></div>
+          <p id="briefing-map-count" class="briefing-kicker"></p>
+        </header>
+        <div class="briefing-map">
+          <div class="briefing-map-plane">
+            <svg class="briefing-map-wires" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+              <defs>
+                <symbol id="briefing-icon-family" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></symbol>
+                <symbol id="briefing-icon-record" viewBox="0 0 24 24"><path d="m15 4 5 5M4 20l5-1L21 7a2 2 0 0 0-5-5L4 14z"/></symbol>
+                <symbol id="briefing-icon-together" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="13" rx="4"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></symbol>
+                <symbol id="briefing-icon-daily" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M12 17v4m-5 0h10"/></symbol>
+                <symbol id="briefing-icon-legacy" viewBox="0 0 24 24"><path d="M4 3h13a2 2 0 0 1 2 2v16H6a3 3 0 0 1-3-3V4a1 1 0 0 1 1-1ZM3 17h16M8 7h7M8 11h5"/></symbol>
+                <symbol id="briefing-icon-services" viewBox="0 0 24 24"><path d="m12 3 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1Z"/></symbol>
+              </defs>
+              <g id="briefing-map-connections"></g>
+            </svg>
+            <p class="briefing-map-core">一份家庭档案</p>
+            <div id="briefing-map-branches" class="briefing-map-branches" role="group" aria-label="家庭档案的六个功能分支"></div>
+          </div>
+        </div>
+        <nav class="briefing-storyline" aria-label="一张照片的汇报路线">
+          <h3>沿一张照片做演示</h3>
+          <ol>
+            <li><a href="#demo/old-photo"><span>01</span><strong>发旧照，问一句</strong><small>听几位家人怎么讲</small></a></li>
+            <li><a href="#demo/by-person"><span>02</span><strong>回到家庭档案</strong><small>从照片里的家人名下找到它</small></a></li>
+            <li><a href="#demo/storybook"><span>03</span><strong>预览一本故事册</strong><small>挑选已共享的往事</small></a></li>
+          </ol>
+        </nav>
+      </section>
+
+      <section id="demo" class="briefing-chapter" aria-labelledby="demo-heading" hidden>
+        <header class="briefing-section-head">
+          <div><h2 id="demo-heading" tabindex="-1">原型演示</h2><p>在这里操作陈家示例。用选择框切换讲解的功能。</p></div>
+          <label class="briefing-picker">演示功能<select id="briefing-topic"></select></label>
+        </header>
+        <div id="briefing-demo-layout" class="briefing-demo-layout">
+          <aside class="briefing-cue" aria-labelledby="briefing-topic-title">
+            <div class="briefing-cue-copy">
+              <p id="briefing-topic-group" class="briefing-kicker"></p>
+              <h3 id="briefing-topic-title"></h3>
+              <p id="briefing-topic-guide"></p>
+            </div>
+            <div class="briefing-cue-links">
+              <a id="briefing-open-prototype" class="briefing-button" href="index.html#home" target="_blank" rel="noopener">打开完整原型 ↗</a>
+              <a class="briefing-text-link" href="#features">回功能导图</a>
+            </div>
+          </aside>
+          <div class="briefing-device">
+            <iframe id="briefing-preview" title="传家录可操作原型" allow="microphone; camera; fullscreen"></iframe>
+          </div>
+        </div>
+        <footer class="briefing-chapter-foot">
+          <a class="briefing-button primary" href="#strengths">继续讲市场与优势 →</a>
+        </footer>
+      </section>
+
+      <section id="strengths" class="briefing-chapter" aria-labelledby="strengths-heading" hidden>
+        <header class="briefing-section-head">
+          <div><h2 id="strengths-heading" tabindex="-1"><span>一份家庭档案，</span><span>记录全家人的日子</span></h2>
+            <p>首批从父母往事整理和纪念礼物切入。子女发出一张老照片，请爸妈和亲友补原声，全家从这一件事开始记。</p></div>
+        </header>
+        <section class="briefing-selling-points" aria-labelledby="selling-points-heading">
+          <h3 id="selling-points-heading">传家录的卖点</h3>
+          <ul class="briefing-selling-grid">
+            <li>
+              <h4>一家人的往事，按家人就能找到</h4>
+              <p>宝宝成长、爸妈的日子和两个人的日子各有入口。同一条往事可以关联多位家人，按授权回看。</p>
+              <a class="briefing-text-link" href="#demo/by-person">按家人找往事 →</a>
+            </li>
+            <li>
+              <h4>发一张老照片，收几位亲人的原声</h4>
+              <p>亲人打开链接就能免登录回语音。每个人记得的细节，都留在原照片下。</p>
+              <a class="briefing-text-link" href="#demo/old-photo">试发照片和收原声 →</a>
+            </li>
+            <li>
+              <h4>爸妈用大屏回话，子女在手机回听</h4>
+              <p>子女投送照片，爸妈点「回一句」，原声回到同一条往事。吃药提醒的确认回执也能在手机看。</p>
+              <a class="briefing-text-link" href="#demo/screen-photo">体验爸妈大屏 →</a>
+            </li>
+            <li>
+              <h4>先看自家的有声样册，再决定付费</h4>
+              <p>选几条家人已共享的往事就能预览电子故事册，有录音的样页可以回听。开通家庭会员后可保存。</p>
+              <a class="briefing-text-link" href="#demo/storybook">预览有声故事册 →</a>
+            </li>
+          </ul>
+        </section>
+        <dl class="briefing-market-entry">
+          <div>
+            <dt>首批目标客户</dt>
+            <dd>手里有老照片、愿意组织亲人记录的成年子女。子女发起并决定是否付费，父母讲往事，其他家人补细节。</dd>
+          </div>
+          <div>
+            <dt>从哪里触达</dt>
+            <dd>优先找正在筹备父母寿辰、退休纪念或家庭团聚的子女。家庭摄影和老照片整理服务可作为待验证的合作渠道。</dd>
+          </div>
+        </dl>
+        <section class="briefing-market-business" aria-labelledby="market-business-heading">
+          <h3 id="market-business-heading">首期做手机端记录和成册，按家庭收费</h3>
+          <p>把投入放在发照片、收原声、按家人回看和预览样册。全家可以免费开始，子女看到自家的样册后再决定是否开通会员。家庭会员拟按 <strong>249 元／家／年</strong> 收费，含共享 20 GB 和每年保存 2 本电子故事册。</p>
+          <p>按可触达家庭数、完成首条共同记录的比例和完成后的实际付费率测算会员收入。日常补记和回看是续费的依据，纪念书、人生故事片、数字人和 VR 建模按单核算交付。</p>
+        </section>
+        <h3 id="market-comparison-heading" class="briefing-market-comparison-heading">家庭已有的选择与传家录的做法</h3>
+        <div class="briefing-comparison-frame">
+          <table class="briefing-comparison" role="table" aria-labelledby="market-comparison-heading">
+            <thead role="rowgroup">
+              <tr role="row">
+                <th scope="col" role="columnheader">家庭任务</th>
+                <th scope="col" role="columnheader">已有选择</th>
+                <th scope="col" role="columnheader">传家录的优势</th>
+                <th scope="col" role="columnheader">原型演示</th>
+              </tr>
+            </thead>
+            <tbody role="rowgroup">
+              <tr role="row">
+                <th scope="row" role="rowheader">一家人分别记什么</th>
+                <td role="cell" data-label="已有选择">
+                  <p>亲宝宝围绕孕期、育儿和宝宝成长设计，亲友可以一起上传和回看孩子的照片、视频。</p>
+                  <p class="briefing-comparison-sources">
+                    <a class="briefing-text-link" href="https://apps.apple.com/cn/app/id672984826" target="_blank" rel="noopener noreferrer">亲宝宝官方功能 ↗</a>
+                  </p>
+                </td>
+                <td class="briefing-comparison-product" role="cell" data-label="传家录的优势">
+                  <p><strong>三个专版共用一份家庭档案</strong></p>
+                  <ul class="briefing-comparison-editions">
+                    <li><strong>宝宝成长</strong>从孕期、出生记到各月龄，照片视频与成长里程碑排在同一条时间线。</li>
+                    <li><strong>爸妈的日子</strong>按年月翻有声相册，爸妈可以自己记，家人也能代记。</li>
+                    <li><strong>两个人的日子</strong>记录约会、旅行和纪念日。默认仅两人可见，双方确认后可分享到指定家庭。</li>
+                  </ul>
+                </td>
+                <td role="cell">
+                  <div class="briefing-comparison-demos">
+                    <a class="briefing-text-link" href="#demo/baby">宝宝专版 →</a>
+                    <a class="briefing-text-link" href="#demo/elders">老年专版 →</a>
+                    <a class="briefing-text-link" href="#demo/couple">两个人的日子 →</a>
+                  </div>
+                </td>
+              </tr>
+              <tr role="row">
+                <th scope="row" role="rowheader">请父母讲往事</th>
+                <td role="cell" data-label="已有选择">
+                  <p>小智支持从照片口述成书。Remento 的 Story Ornament 支持多人录音，提交时需要登录或创建账号。</p>
+                  <p class="briefing-comparison-sources">
+                    <a class="briefing-text-link" href="https://www.memor.cn/" target="_blank" rel="noopener noreferrer">小智 ↗</a>
+                    <a class="briefing-text-link" href="https://help.remento.co/en/articles/17184738-remento-ornament-contributor" target="_blank" rel="noopener noreferrer">Remento ↗</a>
+                  </p>
+                </td>
+                <td class="briefing-comparison-product" role="cell" data-label="传家录的优势">
+                  <p><strong>发一张照片就能请几位亲人讲同一件事</strong></p>
+                  <p>女儿发爸妈的结婚照，问「那天是谁拍的？」爸爸和姑姑分别打开链接，免登录回语音。两份原声都留在原照片下，链接可分别撤回。</p>
+                </td>
+                <td role="cell"><a class="briefing-text-link" href="#demo/old-photo">发图和收回原声 →</a></td>
+              </tr>
+              <tr role="row">
+                <th scope="row" role="rowheader">按家人找往事</th>
+                <td role="cell" data-label="已有选择">
+                  <p>融修提供全家可共建的家族树与人物档案，成员可以在授权范围内补充照片、声音和故事。</p>
+                  <p class="briefing-comparison-sources">
+                    <a class="briefing-text-link" href="https://www.rximmortal.com/" target="_blank" rel="noopener noreferrer">融修 ↗</a>
+                  </p>
+                </td>
+                <td class="briefing-comparison-product" role="cell" data-label="传家录的优势">
+                  <p><strong>同一条往事能从相关家人的名下翻到</strong></p>
+                  <p>「念念第一次自己拜年」只留一条，念念的成长相册和爷爷的往事都能找到它。相关家人和可见范围分别设置，回看的都是同一条原记录。</p>
+                </td>
+                <td role="cell"><a class="briefing-text-link" href="#demo/by-person">按家人找同一条记录 →</a></td>
+              </tr>
+              <tr role="row">
+                <th scope="row" role="rowheader">和爸妈一起回看</th>
+                <td role="cell" data-label="已有选择">
+                  <p>海外产品 ViewClix 已提供照片投送、定时提醒和通话时共看照片。</p>
+                  <p class="briefing-comparison-sources">
+                    <a class="briefing-text-link" href="https://viewclix.com/features/" target="_blank" rel="noopener noreferrer">ViewClix ↗</a>
+                  </p>
+                </td>
+                <td class="briefing-comparison-product" role="cell" data-label="传家录的优势">
+                  <p><strong>大屏上回的一句话，也回到原照片下</strong></p>
+                  <p>子女从「记录」投送照片，爸妈在演示机点「回一句」。录音留在手机里的原照片下，也能从「爸妈的日子」回听。</p>
+                </td>
+                <td role="cell"><a class="briefing-text-link" href="#demo/screen-photo">看手机和大屏联动 →</a></td>
+              </tr>
+              <tr role="row">
+                <th scope="row" role="rowheader">给家人做纪念册</th>
+                <td role="cell" data-label="已有选择">
+                  <p>小智公开提供实体印书及访谈成书，交付物和价格可以提前查看。</p>
+                  <p class="briefing-comparison-sources">
+                    <a class="briefing-text-link" href="https://www.memor.cn/" target="_blank" rel="noopener noreferrer">小智成书说明 ↗</a>
+                  </p>
+                </td>
+                <td class="briefing-comparison-product" role="cell" data-label="传家录的优势">
+                  <p><strong>用家人共同补好的往事做成样册</strong></p>
+                  <p>从家庭档案选几条共享往事，预览自家的电子故事册，有原声的样页可以回听。子女看到效果后，可选择开通会员保存。</p>
+                </td>
+                <td role="cell"><a class="briefing-text-link" href="#demo/storybook">预览家庭故事册 →</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <footer class="briefing-chapter-foot">
+          <a class="briefing-button primary" href="#pricing">继续讲收费方案 →</a>
+        </footer>
+      </section>
+
+      <section id="pricing" class="briefing-chapter" aria-labelledby="pricing-heading" hidden>
+        <header class="briefing-section-head">
+          <div><h2 id="pricing-heading" tabindex="-1">收费方案</h2><p>全家先免费记录，按需要选家庭会员、爸妈大屏或专业制作服务。</p></div>
+          <p class="briefing-kicker">试点方案</p>
+        </header>
+        <div class="briefing-prices">
+          <article class="briefing-card">
+            <h3>免费家庭</h3>
+            <p class="briefing-price">0 元</p>
+            <ul>
+              <li>每家 2 GB 基础存储</li>
+              <li>建家、邀请、家训、族谱和共同记录</li>
+              <li>查看已授权的档案，挑选往事预览故事册</li>
+            </ul>
+          </article>
+          <article class="briefing-card featured">
+            <h3>家庭会员</h3>
+            <p class="briefing-price">249 元 <small>／家／年</small></p>
+            <ul>
+              <li>同一家共享 20 GB 总容量</li>
+              <li>每会员年保存 2 本电子故事册</li>
+              <li>获授权的家人可回看，故事册可另存 PDF</li>
+            </ul>
+          </article>
+        </div>
+        <section id="pricing-screen" class="briefing-services" aria-labelledby="pricing-screen-heading">
+          <header>
+            <h3 id="pricing-screen-heading">爸妈大屏硬件</h3>
+            <p>大屏放在爸妈家里，子女用手机绑定并管理，两端共用一份家庭档案。</p>
+          </header>
+          <div class="briefing-card">
+            <div class="briefing-prices">
+              <div>
+                <h4>单买大屏</h4>
+                <p class="briefing-service-price">按台一次性购机</p>
+                <p>设备售价待核算，免费家庭和会员家庭均可绑定。</p>
+              </div>
+              <div>
+                <h4>购机加选家庭会员</h4>
+                <p class="briefing-service-price">一次性设备价 + 249 元／家／年</p>
+                <p>加开后共享 20 GB，每年可存 2 本电子故事册。已有会员沿用本家权益。</p>
+              </div>
+            </div>
+            <p><strong>设备基础联动</strong>包含手机投照片、大屏回语音、吃药提醒与确认回执、视频通话和一起看照片。回话会留在原往事下。</p>
+            <a class="briefing-text-link" href="#demo/screen-photo">体验爸妈大屏 →</a>
+          </div>
+        </section>
+        <section class="briefing-services" aria-labelledby="pricing-services-heading">
+          <header>
+            <h3 id="pricing-services-heading">独立增值服务</h3>
+            <p>免费家庭和会员家庭都可以按项咨询。</p>
+          </header>
+          <div class="briefing-prices">
+            <article class="briefing-card">
+              <h4>AI 人生故事片</h4>
+              <p class="briefing-service-price">15,000 元／位</p>
+              <p>顾问上门采集口述和老照片，交付约 5 分钟的成片。</p>
+              <a class="briefing-text-link" href="#demo/film">看故事片样片 →</a>
+            </article>
+            <article class="briefing-card">
+              <h4>数字人创建</h4>
+              <p class="briefing-service-price">按人物与制作范围报价</p>
+              <p>用本人授权的资料创建互动数字人。家人可以提问，也能回看回答引用的资料。</p>
+              <a class="briefing-text-link" href="#demo/digital-create">看数字人创建服务 →</a>
+            </article>
+            <article class="briefing-card">
+              <h4>VR 房间建模</h4>
+              <p class="briefing-service-price">按空间和采集范围报价</p>
+              <p>把房间或老宅做成可漫游的三维场景。点开物件，就能回看相关故事。</p>
+              <a class="briefing-text-link" href="#demo/vr-model">看 VR 房间建模服务 →</a>
+            </article>
+            <article class="briefing-card">
+              <h4>人工纪念书</h4>
+              <p class="briefing-service-price">按编辑、样书和印制分段报价</p>
+              <p>人工整理家庭资料，确认校样和样书后印制成册。</p>
+              <a class="briefing-text-link" href="#demo/keepsake">看纪念书制作流程 →</a>
+            </article>
+          </div>
+        </section>
+        <p class="briefing-note">大屏联动、订单与支付均为原型演示。</p>
+        <footer class="briefing-chapter-foot">
+          <a class="briefing-text-link" href="commercial-plan.html" target="_blank" rel="noopener">查看完整收费与交付规则 ↗</a>
+          <a class="briefing-button" href="#demo/membership">演示会员权益 →</a>
+        </footer>
+      </section>
+      <noscript><p class="briefing-note">开启 JavaScript 后可使用功能导图和内嵌原型。<a href="commercial-plan.html">查看收费方案</a></p></noscript>
+    </main>
+
+    <footer class="briefing-footer">
+      <span>传家录 · 陈家示例与试点方案</span>
+      <a href="assets/demo-mindmap.svg" target="_blank" rel="noopener">陈家示例演示顺序 ↗</a>
+    </footer>
+  </div>
+</body>
+</html>

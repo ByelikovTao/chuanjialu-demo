@@ -1,0 +1,134 @@
+/** 传家录首次体验：模拟应用市场、安装与验证码登录，全部状态仅保存在当前页面内存。 */
+'use strict';
+{
+  const P=window.App,e=P.escape;
+  const DEMO_PHONE='13800000000',DEMO_CODE='246810';
+  const PREVIEWS=[
+    {title:'记录人生印记',tag:'人生印记',icon:'book',image:'assets/zhumen/entry-preview-life.png',body:'用文字、照片和视频记录重要的时刻，留住值得珍藏的回忆。'},
+    {title:'整理家庭图谱',tag:'家庭图谱',icon:'family',image:'assets/zhumen/entry-preview-family.png',body:'清晰梳理家人关系，记录每位家人的人生故事。'},
+    {title:'和家人聊聊',tag:'与TA聊聊',icon:'chat',image:'assets/zhumen/entry-preview-chat.png',body:'围绕人生片段展开交流，听家人的讲述，增进理解与连接。'},
+    {title:'找回回忆里的家',tag:'回忆里的家',icon:'home',image:'assets/zhumen/entry-preview-home.png',body:'珍藏老照片与家庭故事，重温属于家人的温暖空间。'}
+  ];
+  const DELIVERY_ROUTE='film-delivery';
+  /** 三屏总览保留内嵌预览；只有交片链接可以从身份验证开始。 */
+  function initialSession(){return {page:'market',query:'',searched:false,installed:false,installing:false,authenticated:!isDelivery()||new URLSearchParams(location.search).get('embedded')==='1',phone:'',code:'',consent:false,actor:'father',sentPhone:'',error:''};}
+  let session=initialSession();
+  let installTimer;
+  function isDelivery(){return location.hash===`#${DELIVERY_ROUTE}`;}
+  /** 操作使用独立事件属性，避免误入现有业务动作与导航分发。 */
+  function button(text,action,cls='',extra=''){return `<button type="button" class="${cls}" data-entry="${action}" ${extra}>${text}</button>`;}
+  /** 品牌标志直接复用已确认设计图的切图，全部资源离线读取。 */
+  function logo(){return '<img class="entry-logo" src="assets/zhumen/entry-brand.png" alt="传家录应用图标">';}
+  /** 市场搜索由用户提交关键词驱动，支持清空、无结果和再次搜索。 */
+  function market(){
+    const matches=session.searched&&/传家录|传家|家庭|人生|回忆/.test(session.query);
+    return `${session.searched?`<header class="entry-search-header">${button(P.icon('back'),'clear-search','entry-back','aria-label="返回应用市场"')}<h1>应用搜索</h1><span></span></header>`:'<div class="market-heading"><h1>应用市场</h1></div>'}
+      <form id="entry-search" class="market-search"><label class="sr-only" for="entry-query">搜索应用</label>${P.icon('search')}<input id="entry-query" name="query" type="search" placeholder="搜索应用、游戏" value="${e(session.query)}" maxlength="40"><button type="submit">搜索</button></form>
+      ${session.searched?`<p class="entry-caption">找到 ${matches?'1':'0'} 个相关应用</p>${matches?`<div class="market-result">${button(`${logo()}<span><strong>传家录</strong><small>家庭记录 · 生活</small></span>`,'detail','market-result-info')}${button('查看','detail','market-get')}</div>`:'<div class="entry-empty">暂未找到相关应用<p>试试搜索“传家录”</p></div>'}`:
+      `<p class="entry-caption">已收到交片通知？ <a class="text-link" href="#${DELIVERY_ROUTE}">交片专用入口</a></p><div class="market-feature"><h2>为家人，留住时光</h2><p>有些故事，值得代代相传</p>${button('搜索「传家录」 '+P.icon('arrow'),'suggest','market-suggest')}</div><h2 class="entry-section-title">大家都在搜</h2>${button(P.icon('search')+' 传家录','suggest','market-chip')}<p class="entry-caption market-disclaimer">应用市场展示与下载均为演示</p>`}`;
+  }
+  /** 功能预览沿用设计稿的两列图文纸卡；点击后仍可放大阅读。 */
+  function preview(item,index){return `<article class="store-preview preview-${index}"><div class="store-preview-heading">${P.icon(item.icon)}<h3>${item.title}</h3></div><p>${item.body}</p><img src="${item.image}" alt="${item.tag}功能示意，AI生成示例照片"></article>`;}
+  /** 应用详情整合简介、预览图和获取状态，不虚构评分、下载量或真实上架信息。 */
+  function detail(){
+    const label=session.installing?'正在下载并安装…':session.installed?'打开':'获取';
+    return `<header class="entry-detail-header">${button(P.icon('back')+'<span>应用详情</span>','market','entry-back','aria-label="返回搜索"')}<span>尚未上架</span></header><section class="store-hero"><div class="store-identity">${logo()}<div><h1>传家录</h1><p>让人生有迹，让家风有传。</p><span>记录家人的生活与故事，<br>把珍贵的回忆传承下去。</span></div></div>
+      ${button(label,session.installed?'open':'install','entry-primary store-get',session.installing?'disabled':'')}
+      ${session.installing?'<div class="install-progress" role="status"><span></span><p>正在准备传家录，请稍候</p></div>':''}
+      <p class="store-availability">传家录当前尚未上架，敬请期待。</p></section>
+      <h2 class="entry-section-title">功能预览</h2><div class="store-previews">${PREVIEWS.map((item,index)=>button(preview(item,index),'preview','preview-button',`data-index="${index}" aria-label="放大预览：${item.tag}"`)).join('')}</div>
+      <section class="store-description"><h2>关于传家录</h2><p>传家录，属于一家人的人生记忆空间。把珍贵的影像、照片和讲述整理成人生档案，让家人看见来时的路，也让故事继续被听见。</p><ul><li>人生印记：收藏影片、照片、传记与个人作品。</li><li>与TA聊聊：围绕已留下的资料，继续聊聊人生故事。</li><li>回忆里的家：走进熟悉的老屋，重温物件背后的记忆。</li><li>家人共建：补充资料、核对讲述，留下彼此的共同回忆。</li></ul><p>可自主建家和邀请亲人。顾问上门采集和 AI 人生故事片作为可选服务。</p></section><p class="entry-caption">原型演示 · 暂定名称 · 未实际上架应用市场</p>`;
+  }
+  /** 登录按原稿还原头像与表单；填号作为字段旁的辅助动作，核验与主动同意沿用原契约。 */
+  function login(delivery){
+    const back=delivery?`<a class="entry-back" href="#home" aria-label="返回普通入口">${P.icon('back')}</a>`:button(P.icon('back'),'detail','entry-back','aria-label="返回应用详情"');
+    const heading=delivery?'<h1>交片专用入口</h1><p>验证身份后，观看已交付的纪录片。</p>':'<h1>欢迎来到<br>传家录</h1><p>把一家人的故事，<br>好好留下来。</p>';
+    const identity=delivery?'<p class="entry-demo">演示身份为档案本人陈远山。</p>':`<fieldset><legend>选择演示身份</legend><label><img class="login-person-portrait" src="assets/zhumen/login-father.png" alt="陈远山，设计稿中的示例人物"><span>档案本人 · 陈远山</span><input type="radio" name="actor" value="father" ${session.actor==='father'?'checked':''}></label><label><img class="login-person-portrait" src="assets/zhumen/login-xia.png" alt="陈知夏，设计稿中的示例人物"><span>受邀家人 · 陈知夏</span><input type="radio" name="actor" value="xia" ${session.actor==='xia'?'checked':''}></label></fieldset>`;
+    return `${back}<div class="login-brand"><span class="login-seal" aria-hidden="true">传<br>家<br>录</span>${heading}</div>
+      <form id="entry-login" class="entry-login" novalidate><div class="login-phone-heading"><label for="entry-phone">手机号</label>${button('填入演示手机号','fill','entry-fill')}</div><input id="entry-phone" name="phone" type="tel" inputmode="numeric" autocomplete="off" maxlength="11" placeholder="请输入手机号" value="${e(session.phone)}">
+      <label for="entry-code">验证码</label><div class="entry-code-row"><input id="entry-code" name="code" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="请输入验证码" value="${e(session.code)}">${button(session.sentPhone?'重新获取':'获取验证码','send','entry-send')}</div>${identity}
+      <label class="entry-consent"><input name="consent" type="checkbox" ${session.consent?'checked':''}><span>我已阅读并同意${button('《用户协议》','terms','entry-text')}和${button('《隐私政策》','privacy','entry-text')}</span></label>
+      <p id="entry-error" class="entry-error" role="status" aria-live="polite">${e(session.error)}</p><button class="entry-primary" type="submit">${delivery?'验证后看纪录片':'登录，开启家人的故事'}</button></form>
+      <p class="entry-demo">演示登录，无需真实手机号，不发送短信。</p>`;
+  }
+  /** 登录前独占手机内容区，快捷导航也必须等登录完成后才能进入业务页。 */
+  function render(){
+    if(session.authenticated)return;
+    const delivery=isDelivery(),step=delivery?'login':session.page;
+    P.MemorySpace?.unmount();P.DigitalHuman?.stop();P.PersonArchive?.stopPlayback();
+    const phone=document.getElementById('phone');phone.classList.add('entry-mode');phone.classList.remove('space-mode');
+    // 入口页独立标识布局，避免再次误用登录后首页的主题构图。
+    phone.dataset.entryPage=step;
+    document.getElementById('app-content').innerHTML=`<div class="entry-page ${step==='login'?'login-page':step==='detail'?'store-page':session.searched?'market-page market-results-page':'market-page'}">${step==='market'?market():step==='detail'?detail():login(delivery)}</div>`;
+    document.getElementById('studio-nav').innerHTML=delivery?'<p class="entry-caption">交片链接 → 身份验证 → 观看纪录片</p>':'<p class="entry-caption">体验顺序：<br>搜索应用 → 获取并打开<br>→ 登录 → 家训卷轴 → 首页</p>';
+    document.getElementById('review-title').textContent=delivery?'交片专用入口':step==='login'?'从登录开始，走进一家人的故事':'从应用市场认识传家录';
+    document.getElementById('review-description').textContent=delivery?'顾问交片时提供专用链接。档案本人通过演示验证后直接观看纪录片。':'完整体验搜索、详情预览、下载安装、验证码登录，展开家训卷轴后进入首页。所有账号、短信与安装均为本地演示。';
+    document.getElementById('state-preview').textContent=JSON.stringify({体验步骤:step,已安装:session.installed,已登录:false},null,2);
+  }
+  /** 切换步骤重置滚动位置，输入验证失败重绘时保留当前阅读位置。 */
+  function page(name){session.page=name;session.error='';render();document.getElementById('app-content').scrollTop=0;}
+  /** 重绘前保留手机号和用户的主动勾选，不将示例手机号写入业务账号资料。 */
+  function capture(){const form=document.getElementById('entry-login');if(form){session.phone=form.elements.phone.value.trim();session.code=form.elements.code.value.trim();if(form.elements.actor)session.actor=form.elements.actor.value;session.consent=form.elements.consent.checked;}}
+  /** 演示下载延时可取消；重新体验不会被上一次下载的迟到回调改变状态。 */
+  function install(){
+    if(session.installed||session.installing)return;
+    session.installing=true;render();
+    installTimer=setTimeout(()=>{session.installing=false;session.installed=true;if(session.page==='detail')render();},1500);
+  }
+  /** 交片和普通登录使用同一验证。交片演示固定为档案本人，校验通过后直接进入成片页。 */
+  function submitLogin(){
+    capture();
+    if(!/^1[3-9]\d{9}$/.test(session.phone))session.error='请填写11位手机号，可使用演示号码。';
+    else if(session.sentPhone!==session.phone)session.error='请先为当前手机号获取演示验证码。';
+    else if(session.code!==DEMO_CODE)session.error='验证码不正确，请输入演示验证码246810。';
+    else if(!session.consent)session.error='请先阅读并同意用户协议与隐私政策。';
+    else {
+      const delivery=isDelivery();
+      session.authenticated=true;P.state.history=[];
+      P.changeActor(delivery?'father':session.actor);
+      if(delivery)P.Households.handleAction('house-service-demo',{dataset:{id:'film'}});
+      else P.navigate('home');
+      if(!delivery)P.LoginScroll.show();
+      return;
+    }
+    render();
+  }
+  /** 协议仅说明本地演示范围，不伪装成已发布服务的正式法律文本。 */
+  function policy(privacy){P.modal(privacy?'隐私政策（演示）':'用户协议（演示）',`<p>传家录当前为产品原型，仅提供虚构人物与本地交互体验。</p><p>${privacy?'本演示不会发送手机号、验证码或家庭资料，不发送短信；输入仅在页面内存中保留，刷新清除。正式服务上线前将提供完整的个人信息处理说明。':'应用下载、账号登录及各项服务均为模拟。请勿输入真实敏感资料。正式服务的账号、授权及服务条款以上线版本为准。'}</p>${P.button('关闭','close-modal','btn full section')}`);}
+  /** 单次注册事件，输入与点击均只在首次体验页面生效。 */
+  document.addEventListener('click',event=>{
+    const node=event.target.closest('[data-entry]');if(!node||node.disabled)return;
+    const action=node.dataset.entry;capture();
+    if(action==='suggest'){session.query='传家录';session.searched=true;page('market');}
+    if(action==='detail'||action==='market')page(action);
+    // 搜索结果页返回市场时清空本次关键词，详情返回仍保留原搜索结果。
+    if(action==='clear-search'){session.searched=false;session.query='';page('market');}
+    if(action==='install')install();
+    if(action==='open'&&session.installed)page('login');
+    if(action==='preview'){const index=Number(node.dataset.index);if(PREVIEWS[index])P.modal(PREVIEWS[index].tag,preview(PREVIEWS[index],index));}
+    if(action==='fill'){session.phone=DEMO_PHONE;session.error='';render();}
+    if(action==='send'){
+      session.sentPhone=/^1[3-9]\d{9}$/.test(session.phone)?session.phone:'';
+      // 演示获取成功即自动填入验证码，保留获取动作和当前手机号校验。
+      session.code=session.sentPhone?DEMO_CODE:'';
+      session.error=session.sentPhone?`演示验证码：${DEMO_CODE}（不发送短信），已自动填入。`:'请先填写手机号，或点击“填入演示手机号”。';render();
+    }
+    if(action==='terms'||action==='privacy')policy(action==='privacy');
+  });
+  document.addEventListener('submit',event=>{
+    if(event.target.id==='entry-search'){event.preventDefault();session.query=event.target.elements.query.value.trim();session.searched=Boolean(session.query);render();}
+    if(event.target.id==='entry-login'){event.preventDefault();submitLogin();}
+  });
+  /** 字号和角色预览引发重绘前，仍保留本次表单；刷新后须重新验证。 */
+  document.addEventListener('input',event=>{if(event.target.closest('#entry-login'))capture();});
+  document.addEventListener('change',event=>{if(event.target.closest('#entry-login'))capture();});
+  P.EntryFlow={authenticated:()=>session.authenticated,render,reset(entry=false){
+    P.LoginScroll.close(false);clearTimeout(installTimer);P.closeModal();session=initialSession();
+    if(entry)session.authenticated=false;
+    if(!session.authenticated){
+      if(isDelivery())location.hash='home';
+      document.getElementById('app-content').scrollTop=0;
+    }
+    P.render();
+  }};
+}

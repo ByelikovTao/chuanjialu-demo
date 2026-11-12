@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240">
+  <title>孕期留影插画</title>
+  <path fill="#f3e7d4" d="M0 0h320v240H0z"/>
+  <rect x="18" y="18" width="284" height="204" rx="8" fill="none" stroke="#c4a584"/>
+  <circle cx="217" cy="74" r="38" fill="#e9ccb3"/>
+  <path fill="#994137" d="M137 94c-16 8-25 27-27 48l-4 66h96c-2-15-4-25-8-35 23-10 27-39 8-55-11-9-24-11-36-12l-9-13z"/>
+  <path fill="#d9a385" d="M139 87c-10-7-12-19-7-29 5-12 19-16 30-10 10 5 11 13 9 22l6 9-9 4c-3 9-11 13-20 9l-4 11-13-5z"/>
+  <path fill="#573732" d="M131 87c-7-5-12-15-10-25 2-16 12-25 28-25 13 0 23 7 25 19-10-4-20-7-29-2-10 6-8 22-14 33z"/>
+  <path fill="none" stroke="#ecc3a7" stroke-linecap="round" stroke-width="7" d="M145 120c10 13 20 22 40 25m-41 16c11 10 22 13 35 12"/>
+  <path fill="none" stroke="#af8166" stroke-linecap="round" stroke-width="2" d="M74 194c13-16 18-34 19-54m-5 28c-8-5-14-12-15-20m17 10c9-5 14-11 17-19m141 59c-9-16-13-32-12-49m1 23c9-4 15-11 17-18m-16 10c-8-5-13-11-14-19"/>
+</svg>
