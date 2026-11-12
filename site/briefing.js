@@ -100,7 +100,7 @@
       id: 'record', title: '记录往事',
       groups: [
         { title: '留下记录', children: ['upload', 'moment'] },
-        { topic: 'stories', children: ['by-person', 'mine', 'saved'] },
+        { topic: 'stories', children: ['by-person', 'saved'] },
         { topic: 'assistant' },
         { topic: 'review' }
       ]
