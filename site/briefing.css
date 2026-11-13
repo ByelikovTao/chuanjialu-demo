@@ -773,43 +773,6 @@
   line-height: 20px;
 }
 
-.briefing-services {
-  margin-top: 24px;
-}
-
-.briefing-services > header {
-  margin-bottom: 12px;
-}
-
-.briefing-services > header p {
-  margin-top: 4px;
-  color: var(--secondary);
-  font-size: 16px;
-  line-height: 24px;
-}
-
-.briefing-services > .briefing-prices > .briefing-card {
-  grid-template-rows: auto auto 1fr auto;
-}
-
-.briefing-services h4,
-.briefing-service-price {
-  margin: 0;
-  font-size: 18px;
-  line-height: 28px;
-  font-weight: 600;
-}
-
-.briefing-service-price {
-  color: var(--brand);
-  font-variant-numeric: tabular-nums;
-}
-
-.briefing-services .briefing-text-link {
-  justify-self: start;
-  align-self: end;
-}
-
 .briefing-note {
   margin-top: 16px;
   color: var(--secondary);

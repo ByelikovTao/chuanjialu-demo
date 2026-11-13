@@ -2,7 +2,15 @@
 'use strict';
 {
   const P=window.App,{escape:e,icon:i,link:l,button:b}=P;
-  const PLAN={price:249,freeGB:2,memberGB:20,books:2,storyLimit:30};
+  const PLAN = {
+    price: 249,
+    freeGB: 1,
+    legacyFreeGB: 2,
+    memberGB: 20,
+    books: 2,
+    storyLimit: 30,
+    plannedAudioHours: 8
+  };
   const EXAMPLE='example', exampleName=P.HOME_NAME;
   const services={
     film:{title:'AI 人生故事片',summary:'顾问上门采集口述和老照片，确认主角小样，再交付成片。',price:'15,000 元／位',route:'film-delivery'},
@@ -22,7 +30,8 @@
 
   function newRegistry(){
     const start=new URLSearchParams(location.search).get('start');
-    const example={id:EXAMPLE,name:'陈家示例',workspace:P.state,people:{...P.PEOPLE},orders:[],books:[],membership:null};
+    const example={id:EXAMPLE,name:'陈家示例',workspace:P.state,people:{...P.PEOPLE},orders:[],books:[],
+      membership:null,freeGB:PLAN.freeGB};
     return {active:start==='new'?'':EXAMPLE,example,families:[],nextFamily:0,routeId:'',routeDetail:''};
   }
   let registry=newRegistry();
@@ -34,7 +43,12 @@
   function membershipActive(f=current()){
     return Boolean(f?.membership&&f.membership.start<=f.workspace.billingToday&&f.workspace.billingToday<f.membership.end);
   }
-  function capacity(){return membershipActive()?PLAN.memberGB:PLAN.freeGB;}
+  function freeCapacity() {
+    return current()?.freeGB ?? PLAN.freeGB;
+  }
+  function capacity() {
+    return membershipActive() ? PLAN.memberGB : freeCapacity();
+  }
   function storage(excluding=''){
     return (P.state.archiveAssets||[]).filter(item=>item.id!==excluding).reduce((sum,item)=>sum+(item.storageBytes||0),0)+
       P.state.stories.reduce((sum,story)=>sum+(story.houseBytes||0)+(story.houseVoice?.bytes||0),0);
@@ -119,7 +133,8 @@
     const snapshot=family=>{
       const state=Object.fromEntries(photoWorkspaceFields.map(key=>[key,family.workspace[key]]));
       state.stories=family.workspace.stories.filter(story=>story.photoToken).map(story=>({...story,houseImage:'',houseVoice:undefined}));
-      return {id:family.id,name:family.name,people:family.workspace===P.state?P.PEOPLE:family.people,state};
+      return {id:family.id,name:family.name,people:family.workspace===P.state?P.PEOPLE:family.people,
+        freeGB:family.freeGB,state};
     };
     return {active:registry.active,nextFamily:registry.nextFamily,example:snapshot(registry.example),families:registry.families.map(snapshot)};
   }
@@ -134,7 +149,9 @@
         stories.set(story.id,{...seed,...story,houseImage:seed?.houseImage||(story.houseBytes?'':samplePhoto)});
       }
       workspace.stories=[...stories.values()];
-      return {id:family.id,name:family.name,workspace,people:family.people,orders:[],books:[],membership:null};
+      // 试点前的快照未保存免费额度，恢复时沿用原有的 2 GB。
+      return {id:family.id,name:family.name,workspace,people:family.people,orders:[],books:[],
+        membership:null,freeGB:family.freeGB??PLAN.legacyFreeGB};
     };
     const example=restore(snapshot.example,registry.example.workspace);
     // 旧联调快照没有示例宝宝的生日，保留已有修改并补齐新增的示例字段。
@@ -808,19 +825,20 @@
       <p>家庭总容量 ${capacity()} GB${active?' · 本期剩余故事册 '+(PLAN.books-activeBooks(f).length)+' 本':''}</p>
       ${active?'<p class="caption">有效至 '+e(f.membership.end)+'</p>':''}<p class="caption">当前已用 ${(storage()/1024**2).toFixed(1)} MB</p>
       ${toolbar(active?jump('打开家庭故事册','house-book',true):action('模拟开通家庭会员','house-checkout',true))}</section>`+
-      entitlementCards()+toolbar(jump('查看服务订单','service-orders'),jump('查看独立增值服务','house-addons')));
+      entitlementCards()+toolbar(jump('查看服务订单','service-orders')));
   }
   function entitlementCards(){
-    return card('免费 · 2 GB','家谱与溯源、家训、人物档案、邀请家人、共同往事、资料核对、本人留言、授权、收藏和故事册预览。')+
-      card('家庭会员 · 20 GB','全家共享 20 GB 总容量，可体验文字整理，每会员年可保存 2 本电子家庭故事册，已保存的册子可回看和另存 PDF。')+
-      card('独立增值服务','AI 人生故事片、数字人创建、VR 房间建模和人工纪念书分别咨询或购买，按交付内容和授权开放。');
+    return card(`免费家庭 · ${freeCapacity()} GB`,
+      '建家、发照片、邀请家人回语音。原声可以从照片下回听，也可按家人找往事、预览故事册。')+
+      card(`家庭会员 · ${PLAN.memberGB} GB`,
+        `一位家人开通，获授权的家人共享。每会员年可保存 ${PLAN.books} 本电子故事册，有录音的页可回听，图文可另存 PDF。拟每年提供 ${PLAN.plannedAudioHours} 小时录音转写与整理，家人核对后可搜索往事。`)+
+      card('到期与续费',
+        '第二年有新照片和录音想整理时，可以续费。到期后恢复本家的免费额度，超额时暂停新增文件。已有照片、语音和故事册仍可在授权范围内回看。');
   }
   function pricing(){
     const family=current();
-    const screenPlan=card('爸妈大屏硬件',`拟按台一次性购机，设备售价待核算。免费家庭和会员家庭均可绑定，使用投照片、回语音和吃药提醒等基础联动。家庭会员可按需加开，每家每年 ${PLAN.price} 元。`,
-      family?toolbar(jump('体验爸妈大屏','house-screen')):'');
-    return page('家庭服务收费',`基础家庭免费，家庭会员每家每年 ${PLAN.price} 元。`,entitlementCards()+screenPlan+
-      toolbar(jump(family?'查看家庭会员':'免费创建家庭',family?'membership':'house-create',true),jump('查看独立增值服务','house-addons')));
+    return page('家庭服务收费',`试点新家庭免费共享 ${PLAN.freeGB} GB，家庭会员 ${PLAN.price} 元／家／年。`,
+      entitlementCards()+toolbar(jump(family?'查看家庭会员':'免费创建家庭',family?'membership':'house-create',true)));
   }
   function addons(){
     return page('家庭增值服务','每项单独咨询和交付，免费家庭也可选购。',Object.entries(services).map(([key,value])=>
@@ -1006,7 +1024,7 @@
       submitButton.disabled=true;
       const id='home-'+(++registry.nextFamily);
       registry.families.push({id,name,people:{father:{name:person,short:person.slice(0,1),relation:'家庭管理人',color:'sand'}},
-        workspace:P.initialState(false),orders:[],books:[],membership:null});
+        workspace:P.initialState(false),orders:[],books:[],membership:null,freeGB:PLAN.freeGB});
       selectHouse(id,'house-record/photo');
       return true;
     }
