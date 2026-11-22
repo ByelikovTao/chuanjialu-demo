@@ -1,15 +1,57 @@
 /** 故里只提供老家全景、年代对照和故事物件交互。 */
 'use strict';
 {
-  const P=window.App,T=window.MemoryThree;
+  const P=window.App;
   const {icon:i,button:b,escape:e}=P;
   const ITEMS={desk:{label:'旧书桌',title:'那张一直没换的书桌',text:'很多故事，就从这扇窗边开始。',source:'old-home'},radio:{label:'收音机',title:'晚饭后的收音机',text:'关于这台收音机、晚饭后听过什么节目，现有记录还没有讲清楚。可以先看看同一老宅的相关资料，或把问题留给本人补充。',source:'old-home',sourceLabel:'查看老宅相关记录'},photo:{label:'全家福',title:'墙上的那张全家福',text:'走向不同的城市之后，这个家仍把我们连在一起。',source:'spring'}};
   const STOPS={entry:{x:0,z:2.12,yaw:0,pitch:-.06},desk:{x:.65,z:-.18},radio:{x:-.75,z:-.65},photo:{x:-.3,z:-1.52}};
   /** 故里仅保留全景观察入口，不再允许切换模型全览或室内漫游。 */
   const MODE_NAMES={tour:'看看老家'};
+  const YEARS = ['1986', '2000', '现在'];
+  let T;
+  let roomRuntime;
   let active=null;
   let mountRequest=0;
   const CAMERA_ACTIONS=['space-focus','space-step','space-zoom','space-reset'];
+  /** 使用经典脚本保留离线打开能力；成功的依赖在重试时直接复用。 */
+  function loadRoomScript(src, property) {
+    if (window[property]) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      const finish = () => {
+        script.remove();
+        if (window[property]) resolve();
+        else reject(new Error('故里脚本加载失败：' + src));
+      };
+      script.src = src;
+      script.onload = finish;
+      script.onerror = finish;
+      document.head.append(script);
+    });
+  }
+  /** 首次进入故里才加载三维引擎。同一轮挂载和重试共用依赖加载结果。 */
+  function loadRoomRuntime() {
+    if (!roomRuntime) {
+      roomRuntime = (async () => {
+        await loadRoomScript('vendor/three.global.js', 'MemoryThree');
+        T = window.MemoryThree;
+        const results = await Promise.allSettled([
+          loadRoomScript('room-assets.js', 'MemoryRoomAssets'),
+          loadRoomScript('room-materials.js', 'MemoryRoomMaterials'),
+          loadRoomScript('room-tour.js', 'MemoryRoomTour'),
+          loadRoomScript('room-renderer.js', 'MemoryRoomRenderer'),
+          loadRoomScript('room-furniture.js', 'MemoryRoomParts')
+            .then(() => loadRoomScript('room-model.js', 'MemoryRoomModel'))
+        ]);
+        const failure = results.find(result => result.status === 'rejected');
+        if (failure) throw failure.reason;
+      })().catch(error => {
+        roomRuntime = undefined;
+        throw error;
+      });
+    }
+    return roomRuntime;
+  }
   /** 空间与数字人共用当前账号的亲属称呼，本人查看时使用中性操作文案。 */
   function familyLabels() {
     const role=P.relation('father'),name=role==='家人'?P.PEOPLE.father.name:role;
@@ -27,8 +69,8 @@
   function enter() {settings().dockCollapsed=true;}
   /** 物件名称和模型可展示；故事正文与来源入口按当前账号对关联记录的权限即时核对。 */
   function storyContent() {
-    const era=window.MemoryRoomModel.ERAS[P.state.year],detail=settings().mode==='tour'?era.detail:era.modelDetail,labels=familyLabels();
-    if(!P.state.spaceStoryOpen)return `<div class="memory-welcome"><div><span class="memory-kicker">${P.state.year} · 同一个家的不同年代</span><h2>${era.title}</h2><p>${detail}</p></div>${b(i('play')+' '+e(labels.guide),'scene-guide','btn full')}<span class="memory-demo-note">AI 全景与三维模型示例 · 依据回忆复原</span></div>`;
+    const era=window.MemoryRoomModel?.ERAS[P.state.year],detail=settings().mode==='tour'?era?.detail:era?.modelDetail,labels=familyLabels();
+    if(!P.state.spaceStoryOpen)return `<div class="memory-welcome"><div><span class="memory-kicker">${P.state.year} · 同一个家的不同年代</span><h2>${era?.title || '老家的客厅'}</h2>${detail ? `<p>${detail}</p>` : ''}</div>${b(i('play')+' '+e(labels.guide),'scene-guide','btn full')}<span class="memory-demo-note">AI 全景与三维模型示例 · 依据回忆复原</span></div>`;
     const id=ITEMS[P.state.hotspot]?P.state.hotspot:'desk',item=ITEMS[id],readable=P.visibleStories().some(story=>story.id===item.source);
     const source=readable?b(i('source')+' '+e(item.sourceLabel || '查看原始记录'),'listen','btn secondary compact',`data-id="${item.source}"`):P.link('申请查看相关故事','story/'+item.source,'btn secondary compact');
     return `<div class="scene-sheet"><div class="memory-sheet-heading"><div><p class="memory-kicker">${P.state.year} · ${P.state.guide?'跟随讲述':'物件里的故事'}</p><h2>${readable?item.title:item.label}</h2></div>${b(i('close'),'space-close-story','icon-button','aria-label="收起故事面板"')}</div><p>${readable?item.text:'关联故事暂未向当前账号开放。可以向记录本人申请查看。'}</p><div class="memory-story-actions">${source}${b('查看物件','space-focus','btn outline compact',`data-value="${id}" ${cameraReady()?'':'disabled'}`)}${P.state.guide?b('下一处 '+i('arrow'),'space-next','text-link'):''}</div>${b(i('chat')+' '+e(labels.ask),'ask-space','btn full',`data-id="${id}"`)}<span class="memory-demo-note">AI 全景与三维模型示例，不代表真实老宅扫描</span></div>`;
@@ -52,7 +94,7 @@
       <div id="memory-viewport" class="memory-viewport"><p class="memory-loading">正在打开这间有故事的老屋…</p></div>
       <div class="memory-top"><div class="scene-title"><h1>回忆里的家</h1><p>老家的客厅 · <span id="memory-year">${P.state.year}</span> · 记忆复原示例</p></div>
         <div class="memory-mode-picker" aria-label="空间观察方式">${Object.entries(MODE_NAMES).map(([id,label])=>b(label,'space-mode',s.mode===id?'active':'',`data-value="${id}"`)).join('')}</div>
-        <div class="memory-toolbar"><div class="era-picker" aria-label="年代示意">${['1986','2000','现在'].map(y=>b(y,'scene-year',P.state.year===y?'active':'',`data-value="${y}"`)).join('')}</div>${b('⤢','space-fullscreen','memory-icon-button','aria-label="全屏查看三维空间" title="全屏查看"')}</div></div>
+        <div class="memory-toolbar"><div class="era-picker" aria-label="年代示意">${YEARS.map(y=>b(y,'scene-year',P.state.year===y?'active':'',`data-value="${y}"`)).join('')}</div>${b('⤢','space-fullscreen','memory-icon-button','aria-label="全屏查看三维空间" title="全屏查看"')}</div></div>
       <div class="memory-hotspots">${Object.entries(ITEMS).map(([id,item])=>b(`<span></span>${item.label}`,'hotspot','hotspot '+id,`data-value="${id}" aria-pressed="${P.state.hotspot===id}"`)).join('')}</div>
       <div class="memory-bottom-tools"><div class="memory-compass" aria-hidden="true"><span id="memory-compass-needle">↑</span><small>北</small></div><div class="memory-camera-tools">${b('−','space-zoom','memory-icon-button','data-value="1" aria-label="拉远视角"')}${b('+','space-zoom','memory-icon-button','data-value="-1" aria-label="拉近视角"')}${b('↑','space-step','memory-icon-button','aria-label="向前走一步"')}${b(i('home'),'space-reset','memory-icon-button','aria-label="回到入口视角"')}${b('物件','space-objects','memory-icon-button memory-objects','aria-label="选择有故事的物件"')}</div></div>
       <div id="memory-story-dock" class="memory-story-dock">${storyDock()}</div>
@@ -132,7 +174,7 @@
   }
   /** 视角保持用于年代对照；若新增家具占据当前位置，仅重置三维漫游落脚点。 */
   function changeEra(year) {
-    if(!window.MemoryRoomModel.ERAS[year])return;
+    if(!YEARS.includes(year))return;
     P.state.year=year;
     if(active){
       active.world.setEra(year);active.tour.setEra(year);
@@ -224,6 +266,9 @@
     const viewport=host.querySelector('#memory-viewport'),request=++mountRequest;let assets,renderer,scene,world,environment,tour,pipeline,ctx;
     host.dataset.renderState='loading';const retry=host.querySelector('[data-action="space-retry"]');if(retry)retry.disabled=true;syncControls();
     try{
+      await loadRoomRuntime();
+      if(request!==mountRequest || !host.isConnected)return;
+      updateDock(host);
       assets=await window.MemoryRoomAssets.load();
       if(request!==mountRequest || !host.isConnected){assets.dispose();return;}
       renderer=new T.WebGLRenderer({antialias:true,alpha:false});

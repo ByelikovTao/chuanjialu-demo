@@ -3,7 +3,7 @@
 {
   const P=window.App;
   const {icon:i,button:b,link:l,escape:e}=P;
-  /** 首页仅呈现四段阅读内容，管理与工具从既有栏目进入。 */
+  /** 首页汇总全家福、传承资料和家庭记录。 */
   function home() {return P.FamilyHomeViews.render();}
   /** 人物档案统一展示资料，人生事件在传记内部按另一种方式浏览。 */
   function life() {return P.PersonArchive.view();}
@@ -38,33 +38,40 @@
     const save=b(i('star')+(saved?' 已收藏':' 收藏'),'save-story','btn outline',`aria-pressed="${saved}"`);
     const source=item.moment&&!item.text.length?'':b('查看原始记录 '+i('arrow'),'source','text-link',`data-id="${e(item.id)}"`);
     const ask=P.PhotoStories.askButton(item);
-    const dateLabel=date?`<p class="caption">${e(date)}</p>`:'';
-    return `<article class="page archive-detail story-detail">
-      ${storyBack(item)}
-      <p class="eyebrow section">${item.babyMilestone?(item.growthSample?'宝宝成长 · 示例':'宝宝成长 · 里程碑'):item.lifeMilestone?'人生节点':item.photoToken?'照片往事':'家庭往事'}</p>
+    const journal = s.homeDiaryStory;
+    const diaryPage = journal ? P.FamilyJournal.diaryStoryPage(item) : null;
+    const dateLabel = journal
+      ? `<p class="caption journal-byline">${e([date || item.recorded, P.FamilyJournal.diaryByline(item)].filter(Boolean).join(' · '))}</p>`
+      : date ? `<p class="caption">${e(date)}</p>` : '';
+    const article = `<article class="page archive-detail story-detail${journal ? ' bound-paper journal-sheet journal-story diary-leaf' : ''}">
+      ${journal ? '' : storyBack(item) +
+        `<p class="eyebrow section">${item.babyMilestone?(item.growthSample?'成长记 · 示例':'成长记 · 里程碑'):item.lifeMilestone?'人生节点':item.photoToken?'照片往事':'家庭往事'}</p>`}
       <h1 class="page-title">${e(title)}</h1>
       ${ask?`<div class="story-ask-heading">${dateLabel}${ask}</div>`:dateLabel}
       ${storyMedia(item)}
-      <div data-screen-story-tools>${P.HouseScreen.photoButton(item)}${P.HouseScreen.voices(item)}</div>
       ${quote||text?`<div class="section">${quote}${text}</div>`:''}
+      ${journal ? P.Households.replyPanel(item, true) : ''}
+      ${diaryPage?.navigation || ''}
+      <div data-screen-story-tools>${P.HouseScreen.photoButton(item)}${P.HouseScreen.voices(item)}</div>
       ${P.FamilyMoment.playback(item)}${P.PhotoStories.region(item)}
       <div class="story-tools section">${read}${save}</div>
       ${read?'<p class="caption">示例朗读由系统声音生成。</p>':''}
       ${meta}
       <div class="note"><strong>资料来源</strong><p>${e(item.source)}</p>${source}</div>
       ${item.author===s.actor&&!item.photoToken?b(i('share')+' 调整分享范围','share-story','text-link section'):''}
-      ${P.PersonArchive.storyMaterials(item)}${familyPerspective(item)}${P.Households.replyPanel(item)}
+      ${P.PersonArchive.storyMaterials(item)}${familyPerspective(item)}${journal ? '' : P.Households.replyPanel(item)}
     </article>`;
+    return diaryPage ? P.FamilyJournal.diaryBook('entry', diaryPage.number, article) : article;
   }
   function storyBack(item){
     const previous=P.state.history?.at(-1)?.split('/')[0];
     const albumLabel={'house-baby':'返回成长相册','house-elders':'返回有声相册'}[previous];
     if(P.Households.fromStoryList())return b(i('back')+' '+(albumLabel||'返回记录'),'back','text-link');
     if(previous==='home')return b(i('back')+' 返回我家','back','text-link');
-    if(previous==='house-assistant')return b(i('back')+' 返回AI助手','back','text-link');
+    if(previous==='house-assistant')return b(i('back')+' 返回'+P.FamilyAssistant.title,'back','text-link');
     if(previous==='archive-item')return b(i('back')+' 返回档案资料','back','text-link');
     if(!previous||item.fromFamily||item.photoToken)return l(i('back')+' 返回记录',item.scope==='private'?'house-stories/personal/recent':'house-stories','text-link');
-    if(previous==='life')return b(i('back')+' 返回人生传记 · 按事件浏览','archive-events','text-link',`data-person="${e(item.commonWith||item.subject)}"`);
+    if(previous==='life')return b(i('back')+' 返回传记 · 按事件浏览','archive-events','text-link',`data-person="${e(item.commonWith||item.subject)}"`);
     return b(i('back')+' 返回上一页','back','text-link');
   }
   function storyScope(item){
@@ -87,7 +94,7 @@
         media=`<img src="${e(photo.src||photo.poster)}" alt="${e(photo.title)}"><figcaption>${e(photo.sourceLabel)}</figcaption>`;
       }else if(item.id==='first-order'){
         // 口述场景插画保留 AI 配图标记，来源栏继续引用原口述记录。
-        media='<img src="assets/zhumen/story-oral-scene.png" alt="老办公室里的电话"><figcaption>口述故事配图 · AI 生成场景示例</figcaption>';
+        media='<img src="assets/zhumen/story-oral-scene.webp" alt="老办公室里的电话"><figcaption>口述故事配图 · AI 生成场景示例</figcaption>';
       }
     }
     return media?`<div class="archive-player section"><figure class="archive-photo-detail">${media}</figure></div>`:'';

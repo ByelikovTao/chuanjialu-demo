@@ -83,9 +83,9 @@
     </select></label>`;
     P.modal(group ? '添加' + group.label : '添加家庭成员', `<form id="tree-member-form" class="heritage-editor" data-feature-form${group ? ` data-group="${groupId}"` : ''}>
       ${group ? relationField + nameField : nameField + relationField}
-      <p class="heritage-caption">先记入族谱，之后可邀请本人认领。</p>
+      <p class="heritage-caption">先记入家谱，之后可邀请本人认领。</p>
       <p class="heritage-form-error" role="alert"></p>
-      <button type="submit" class="btn full">添加到族谱</button>
+      <button type="submit" class="btn full">添加到家谱</button>
     </form>`);
   }
   /** 录入族谱人物时只写入关系与姓名，认领和查看授权仍由原有邀请流程处理。 */
@@ -112,7 +112,7 @@
       nextAdd?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
       nextAdd?.focus({ preventScroll: true });
     }
-    P.toast('已添加到家族谱系。');
+    P.toast('已添加到家谱。');
     return true;
   }
   function handleAction(action, element) {

@@ -2,9 +2,9 @@
 .photo-demo [hidden]{display:none!important}
 .photo-demo{background:#EAE1D4}
 .photo-layout{min-height:100dvh;margin:auto;display:flex;justify-content:center;align-items:flex-start;padding:40px 24px}
-.photo-screen{width:min(100%,460px);border:1px solid #D3BAA5;border-radius:24px;overflow:hidden;background:var(--canvas) url("assets/zhumen/ivory-rice-paper.png") center top/700px auto;background-blend-mode:soft-light;box-shadow:0 18px 50px #632D2016}
+.photo-screen{width:min(100%,460px);border:1px solid #D3BAA5;border-radius:24px;overflow:hidden;background:var(--canvas) url("assets/zhumen/ivory-rice-paper.webp") center top/700px auto;background-blend-mode:soft-light;box-shadow:0 18px 50px #632D2016}
 .photo-header{position:relative;min-height:66px;display:grid;place-items:center;padding:10px 20px;background:var(--brand);color:#FFF6E5;font-size:22px;letter-spacing:.08em;text-align:center}
-.photo-header::before{content:"";position:absolute;inset:0 0 0 auto;width:130px;background:url("assets/zhumen/header-roof.png") right center/cover no-repeat;opacity:.32;pointer-events:none}
+.photo-header::before{content:"";position:absolute;inset:0 0 0 auto;width:130px;background:url("assets/zhumen/header-roof.webp") right center/cover no-repeat;opacity:.32;pointer-events:none}
 .photo-header span{position:relative}
 #photo-content{padding:24px 22px 30px}
 .photo-page{display:grid;gap:17px}

@@ -38,7 +38,7 @@
   /** 每次阅读重新解析来源；原材料撤回后，正文、标题和缩略图不从旧快照中残留。 */
   function detail() {
     const item=ensure().find(value=>value.id===P.state.chapterId);
-    if(!readable(item))return `<div class="page empty"><h2>这个故事集暂未向你开放</h2>${l('查看我们的共同回忆','common-memories','btn')}</div>`;
+    if(!readable(item))return `<div class="page empty"><h2>这个故事集暂未向你开放</h2>${l('查看共忆集','common-memories','btn')}</div>`;
     const other=item.owner===P.state.actor?item.partner:item.owner,materials=item.refs.map(ref=>P.ContentChat.resolve(ref)).filter(Boolean);
     const notes=item.notes.filter(note=>!note.withdrawn),key=P.state.actor+':'+item.id;
     return `<div class="page feature-page"><p class="eyebrow">${e(P.PEOPLE[item.owner].name)} 与 ${e(P.PEOPLE[item.partner].name)}</p><h1 class="page-title">${e(item.title)}</h1><div class="tags">${t('仅这两位家人可见','gray')}${item.example?t('虚构示例','warm'):''}</div><p class="section feature-prose">${e(item.intro)}</p>${item.message?`<div class="note section"><strong>${e(P.PEOPLE[item.owner].name)}亲自留下的话</strong><p class="feature-prose">${e(item.message)}</p></div>`:''}${item.owner===P.state.actor?b('编辑故事集','chapter-edit','text-link section',`data-id="${item.id}"`):''}<section class="section stack"><h2>这段关系里的经历与资料</h2>${materials.length?materials.map(source=>`<article class="card"><p class="caption">${e(source.label)}</p><h3>${e(source.title)}</h3><p>${e(source.text.slice(0,180))}</p>${P.ContentChat.sourceButton(source.ref,'回看完整资料')}</article>`).join(''):'<p class="caption">尚无向你开放的关联资料，可以请原作者选择分享。</p>'}</section><section class="section stack"><h2>我们各自记得的细节</h2>${notes.length?notes.map(note=>`<article class="card"><strong>${e(P.PEOPLE[note.author].name)}的讲述</strong><p class="feature-prose">${e(note.text)}</p>${note.author===P.state.actor?b('撤回我的这段补充','chapter-note-withdraw','text-link',`data-id="${item.id}" data-note="${note.id}"`):''}</article>`).join(''):'<p class="caption">同一件事，也可以留下不同的感受。</p>'}<form id="chapter-note-form" data-feature-form data-actor="${P.state.actor}" data-id="${item.id}"><div class="form-field"><label for="relationship-field-text">补上我记得的一面</label><textarea id="relationship-field-text" name="text" maxlength="2000" required>${e(P.state.chapterNoteDrafts[key]||'')}</textarea></div><p class="caption">这段补充会向 ${e(P.PEOPLE[other].name)}展示，保留你的讲述者身份，不改写对方的寄语或经历。</p><button type="submit" class="btn full">把我的这段回忆留在这里</button></form></section></div>`;
@@ -81,7 +81,7 @@
     const hidden=existing?.refs.filter(ref=>!P.ContentChat.resolve(ref))||[];
     const item={id:r.id||P.nextId('chapter'),owner:P.state.actor,partner:r.partner,title:r.title.trim(),intro:r.intro.trim(),message:r.message.trim(),refs:[...selected,...hidden],notes:existing?.notes||[],example:false};
     if(existing)Object.assign(existing,item);else ensure().push(item);
-    form.featureState=null;P.state.chapterDrafts[P.state.actor]=null;P.navigate('common-memories');P.toast('故事集已保存在我们的共同回忆中，仅这两位家人可见。');return true;
+    form.featureState=null;P.state.chapterDrafts[P.state.actor]=null;P.navigate('common-memories');P.toast('故事集已存入共忆集，仅这两位家人可见。');return true;
   }
   /** 更换家人后清除原选择，已有文字仍保留，避免把上一对关系的资料误带过去。 */
   document.addEventListener('change',event=>{if(event.target.closest('#chapter-form')&&event.target.name==='partner'){capture();draft().keys=[];P.render();}});

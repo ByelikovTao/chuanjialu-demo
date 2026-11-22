@@ -46,7 +46,7 @@
       description:r.description.trim(),body:r.body.trim()?[r.body.trim()]:[],scope:r.scope,viewers:viewers(r),
       relatedMembers:P.Households.relatedMemberIds(r),fromFamily:Boolean(r.fromFamily),
       relatedStoryId:r.storyId||'',relatedFilmId:r.relatedFilmId||'',
-      poster:image?(r.file?.data||'assets/zhumen/record-writing-corner.png'):'assets/family.png',
+      poster:image?(r.file?.data||'assets/zhumen/record-writing-corner.webp'):'assets/family.webp',
       src:r.file?.data||'',fileName:r.file?.name||'',fileType:r.file?.type||'',fileBytes:r.file?.size||0,
       duration:Number(r.duration)||0,sourceLabel:P.PEOPLE[author].name+'提供 · 本地补充资料',
       materialManaged:true,storageBytes:contentBytes(r),confirmedBy:null
@@ -119,7 +119,7 @@
     const descriptions={drafts:'尚未提交的内容和退回更正的原稿，可以继续完善。',pending:'已提交给本人，确认后会进入对应档案。',archived:'已确认保存的资料与人生经历，沿用原分享范围。'};
     const empty={drafts:'没有未完成的草稿。',pending:'没有等待本人核对的资料。',archived:'还没有已归档的内容。'};
     const tabs=Object.entries(STAGES).map(([key,label])=>b(`<span>${label}</span><small>${groups[key].length}</small>`,'material-stage',key===stage?'active':'',`data-stage="${key}" role="tab" id="material-tab-${key}" aria-controls="material-stage-panel" aria-selected="${key===stage}"`)).join('');
-    return `<div class="page feature-page"><h1 class="page-title">我提交的资料</h1><p class="page-subtitle">草稿、核对进度和归档结果，分开查看。</p><div class="material-stage-tabs" role="tablist" aria-label="提交进度">${tabs}</div><section id="material-stage-panel" class="material-stage-panel" role="tabpanel" aria-labelledby="material-tab-${stage}"><p class="caption">${descriptions[stage]}</p><div class="section stack">${groups[stage].join('')||`<div class="empty"><p>${empty[stage]}</p></div>`}</div></section>${l('去人生印记添加资料','life','text-link full section')}<p class="caption section">演示内容只保存在当前页面，刷新或重置会还原。</p></div>`;
+    return `<div class="page feature-page"><p class="page-subtitle">草稿、核对进度和归档结果，分开查看。</p><div class="material-stage-tabs" role="tablist" aria-label="提交进度">${tabs}</div><section id="material-stage-panel" class="material-stage-panel" role="tabpanel" aria-labelledby="material-tab-${stage}"><p class="caption">${descriptions[stage]}</p><div class="section stack">${groups[stage].join('')||`<div class="empty"><p>${empty[stage]}</p></div>`}</div></section>${l('去人生印记添加资料','life','text-link full section')}<p class="caption section">演示内容只保存在当前页面，刷新或重置会还原。</p></div>`;
   }
   /** 保存或提交后直接显示对应阶段；切换选择只属于当前账号。 */
   function open(stage){if(!Object.hasOwn(STAGES,stage))return;P.state.materialTabs[P.state.actor]=stage;P.navigate('materials');}
@@ -136,8 +136,8 @@
     if(item.status==='pending')status='等待本人核对';
     else if(item.status==='returned')status='已退回更正';
     else if(item.commonWith&&!P.FamilyContext.inArchive(item,target))status=item.scope==='private'?'仅自己保存':item.inclusions?.[target]?.reviewed?'未纳入对方传记':'等待对方确认';
-    const actions=reviewing?b('确认并归档','approve-pending','btn secondary',`data-id="${item.id}"`)+b('退回更正','return-pending','text-link',`data-id="${item.id}"`):item.status==='returned'?b('按意见更正','edit-pending','text-link',`data-id="${item.id}"`):!item.status?l('查看人生经历','story/'+item.id,'text-link'):'';
-    return `<article class="card"><h3>${e(item.title)}</h3><p class="caption">${item.commonWith?'共同回忆':'人生经历'} · ${e(P.PEOPLE[target].name)} · ${status} · ${item.scope==='private'?'仅自己':item.scope==='selected'?'指定家人':'家庭可见'}</p><p class="feature-prose">${e(item.text.join('\n\n'))}</p>${item.feedback?`<p>${e(item.feedback)}</p>`:''}${actions}</article>`;
+    const actions=reviewing?b('确认并归档','approve-pending','btn secondary',`data-id="${item.id}"`)+b('退回更正','return-pending','text-link',`data-id="${item.id}"`):item.status==='returned'?b('按意见更正','edit-pending','text-link',`data-id="${item.id}"`):!item.status?l('查看这段经历','story/'+item.id,'text-link'):'';
+    return `<article class="card"><h3>${e(item.title)}</h3><p class="caption">${item.commonWith?'共同回忆':'经历'} · ${e(P.PEOPLE[target].name)} · ${status} · ${item.scope==='private'?'仅自己':item.scope==='selected'?'指定家人':'家庭可见'}</p><p class="feature-prose">${e(item.text.join('\n\n'))}</p>${item.feedback?`<p>${e(item.feedback)}</p>`:''}${actions}</article>`;
   }
   /** 家庭入口按上传人保存，预选的关联人物只用于浏览。人物档案入口继续按本人核对。 */
   function begin(el,discard=false) {
@@ -394,7 +394,7 @@
     if(item.status==='accepted'&&r.babyMember){
       if(P.state.history?.at(-1)?.split('/')[0]==='house-baby')P.back();
       else P.navigate('house-baby/'+r.babyMember,{replace:true});
-      P.toast('已保存到宝宝成长。');
+      P.toast('已保存到成长记。');
     }else if(item.status==='accepted'&&r.fromFamily&&r.kind==='work'){
       P.Households.openStoryList({person:r.subject,section:'work'});
       P.toast('已保存到作品。');
@@ -404,7 +404,7 @@
       const privateSection={photo:'photo',clip:'video'}[r.kind]||'recent';
       P.Households.openStoryList(r.scope==='private'?{person:r.subject,section:privateSection}:
         {person:related[0],family:related.length!==1});
-      P.toast(r.scope==='private'?'已保存到个人档案。':'已保存到往事。');
+      P.toast(r.scope==='private'?'已保存到人物志。':'已保存到往事。');
     }else{
       open(item.status==='accepted'?'archived':'pending');
       P.toast(item.status==='accepted'?'资料已进入对应人物档案。':'已提交本人核对，尚未向其他家人开放。');

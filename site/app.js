@@ -2,12 +2,12 @@
 'use strict';
 {
   const P=window.App;
-  const {icon:i,button:b,link:l,avatar:a}=P;
+  const {icon:i,button:b,link:l,avatar:a,escape:e}=P;
   /** 底栏和侧栏共用栏目定义，第四项可指定实际入口，第一项用于判断栏目选中状态。 */
   const MAIN_TABS = [
     ['home', 'house', '我家'],
     ['house-stories', 'notebook', P.Households.titles['house-stories'], 'house-stories/personal'],
-    ['house-assistant', 'sparkles', 'AI助手'],
+    ['house-assistant', 'sparkles', P.FamilyAssistant.title],
     ['house-picks', 'shoppingBag', '优选'],
     ['profile', 'user', '我的']
   ];
@@ -16,20 +16,20 @@
   const ROUTE_NAMES={life:'人物档案',story:'往事详情',chat:'互动数字人',space:'故里 VR',family:'家庭关系',record:'记录一刻',review:'内容确认',membership:'家庭会员',invitation:'加入家庭',settings:'分享与阅读',saved:'我的收藏'};
   Object.assign(ROUTE_NAMES, P.Households.titles);
   for (const [route, , label] of MAIN_TABS) ROUTE_NAMES[route] = label;
-  const NOTES={home:['看见这个家，读懂这一生','从家训和家族世系开始，往下可查看最近记录和新回复。'],life:['像一本继续写的书','同一事件关联影像、原声与物件。事件时间、记录时间与分享对象分别说明。'],story:['让回忆能被追问','内容来源和确认状态分开表达，仍然可以围绕当前故事继续交流。'],chat:['听得熟悉，也能核对','示例回答区分记录整理、AI 推演与资料不足。语音仅演示交互，不调用麦克风。'],space:['走进他生活过的地方','点击物件、切换年代、跟随讲述。所有历史场景和变化均为示意。'],family:['关系不等于权限','加入家庭、认领人物、确认关系分别核对。新成员不会自动获得指定的私人资料。'],record:['一句话也值得留下','支持真实文字输入与录制状态演示。先保存草稿，再决定是否分享。'],review:['确认之后，再留下','家人补充他人的经历进入待确认，本人确认后保留原讲述者。'],profile:['身份与权益分开','当前账号、家庭角色、个人额度与数字人服务各自表达。'],membership:['一家人共享会员','249 元／家／年，20 GB 家庭总容量和年度 2 本电子故事册。'],invitation:['模拟受邀人视角','确认加入后切换到这位家人的示例账号。'],settings:['分享，由本人决定','分享范围属于个人内容。与另一个人的亲属关系不会自动改变范围。'],saved:['留住想再听一次的话','收藏只展示当前仍然可以访问的故事。']};
+  const NOTES={home:['看见这个家，读懂这一生','从家训和家谱开始，往下可查看家事和新回复。'],life:['像一本继续写的书','同一事件关联影像、原声与物件。事件时间、记录时间与分享对象分别说明。'],story:['让回忆能被追问','内容来源和确认状态分开表达，仍然可以围绕当前故事继续交流。'],chat:['听得熟悉，也能核对','示例回答区分记录整理、AI 推演与资料不足。语音仅演示交互，不调用麦克风。'],space:['走进他生活过的地方','点击物件、切换年代、跟随讲述。所有历史场景和变化均为示意。'],family:['关系不等于权限','加入家庭、认领人物、确认关系分别核对。新成员不会自动获得指定的私人资料。'],record:['一句话也值得留下','支持真实文字输入与录制状态演示。先保存草稿，再决定是否分享。'],review:['确认之后，再留下','家人补充他人的经历进入待确认，本人确认后保留原讲述者。'],profile:['身份与权益分开','当前账号、家庭角色、个人额度与数字人服务各自表达。'],membership:['一家人共享会员','249 元／家／年，20 GB 家庭总容量和年度 2 本电子故事册。'],invitation:['模拟受邀人视角','确认加入后切换到这位家人的示例账号。'],settings:['分享，由本人决定','分享范围属于个人内容。与另一个人的亲属关系不会自动改变范围。'],saved:['留住想再听一次的话','收藏只展示当前仍然可以访问的故事。']};
   NOTES.welcome=['从一件家庭往事开始','免费建家、邀请家人，再把同一件事的几份讲述编成故事册。'];
-  NOTES.home=[ROUTE_NAMES.home,'家训、姓氏源流、家族寻根、家族谱系、家中留影和家中近事。家族谱系可切换到示例登录城市地图。'];
-  NOTES['house-assistant'] = ['AI助手', '在当前家庭已分享的资料中提问，回答附原记录。'];
+  NOTES.home=[ROUTE_NAMES.home,'从全家福读起，浏览家训、姓源、家史、家谱、留影和家事。'];
+  NOTES['house-assistant'] = [ROUTE_NAMES['house-assistant'], '在当前家庭已分享的资料中提问，回答附原记录。'];
   NOTES['house-picks'] = ['优选', '按分类浏览家庭示例商品，点开看规格与演示价。'];
   NOTES.space=['走进同一个家的不同年代','“看看老家”环顾熟悉的角落，可切换年代、缩放视角和查看物件故事。仅保留全景观察；场景均为示例素材。'];
   NOTES.chat=['和熟悉的人，慢慢聊','二维人像待机会眨眼点头，回应时身体前倾并出现演示口型，讲完缓缓回正。资料追问与纠正保留；没有三维、麦克风或实时语音驱动。'];
   ROUTE_NAMES.welcome='首次进入';
-  ROUTE_NAMES['chat-messages']='数字人反馈';ROUTE_NAMES.questions='家人留言';NOTES.questions=['家人留言','从对应的往事查看和回复。'];
+  ROUTE_NAMES['chat-messages']='数字人反馈';ROUTE_NAMES.questions='家人留话';NOTES.questions=['家人留话','从对应的往事查看和回复。'];
   ROUTE_NAMES['archive-item']='档案资料';
-  NOTES.life=['资料分类与探索视角分开','视频、照片、人生传记、作品只保留一套入口；总览仅作预览，记忆地点标明空间是否开放，事件资料沿用原记录。'];
+  NOTES.life=['资料分类与探索视角分开','视频、照片、传记、作品只保留一套入口；总览仅作预览，足迹标明空间是否开放，事件资料沿用原记录。'];
   NOTES['archive-item']=['每份资料都有自己的查看页','视频可播放，照片可翻页，书信在对应事件中阅读与追问。书信同时检查自身和所属事件的授权。'];
   // 三项新功能沿用档案与我的归属，不增加底部主栏目。
-  Object.assign(ROUTE_NAMES,{materials:'我提交的资料','material-inbox':'待我核对','material-edit':'整理资料','material-review':'资料核对',corrections:'纠正TA的回答','correction-edit':'提交纠正','correction-review':'本人核对','chapter-edit':'整理故事集',chapter:'共同回忆故事集'});
+  Object.assign(ROUTE_NAMES,{materials:'我提交的资料','material-inbox':'待我核对','material-edit':'整理资料','material-review':'资料核对',corrections:'纠正TA的回答','correction-edit':'提交纠正','correction-review':'本人核对','chapter-edit':'整理故事集',chapter:'共忆集详情'});
   Object.assign(TAB_PARENTS,{materials:'profile','material-inbox':'profile','material-edit':'house-stories','material-review':'house-stories',corrections:'profile','correction-edit':'profile','correction-review':'profile','chapter-edit':'profile',chapter:'profile'});
   NOTES.materials=['每份提交都有进度','从具体分类添加，提交与核对在我的处理；分享遵循原有成员范围。'];
   NOTES['material-inbox']=['确认之后，再归档','只显示交给当前档案本人核对的资料与人生经历。'];
@@ -42,29 +42,42 @@
   Object.assign(ROUTE_NAMES,{books:'我的纪念书','book-edit':'制作纪念书','book-preview':'书稿预览','book-order':'纪念书制作进度'});
   Object.assign(TAB_PARENTS,{books:'profile','book-edit':'house-stories','book-preview':'house-stories','book-order':'profile'});
   for(const route of ['books','book-edit','book-preview','book-order'])NOTES[route]=['把人生留成一本书','选材授权、本人定稿、实物打样与分阶段收费；编辑和印厂进度仅由原型工具模拟，未生成真实 PDF、支付或物流。'];
-  Object.assign(ROUTE_NAMES,{'family-permissions':'人生空间的授权','common-memories':'我们的共同回忆'});
+  Object.assign(ROUTE_NAMES,{'family-permissions':'人生空间的授权','common-memories':'共忆集'});
   Object.assign(TAB_PARENTS,{'family-permissions':'profile','common-memories':'profile'});
   Object.assign(ROUTE_NAMES,{'billing-plan':'收费方案','service-orders':'服务订单'});
   Object.assign(TAB_PARENTS,{'billing-plan':'profile','service-orders':'profile'});
   // 个人中心只保留分组入口，二级页与其返回路径统一归属我的。
-  Object.assign(ROUTE_NAMES,{'profile-materials':'资料与核对','profile-family':'我的家庭','profile-keepsakes':'纪念与收藏','profile-services':'服务与订单'});
+  Object.assign(ROUTE_NAMES,{'profile-materials':'家档核对','profile-family':'我们一家','profile-keepsakes':'珍藏','profile-services':'服务与订单'});
   for(const route of ['profile-materials','profile-family','profile-keepsakes','profile-services']){TAB_PARENTS[route]='profile';NOTES[route]=['按需展开，清楚好找','从我的分组进入原有功能；账号、资料、授权和服务规则保持原有机制。'];}
+  // 「我的」可直接打开的内页共用家册样式，资料草稿也可从「我的」直达。
+  const PROFILE_SECONDARY_ROUTES = new Set([
+    'settings', 'house-switch', 'membership', 'profile-family', 'profile-materials', 'questions',
+    'profile-keepsakes', 'house-addons', 'profile-services', 'materials',
+  ]);
   // 故人共忆保留独立路由，首页的传承内容另有编辑入口。
   Object.assign(ROUTE_NAMES,{'share-memory':'故人共忆','share-preview':'分享前核对','photo-restore':'AI影像体验','share-gifts':'收到的心意'});
   Object.assign(TAB_PARENTS,{'share-memory':'home','share-preview':'home','photo-restore':'house-stories','share-gifts':'profile'});
   Object.assign(ROUTE_NAMES,{'reunion-album':'故人共忆','reunion-albums':'共忆相册'});
   Object.assign(TAB_PARENTS,{'reunion-album':'home','reunion-albums':'home'});
   ROUTE_NAMES['home-manage']='首页内容';TAB_PARENTS['home-manage']='profile';
-  NOTES['home-manage']=['整理首页内容','档案本人管理姓氏源流和家族寻根，家庭指定本人确认家训。'];
+  NOTES['home-manage']=['整理首页内容','档案本人管理姓源和家史，家庭指定本人确认家训。'];
   ROUTE_NAMES['home-motto-edit']='编辑家训';TAB_PARENTS['home-motto-edit']='profile';
   NOTES['home-motto-edit']=['整理全家共用的家训','换图后可预览，核对并确认后更新首页。'];
-  ROUTE_NAMES['home-origin']='家族寻根';TAB_PARENTS['home-origin']='home';
-  NOTES['home-origin']=['家族寻根','沿时间轴读家族线索，文末可查看资料来源。'];
+  ROUTE_NAMES['home-origin']='家史';TAB_PARENTS['home-origin']='home';
+  NOTES['home-origin']=['家史','从目录选择一篇，也可以按时间顺序翻阅。'];
+  Object.assign(ROUTE_NAMES, {'home-surname':'姓源', 'home-album':'家庭相册', 'home-diary':'家事'});
+  const homeReaders = ['home-origin', 'home-surname', 'home-album', 'home-diary'];
+  homeReaders.forEach(route => { TAB_PARENTS[route] = 'home'; });
+  Object.assign(NOTES, {
+    'home-album': ['家庭相册', '翻页看全家共享的照片，点开后可查看原记录。'],
+    'home-diary': ['家事', '按记录时间回看日记，也可以在原记录上补一笔。'],
+    'home-surname': ['姓源', '家人确认的记录与公开姓氏资料附有各自的来源。']
+  });
   ROUTE_NAMES['film-delivery']='我的纪录片';TAB_PARENTS['film-delivery']='home';
   NOTES['film-delivery']=['验证后直达自己的纪录片','只显示当前账号已交付的正片，播放进度与首页和档案详情共用。'];
-  ROUTE_NAMES['house-screen']='爸妈大屏';
+  ROUTE_NAMES['house-screen']='爸妈的相框';
   Object.assign(TAB_PARENTS,{'house-create':'profile','house-add':'house-stories','house-record':'house-stories','house-moment':'house-stories','house-story':'house-stories','house-baby':'house-stories','house-elders':'house-stories','house-book':'house-stories','house-book-preview':'house-stories',
-    'house-switch':'profile','house-book-saved':'house-stories','house-addons':'profile','house-service':'profile',
+    'house-switch':'profile','house-book-saved':'house-stories','house-addons':'profile','house-service':'profile','service-order':'profile',
     'house-couple':'house-stories','house-couple-setup':'profile','house-screen':'profile'});
   let toastTimer;
   /** 更新当前页面的内存状态预览，不展示未获授权的记录内容。 */
@@ -80,28 +93,64 @@
     if(s.spaceCamera){value.记忆空间={模式:s.spaceCamera.mode,相机:s.spaceCamera[s.spaceCamera.mode],物件:s.hotspot,故事展开:Boolean(s.spaceStoryOpen)};document.getElementById('state-preview').textContent=JSON.stringify(value,null,2);}
     if(s.digitalHuman){value.数字人.形象={形象:'二维人物动画片段',称呼:P.DigitalHuman.greeting().title,状态:s.digitalHuman.phase,交流:'预置文字演示'};document.getElementById('state-preview').textContent=JSON.stringify(value,null,2);}
   }
-  /** 手机画板尺寸变化后，底部面板仍锚定当前画板，避免窄屏或桌面缩放时越界。 */
-  function positionModal() {
-    const el=document.getElementById('modal');
-    const bounds=document.getElementById('phone').getBoundingClientRect();
-    el.style.setProperty('--sheet-left',bounds.left+'px');
-    el.style.setProperty('--sheet-bottom',Math.max(0,innerHeight-bounds.bottom)+'px');
-    el.style.setProperty('--sheet-width',bounds.width+'px');
-    el.style.setProperty('--sheet-height',Math.max(240,bounds.height-32)+'px');
+  const phone = document.getElementById('phone');
+  const baseModal = document.getElementById('modal');
+  const addonModal = document.getElementById('addon-modal');
+  const blockedByDialog = new Set();
+
+  /** 只暂停手机里的下层控件。原先已被其他功能禁用的内容仍由原功能恢复。 */
+  function syncDialogLayers() {
+    const active = addonModal.open ? addonModal : baseModal.open ? baseModal : null;
+    for (const child of phone.children) {
+      if (child === addonModal.parentElement || child.id === 'toast') continue;
+      const block = active && child !== active.parentElement;
+      if (block && !child.inert) {
+        child.inert = true;
+        blockedByDialog.add(child);
+      } else if (!block && blockedByDialog.delete(child)) {
+        child.inert = false;
+      }
+    }
   }
-  /** 原生 dialog 提供焦点约束；调用者可明确选择设计稿中的底部面板。 */
-  function modal(title,body,presentation='dialog') {
-    const el=document.getElementById('modal');el.dataset.presentation=presentation;positionModal();
-    document.getElementById('modal-content').innerHTML=`<div class="modal-header"><h2>${P.escape(title)}</h2>${b(i('close'),'close-modal','icon-button','aria-label="关闭弹层"')}</div>${body}`;
+  function dismissDialog(el) {
+    if (!el.open) return;
+    const returnFocus = el.contains(document.activeElement) || document.activeElement === document.body;
+    const trigger = el.opener;
+    el.close();
+    el.opener = null;
+    syncDialogLayers();
+    if (returnFocus) {
+      const target = trigger?.isConnected && !trigger.closest('[inert]') ? trigger : document.getElementById('app-content');
+      target.focus({preventScroll:true});
+    }
+  }
+  function closeAddon() {
+    if (!addonModal.open) return;
+    dismissDialog(addonModal);
+    addonModal.addonContext = null;
+    P.state.modal = baseModal.open ? baseModal.querySelector('.modal-header h2').textContent : null;
+    updateStatePreview();
+  }
+  /** 在手机容器内展示居中弹窗或底部面板，嵌套咨询时保留下层商品详情。 */
+  function modal(title,body,presentation='dialog',el=baseModal,{eyebrow='',closeLabel='关闭弹层'}={}) {
+    if (el !== addonModal) closeAddon();
+    if (!el.open) el.opener = document.activeElement;
+    el.dataset.presentation=presentation;
+    const titleHtml = `<h2 id="${el.id}-title">${P.escape(title)}</h2>`;
+    const heading = eyebrow ? `<div class="modal-heading"><p>${P.escape(eyebrow)}</p>${titleHtml}</div>` : titleHtml;
+    const closeButton = b(i('close'), 'close-modal', 'icon-button', `aria-label="${P.escape(closeLabel)}" title="${P.escape(closeLabel)}"`);
+    el.firstElementChild.innerHTML=`<div class="modal-header">${heading}${closeButton}</div>${body}`;
     el.querySelectorAll('[data-feature-form]').forEach(form=>{form.featureState=P.state;});
-    if (!el.open) el.showModal();
+    if (!el.open) el.show();
+    syncDialogLayers();
     P.state.modal=title;updateStatePreview();
   }
   /** 关闭弹层先保留首页草稿，再停止媒体朗读，避免声音在页面外继续。 */
   function closeModal() {
+    closeAddon();
     P.FamilyHomeEditor.capture();
     P.Couples.closeRecorder();
-    document.getElementById('modal').close();P.state.modal=null;
+    dismissDialog(baseModal);P.state.modal=null;
     if ('speechSynthesis' in window) speechSynthesis.cancel();
   }
   /** 短反馈不代替必要的确认页面。 */
@@ -115,13 +164,18 @@
   function readRoute() {
     const hash=location.hash.slice(1) || 'home';
     const [name,id,detail,view]=hash.split('/');
+    P.state.homeDiaryStory = false;
     if(!P.Households.canRoute(name)){P.state.route='home';return;}
     P.Households.setRoute(name,id,detail,view);
     // 仅在进入空间路由时收起说明，同页重绘仍保留用户的展开选择。
     if(name==='space'&&P.state.route!=='space'&&P.Households.current())P.MemorySpace.enter();
     P.FamilyHomeEditor.enterPage(name,id);
     P.state.route=P.views[name]?name:'home';
-    if(name==='home-origin')P.state.homeOriginPerson=id||'';
+    if(name==='home-origin'||name==='home-surname')P.state.homeReaderPerson=id||P.FamilyContext.current();
+    P.state.homeHistoryPage = name === 'home-origin' ? detail : '';
+    P.state.homeAlbumPage = name === 'home-album' ? id : '';
+    P.state.homeDiaryPage = name === 'home-diary' ? id : '';
+    P.state.homeDiaryStory = name === 'story' && detail === 'diary';
     if(name==='story'||name==='house-story') P.state.storyId=id || 'first-order';
     if(name==='life'){const person=id || P.FamilyContext.current();if(id&&P.state.actor!=='father'&&id!==P.state.actor&&P.FamilyContext.invited(id)){if(P.state.chatTarget!==id){P.state.chatMessages=[];P.state.chatContext=null;}P.state.familyFocus[P.state.actor]=id;P.state.chatTarget=id;}if(P.state.archivePerson!==person){P.state.lifeTab='overview';P.state.videoFilter='all';P.state.biographyMode='read';P.state.archiveChapterId='';}P.state.archivePerson=person;}
     if(name==='chat'&&id&&P.ContentChat.available(id)&&id!==P.state.chatTarget){
@@ -129,6 +183,7 @@
     }
     if(name==='archive-item')P.state.archiveItemId=id || '';
     if(name==='chapter')P.state.chapterId=id || '';
+    if(name==='service-order')P.state.customizationOrderId=id || '';
     if(['book-edit','book-preview','book-order'].includes(name))P.state.keepsakeBookId=id || '';
   }
   /** 只保存当前状态和当前账号绑定的未提交输入，重置后的旧表单不会回灌。 */
@@ -167,25 +222,41 @@
     captureInputs();if(P.state.record.recording && previous!=='record')P.state.record.paused=true;
     closeModal();location.hash=previous;
   }
-  /** 主入口共用底栏与侧栏定义，增值服务归属「我的」。 */
+  /** 主入口共用底栏与侧栏定义，传家定制归属「我的」。 */
   function renderNavigation() {
     const { route, history } = P.state;
     const editingFromHome = route === 'home-motto-edit' && history?.at(-1) === 'home';
     const active = editingFromHome ? 'home' : TAB_PARENTS[route] || route;
     document.getElementById('bottom-nav').innerHTML=MAIN_TABS.map(([route,icon,label,target=route])=>`<button type="button" class="${active===route?'active':''}" data-nav="${target}" ${active===route?'aria-current="page"':''}>${i(icon)}<span>${label}</span></button>`).join('');
-    const routes=[...MAIN_TABS,['house-switch','family','创建或切换家庭'],['house-book','book','家庭故事册'],['membership','star','家庭会员'],['house-addons','book','独立增值服务']];
-    if(P.Households.current())routes.push(['house-screen','screen','爸妈大屏演示']);
+    const routes=[...MAIN_TABS,['house-switch','family','创建或切换家庭'],['house-book','book','家庭纪事册'],['membership','star','家庭会员'],['house-addons','book','传家定制']];
+    if(P.Households.current())routes.push(['house-screen','screen','爸妈的相框']);
     document.getElementById('studio-nav').innerHTML=routes.map(([route,icon,label,target=route])=>l(i(icon)+label,target,P.state.route===route?'active':'')).join('');
   }
   /** 次级服务页使用公共标题栏，数字人反馈从服务内部进入。 */
   function renderHeader() {
     const s=P.state;
+    const header = document.getElementById('app-header');
+    if (s.route === 'home-diary' || s.homeDiaryStory) {
+      const target = s.homeDiaryStory ? P.FamilyJournal.diaryListFor(s.storyId) : 'home';
+      const title = s.homeDiaryStory ? e(P.FamilyJournal.familyName()) + '日记' : '';
+      header.innerHTML = l(i('back'), target, 'icon-button', 'aria-label="返回' + (s.homeDiaryStory ? '家庭日记' : '我家') + '"') +
+        `<p class="app-book-label">${title}</p>` + l(i('plus') + ' 记一件事', 'house-record/diary', 'paper-link');
+      return;
+    }
+    if (homeReaders.includes(s.route)) {
+      const chapter = s.route === 'home-origin' && document.querySelector('.history-chapter');
+      const target = chapter ? 'home-origin/' + e(s.homeReaderPerson) : 'home';
+      const label = chapter ? '目录' : s.route === 'home-album' ? '' : ROUTE_NAMES[s.route];
+      header.innerHTML = l(i('back'), target, 'icon-button', `aria-label="返回${chapter ? '目录' : '我家'}"`) +
+        `<p class="app-book-label">${label}</p>` + l(i('close'), 'home', 'icon-button', 'aria-label="关闭并返回我家"');
+      return;
+    }
     const main=MAIN_TABS.some(([route])=>route===s.route);
     // 次级页按设计稿保留居中标题与返回；“我的”仍由固定底栏进入。
     const messages=P.Households.current()&&s.route==='chat'?l(i('mail')+'<span>反馈</span>'+(P.chatHasNotice()?'<span class="chat-task-dot" role="img" aria-label="有新回复或待处理消息"></span>':''),'chat-messages','chat-message-trigger'):'';
     // 分类详情只显示本分类，返回沿用档案模块的总览动作，不退出当前人物。
     if(P.Households.current()&&s.route==='life'&&s.lifeTab!=='overview'){
-      const title={video:'视频',photo:'照片',biography:'人生印记',work:'作品',place:'记忆地点'}[s.lifeTab]||'人生印记';
+      const title=P.PersonArchive.tabs[s.lifeTab]||'人生印记';
       document.getElementById('app-header').innerHTML=b(i('back'),'archive-tab','icon-button','data-value="overview" aria-label="返回人生印记总览"')+'<h1>'+title+'</h1>';return;
     }
     const uploadTitle=s.route==='material-edit'?P.MaterialLibrary.uploadHeader():'';
@@ -198,16 +269,20 @@
   }
   /** 渲染当前页面，保持状态、预览说明与页面一致。 */
   function render() {
+    P.FamilyHomeViews.unmountCover();
     P.FamilyHomeViews.unmountAlbum();
     P.FamilyTree.syncHomeEditor();
     syncFontMode();
-    P.HouseScreen.mount(P.EntryFlow.authenticated()&&P.state.route==='house-screen');
-    if(!P.EntryFlow.authenticated()){P.FamilyMoment.close();P.EntryFlow.render();return;}
+    const authenticated = P.EntryFlow.authenticated();
+    P.HouseScreen.mount(authenticated && P.state.route === 'house-screen');
+    phone.classList.toggle('profile-secondary', authenticated && PROFILE_SECONDARY_ROUTES.has(P.state.route));
+    if(!authenticated){P.FamilyMoment.close();P.EntryFlow.render();return;}
     document.getElementById('phone').classList.remove('entry-mode');
     const s=P.state;
     // 路由标识仅用于还原各页设计稿的封面和标题栏，不参与业务判断。
     document.getElementById('phone').dataset.route=s.route;
     document.getElementById('phone').dataset.actor=s.actor;
+    phone.classList.toggle('journal-mode', homeReaders.includes(s.route) || s.homeDiaryStory);
     P.DigitalHuman?.captureDraft();P.QuestionInbox?.captureDrafts();captureFeatureInputs();
     P.PersonArchive?.stopPlayback();
     P.FamilyEditions.stopAlbumAudio();
@@ -227,7 +302,9 @@
     content.querySelectorAll('#record-form,#publish-form').forEach(form=>{form.recordDraft=s.record;});
     content.querySelectorAll('#chat-form,[data-story-question],[data-question-answer]').forEach(form=>{form.draftState=s;form.draftActor=s.actor;});
     content.scrollTop=previousTop;
+    P.FamilyHomeViews.mountCover(content);
     P.FamilyHomeViews.mountAlbum(content);
+    P.FamilyJournal.mount(content);
     if (s.route === 'home') P.FamilyMap.mount(content);
     renderHeader();renderNavigation();refreshControls();
     const note=(!P.Households.isExample()&&['home','life','profile','chat','space','family'].includes(s.route))||Object.hasOwn(P.Households.titles,s.route)
@@ -235,7 +312,8 @@
     document.getElementById('review-title').textContent=note[0];
     document.getElementById('review-description').textContent=note[1];
     updateStatePreview();
-    if(P.Households.current())P.KeepsakeBooks.demo();
+    if(s.route==='service-order')P.Customization.staffPanel();
+    else if(P.Households.current())P.KeepsakeBooks.demo();
     else document.getElementById('book-demo-controls').hidden=true;
     if(P.Households.isExample()&&s.route==='space')P.MemorySpace?.mount();
     if(P.Households.current()&&s.route==='chat'&&P.ContentChat.available(s.chatTarget))P.DigitalHuman?.mount();
@@ -286,8 +364,7 @@
     if(r.recording && !r.paused) {r.seconds++;const label=document.getElementById('record-time');if(label)label.textContent=P.duration(r.seconds);}
     if (r.recording) updateStatePreview();
   }
-  Object.assign(P,{modal,closeModal,toast,navigate,back,render,changeActor,toggleFont,syncFontMode,captureInputs,updatePreview:updateStatePreview});
-  window.addEventListener('resize',positionModal);
+  Object.assign(P,{modal,closeModal,closeAddon,toast,navigate,back,render,changeActor,toggleFont,syncFontMode,captureInputs,updatePreview:updateStatePreview});
   /** 所有交互集中注册，反复渲染页面不会叠加监听器。 */
   document.addEventListener('click',event=>{
     const nav=event.target.closest('[data-nav]');
@@ -316,22 +393,43 @@
   // 重置家庭演示返回建家入口，旧版应用市场可从独立工具重开。
   document.getElementById('reset-demo').addEventListener('click',()=>{closeModal();P.Households.reset();P.state.history=[];P.EntryFlow.reset();navigate('home');toast('演示已还原，当前没有保存到本地或云端。');});
   document.getElementById('restart-entry').addEventListener('click',()=>P.EntryFlow.reset(true));
-  document.getElementById('modal').addEventListener('cancel',()=>{P.FamilyHomeEditor.capture();P.Couples.closeRecorder();P.state.modal=null;if('speechSynthesis' in window)speechSynthesis.cancel();});
+  phone.addEventListener('keydown', event => {
+    if (event.key !== 'Escape' || event.defaultPrevented || event.isComposing || (!addonModal.open && !baseModal.open)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (addonModal.open) closeAddon();
+    else closeModal();
+  });
+  addonModal.parentElement.addEventListener('click', event => {
+    if (event.target === addonModal.parentElement) closeAddon();
+  });
   /** 刷新或历史恢复进入首页时回到顶部，保持家庭开篇处可见。 */
   window.addEventListener('pageshow',()=>{if(P.state.route==='home')document.getElementById('app-content').scrollTop=0;});
   window.addEventListener('hashchange',event=>{
+    if (addonModal.open || baseModal.open) closeModal();
     captureInputs();
     if(P.state.record.recording&&location.hash!=='#record')P.state.record.paused=true;
     const previous=P.state.route,content=document.getElementById('app-content');
     readRoute();
-    // 从首页进入源流时记住阅读位置，返回后接着浏览原来的段落。
-    if(previous==='home'&&P.state.route==='home-origin')P.state.homeOriginScrollTop=content.scrollTop;
-    const returning=previous==='home-origin'&&P.state.route==='home';
+    const album = P.state.route === 'home-album';
+    const previousAlbumPage = album && previous === 'home-album' ? P.FamilyJournal.albumPage(content) : null;
+    const historyBook = P.state.route === 'home-origin';
+    const previousHistoryPage = historyBook && previous === 'home-origin' ? P.FamilyHomeEditor.historyPage(content) : null;
+    const diaryBook = P.state.route === 'home-diary' || P.state.homeDiaryStory;
+    const previousDiaryPage = diaryBook ? P.FamilyJournal.diaryPage(content) : null;
+    // 进入册页时记住首页阅读位置，关闭后回到原来的段落。
+    const wasDiaryStory = previous === 'story' && event.oldURL.endsWith('/diary');
+    const reader = homeReaders.includes(P.state.route) || P.state.homeDiaryStory;
+    if(previous==='home' && reader)P.state.homeReaderScrollTop=content.scrollTop;
+    const returning=(homeReaders.includes(previous) || wasDiaryStory) && P.state.route==='home';
     const albumDetailRoutes=['story','archive-item','material-edit','house-moment'];
     if(['house-baby','house-elders','house-couple'].includes(previous)&&albumDetailRoutes.includes(P.state.route))P.FamilyEditions.rememberAlbum(content);
     content.scrollTop=0;
     render();
-    if(returning)content.scrollTop=P.state.homeOriginScrollTop||0;
+    if (album) P.FamilyJournal.showAlbumTurn(content, previous, previousAlbumPage);
+    if (historyBook) P.FamilyHomeEditor.showHistoryTurn(content, previous, previousHistoryPage);
+    if (diaryBook) P.FamilyJournal.showDiaryTurn(content, previous, previousDiaryPage);
+    if(returning)content.scrollTop=P.state.homeReaderScrollTop||0;
     if(['home','house-stories'].includes(P.state.route))P.FamilyHomeViews.restoreAlbum(content,event.oldURL.split('#')[1]||'');
     P.FamilyEditions.positionAlbum(content,albumDetailRoutes.includes(previous));
   });

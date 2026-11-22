@@ -4,8 +4,8 @@
   const databaseName = 'chuanjia-photo-invites';
   const storeName = 'cards';
   const tokenPattern = /^[a-f0-9]{40}$/;
-  const growthPhoto = 'assets/zhumen/book-cover-photo.png';
-  const elderPhoto = 'assets/zhumen/life-young-portrait-demo.png';
+  const growthPhoto = 'assets/zhumen/book-cover-photo.webp';
+  const elderPhoto = 'assets/zhumen/life-young-portrait-demo.webp';
   const listeners = new Set();
   const network = document.querySelector('meta[name="photo-trial"]')?.content === 'online';
   const trialStorage = databaseName + ':trial';

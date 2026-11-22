@@ -24,7 +24,7 @@
 .memory-empty{padding:24px 16px;border:1px solid #D3B897;color:#826B54}
 .memory-guest{margin:0;background:#FBF7EF;font:16px/1.75 SimSun,"Noto Serif SC",serif;color:#49372B}
 .memory-guest *{box-sizing:border-box}
-.memory-guest-main{max-width:600px;margin:auto;padding:32px 20px 48px;background:#FBF7EF url('assets/zhumen/ivory-rice-paper.png') center/600px auto}
+.memory-guest-main{max-width:600px;margin:auto;padding:32px 20px 48px;background:#FBF7EF url('assets/zhumen/ivory-rice-paper.webp') center/600px auto}
 .memory-guest h1,.memory-guest h2{font-family:KaiTi,STKaiti,serif;font-weight:600;line-height:1.4}
 .memory-guest h1{font-size:30px;margin:8px 0 16px}
 .memory-guest h2{font-size:24px}

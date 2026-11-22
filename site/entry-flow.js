@@ -4,10 +4,10 @@
   const P=window.App,e=P.escape;
   const DEMO_PHONE='13800000000',DEMO_CODE='246810';
   const PREVIEWS=[
-    {title:'记录人生印记',tag:'人生印记',icon:'book',image:'assets/zhumen/entry-preview-life.png',body:'用文字、照片和视频记录重要的时刻，留住值得珍藏的回忆。'},
-    {title:'整理家庭图谱',tag:'家庭图谱',icon:'family',image:'assets/zhumen/entry-preview-family.png',body:'清晰梳理家人关系，记录每位家人的人生故事。'},
-    {title:'和家人聊聊',tag:'与TA聊聊',icon:'chat',image:'assets/zhumen/entry-preview-chat.png',body:'围绕人生片段展开交流，听家人的讲述，增进理解与连接。'},
-    {title:'找回回忆里的家',tag:'回忆里的家',icon:'home',image:'assets/zhumen/entry-preview-home.png',body:'珍藏老照片与家庭故事，重温属于家人的温暖空间。'}
+    {title:'记录人生印记',tag:'人生印记',icon:'book',image:'assets/zhumen/entry-preview-life.webp',body:'用文字、照片和视频记录重要的时刻，留住值得珍藏的回忆。'},
+    {title:'整理家庭图谱',tag:'家庭图谱',icon:'family',image:'assets/zhumen/entry-preview-family.webp',body:'清晰梳理家人关系，记录每位家人的人生故事。'},
+    {title:'和家人聊聊',tag:'与TA聊聊',icon:'chat',image:'assets/zhumen/entry-preview-chat.webp',body:'围绕人生片段展开交流，听家人的讲述，增进理解与连接。'},
+    {title:'找回回忆里的家',tag:'回忆里的家',icon:'home',image:'assets/zhumen/entry-preview-home.webp',body:'珍藏老照片与家庭故事，重温属于家人的温暖空间。'}
   ];
   const DELIVERY_ROUTE='film-delivery';
   /** 三屏总览保留内嵌预览；只有交片链接可以从身份验证开始。 */
@@ -18,7 +18,7 @@
   /** 操作使用独立事件属性，避免误入现有业务动作与导航分发。 */
   function button(text,action,cls='',extra=''){return `<button type="button" class="${cls}" data-entry="${action}" ${extra}>${text}</button>`;}
   /** 品牌标志直接复用已确认设计图的切图，全部资源离线读取。 */
-  function logo(){return '<img class="entry-logo" src="assets/zhumen/entry-brand.png" alt="传家录应用图标">';}
+  function logo(){return '<img class="entry-logo" src="assets/zhumen/entry-brand.webp" alt="传家录应用图标">';}
   /** 市场搜索由用户提交关键词驱动，支持清空、无结果和再次搜索。 */
   function market(){
     const matches=session.searched&&/传家录|传家|家庭|人生|回忆/.test(session.query);
@@ -43,7 +43,7 @@
   function login(delivery){
     const back=delivery?`<a class="entry-back" href="#home" aria-label="返回普通入口">${P.icon('back')}</a>`:button(P.icon('back'),'detail','entry-back','aria-label="返回应用详情"');
     const heading=delivery?'<h1>交片专用入口</h1><p>验证身份后，观看已交付的纪录片。</p>':'<h1>欢迎来到<br>传家录</h1><p>把一家人的故事，<br>好好留下来。</p>';
-    const identity=delivery?'<p class="entry-demo">演示身份为档案本人陈远山。</p>':`<fieldset><legend>选择演示身份</legend><label><img class="login-person-portrait" src="assets/zhumen/login-father.png" alt="陈远山，设计稿中的示例人物"><span>档案本人 · 陈远山</span><input type="radio" name="actor" value="father" ${session.actor==='father'?'checked':''}></label><label><img class="login-person-portrait" src="assets/zhumen/login-xia.png" alt="陈知夏，设计稿中的示例人物"><span>受邀家人 · 陈知夏</span><input type="radio" name="actor" value="xia" ${session.actor==='xia'?'checked':''}></label></fieldset>`;
+    const identity=delivery?'<p class="entry-demo">演示身份为档案本人陈远山。</p>':`<fieldset><legend>选择演示身份</legend><label><img class="login-person-portrait" src="assets/zhumen/login-father.webp" alt="陈远山，设计稿中的示例人物"><span>档案本人 · 陈远山</span><input type="radio" name="actor" value="father" ${session.actor==='father'?'checked':''}></label><label><img class="login-person-portrait" src="assets/zhumen/login-xia.webp" alt="陈知夏，设计稿中的示例人物"><span>受邀家人 · 陈知夏</span><input type="radio" name="actor" value="xia" ${session.actor==='xia'?'checked':''}></label></fieldset>`;
     return `${back}<div class="login-brand"><span class="login-seal" aria-hidden="true">传<br>家<br>录</span>${heading}</div>
       <form id="entry-login" class="entry-login" novalidate><div class="login-phone-heading"><label for="entry-phone">手机号</label>${button('填入演示手机号','fill','entry-fill')}</div><input id="entry-phone" name="phone" type="tel" inputmode="numeric" autocomplete="off" maxlength="11" placeholder="请输入手机号" value="${e(session.phone)}">
       <label for="entry-code">验证码</label><div class="entry-code-row"><input id="entry-code" name="code" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="请输入验证码" value="${e(session.code)}">${button(session.sentPhone?'重新获取':'获取验证码','send','entry-send')}</div>${identity}

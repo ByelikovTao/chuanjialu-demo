@@ -42,7 +42,7 @@
   }
   /** 待机和说话循环，回正只播一次；三者都是无声的本地二维 MP4。 */
   function createVideo(ctx,kind) {
-    const video=document.createElement('video');video.src=CLIPS[kind];video.poster='assets/avatar/father-portrait-v4.png';
+    const video=document.createElement('video');video.src=CLIPS[kind];video.poster='assets/avatar/father-portrait-v4.webp';
     video.muted=true;video.defaultMuted=true;video.loop=kind!=='settling';video.playsInline=true;video.preload='auto';
     video.setAttribute('muted','');video.setAttribute('playsinline','');video.setAttribute('aria-hidden','true');video.dataset.kind=kind;
     video.addEventListener('loadeddata',()=>{if(active!==ctx)return;ctx.ready[kind]=true;ctx.failed[kind]=false;P.DigitalHuman.refresh();});

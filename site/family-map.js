@@ -57,7 +57,7 @@
     const { name, longitude, latitude } = DEMO_CITIES[key];
     const people = members.map(id => {
       const memberName = e(P.PEOPLE[id].name);
-      return b(`${P.avatar(id)}<span class="home-map-member-name">${memberName}</span>`, 'house-story-person', 'home-map-member',
+      return b(`${P.avatar(id, '', { originalPortrait: true })}<span class="home-map-member-name">${memberName}</span>`, 'house-story-person', 'home-map-member',
         `data-id="${e(id)}" aria-label="查看${memberName}的相关往事"`);
     }).join('');
     return `<div class="home-map-pin" data-city="${key}" style="${mapPosition(longitude, latitude)}" role="group" aria-label="${e(name)}的家人">
@@ -79,7 +79,7 @@
       <div class="home-map-viewport" id="home-map-viewport">
         <div class="home-map-world">
           <div class="home-map-geography" style="--longitude-span:${LONGITUDE_SPAN};--latitude-span:${LATITUDE_SPAN}">
-            <img src="assets/family-home/login-city-map.webp" alt="" loading="lazy" draggable="false">
+            <img src="assets/family-home/login-city-map.webp" alt="" decoding="async" fetchpriority="high" draggable="false">
             <div aria-hidden="true">${labels}</div>
             ${Array.from(groups, ([key, ids]) => cityPin(key, ids)).join('')}
           </div>

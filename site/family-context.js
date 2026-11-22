@@ -70,9 +70,9 @@
       const target=kind==='space'?'father':person;
       const hasService=Boolean(P.state.accounts[target]?.[kind==='space'?'hasSpace':'hasDigital']);
       const next=hasService&&target!==P.state.actor?b('向本人申请开放','family-request','btn',`data-person="${e(target)}" data-kind="${kind}"`):l('了解'+label,'house-service/'+key,'btn');
-      return `<div class="page empty"><h2>${label}${hasService?'暂未授权':'待开通'}</h2><p>由顾问制作交付，按对应家人的授权开放。</p>${next}${l('返回增值服务','house-addons','text-link full section')}</div>`;
+      return `<div class="page empty"><h2>${label}${hasService?'暂未授权':'待开通'}</h2><p>由顾问制作交付，按对应家人的授权开放。</p>${next}${l('返回传家定制','house-addons','text-link full section')}</div>`;
     }
-    if(!established(person))return `<div class="page empty"><h2>这位家人尚未完成拍摄建档</h2><p>仅加入家庭或出现在族谱中，不能开通完整人生空间；可继续保留个人记录和共同回忆。</p>${l('返回首页','home','btn')}</div>`;
+    if(!established(person))return `<div class="page empty"><h2>这位家人尚未完成拍摄建档</h2><p>仅加入家庭或出现在家谱中，不能开通完整人生空间；可继续保留个人记录和共同回忆。</p>${l('返回首页','home','btn')}</div>`;
     // 档案已开放但交流未开放时，提供仍可访问的档案入口，不借另一人的形象代替。
     if(kind==='digital'&&allowed(person,'archive'))return `<div class="page person-unavailable"><div class="empty">${P.avatar(person,'large')}<h3>${e(P.PEOPLE[person].name)} · ${e(P.relation(person))}</h3><h2>这位家人暂未开放数字人</h2><p>可以继续查看已向你开放的人生档案。</p>${l('查看已开放的档案','life/'+person,'btn full')}${l('返回首页','home','btn outline full section')}${b('申请开放交流','family-request','text-link full section',`data-person="${e(person)}" data-kind="digital"`)}</div></div>`;
     const labels={archive:'人生档案',digital:'数字人交流',space:'回忆场景'};

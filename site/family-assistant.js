@@ -3,6 +3,7 @@
 {
   const P = window.App, { escape: e, button: b, link: l, icon: i } = P;
   const ROUTE = 'house-assistant';
+  const TITLE = 'AI问家';
   const FORM_ID = 'family-assistant-form';
   const LIMIT = 160;
   const STREAM_INTERVAL_MS = 48;
@@ -14,12 +15,12 @@
     work: ['作品', 'book', /作品|书法|画作/],
     text: ['文字记录', 'edit', /文字记录|文字往事|书信/],
     motto: ['家训', 'book', /家训/],
-    surname: ['姓氏来源', 'source', /姓氏|姓什么/],
-    origin: ['家庭溯源', 'source', /溯源|祖籍|迁徙|家族来源/]
+    surname: ['姓源', 'source', /姓氏源流|姓氏来源|姓源|姓氏|姓什么/],
+    origin: ['家史', 'source', /家史|家族寻根|家族溯源|家庭溯源|家族来源|寻根|溯源|祖籍|迁徙/]
   };
   const WHEN = /哪(?:一|几)?[年月日]|什么时候|何时|哪天|哪月|拍摄时间|日期/;
   const LIST = /哪些|多少|几[张段条件个]|最近|最新|看看|查找|有没有/;
-  const COMMON_WORDS = /我们家|家里|我家|家庭|请问|告诉我|有哪些|是什么|有没有|最近|最新|添加|上传|查看|找找|记录了|记载了/g;
+  const COMMON_WORDS = /我们家|家里|我家|家庭|请问|告诉我|有哪些|是什么|有没有|最近|最新|添加|上传|查看|看看|查找|找找|记录了|记载了/g;
   const STOP = new Set(['的', '了', '在', '和', '是', '有', '吗', '呢', '我', '想', '哪', '个', '一', '几', '张', '段', '条', '年',
     '请', '里', '中', '上', '什么', '啥', '谁', '哪里', '怎么', '如何', '记录', '资料', '内容']);
   const words = typeof Intl.Segmenter === 'function' ? new Intl.Segmenter('zh', { granularity: 'word' }) : null;
@@ -68,8 +69,8 @@
     const originRoute = 'home-origin/' + owner;
     const heritage = [
       { title: '家训', types: ['motto'], passages: [motto?.text], route: 'home', cover: motto?.cover },
-      { title: '姓氏来源', types: ['surname'], passages: [surname?.name && `这个家的姓氏是${surname.name}。`, surname?.text], route: 'home' },
-      { title: '家庭溯源', types: ['origin'], passages: [
+      { title: TYPES.surname[0], types: ['surname'], passages: [surname?.name && `这个家的姓氏是${surname.name}。`, surname?.text], route: 'home' },
+      { title: TYPES.origin[0], types: ['origin'], passages: [
         origin?.trace?.ancestralHome && `祖籍与支系记载为 ${origin.trace.ancestralHome}。`,
         origin?.text, origin?.trace?.earliest, origin?.trace?.migration
       ], route: originRoute }
@@ -153,7 +154,7 @@
         <div class="assistant-answer">
           <p>${e(answer.text)}</p>
           ${answer.sources.length ? `<div class="assistant-sources">
-            <h3>相关记录</h3>
+            <h3>出处</h3>
             ${answer.sources.map(sourceLink).join('')}
           </div>` : ''}
         </div>
@@ -190,7 +191,7 @@
           <h2>想找家里的<br>哪段往事？</h2>
           <p>家训、照片、视频和语音都能查。</p>
         </div>
-        <img class="assistant-cover" src="assets/zhumen/service-album-corner.png" alt="">
+        <img class="assistant-cover" src="assets/zhumen/service-album-corner.webp" alt="">
       </div>
       <section class="assistant-suggestions" aria-labelledby="assistant-suggestions-title">
         <h3 id="assistant-suggestions-title">试着问一句</h3>
@@ -290,5 +291,5 @@
   }
 
   P.views[ROUTE] = view;
-  P.FamilyAssistant = { capture, submit, handleAction };
+  P.FamilyAssistant = { title: TITLE, capture, submit, handleAction };
 }

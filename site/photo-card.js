@@ -4,7 +4,7 @@
   const store = window.PhotoInvites;
   const content = document.getElementById('photo-content');
   const announcement = document.getElementById('photo-announcement');
-  const samplePhoto = 'assets/zhumen/life-wedding-demo.png';
+  const samplePhoto = 'assets/zhumen/life-wedding-demo.webp';
   const sampleAudio = 'assets/photo-card/sample-reply.wav';
   let screen = {};
   let guest;

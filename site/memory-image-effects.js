@@ -3,8 +3,8 @@
 {
   const P=window.App;
   const recipes={
-    restore:{label:'黑白修复上色',sourceId:'father-photo-youth',src:'assets/zhumen/life-youth-restored-demo.png',note:'让旧照片更清晰，保留原来的神态。'},
-    young:{label:'模拟年轻模样',sourceId:'father-photo-portrait',src:'assets/zhumen/life-young-portrait-demo.png',note:'用现在的肖像想象青年模样，不认定为真实历史照片。'}
+    restore:{label:'黑白修复上色',sourceId:'father-photo-youth',src:'assets/zhumen/life-youth-restored-demo.webp',note:'让旧照片更清晰，保留原来的神态。'},
+    young:{label:'模拟年轻模样',sourceId:'father-photo-portrait',src:'assets/zhumen/life-young-portrait-demo.webp',note:'用现在的肖像想象青年模样，不认定为真实历史照片。'}
   };
   /** 效果与来源本人、来源照片同时匹配；不把一位人物的效果套给另一位。 */
   function presentation(item) {

@@ -49,7 +49,8 @@
     xia: {name:'陈知夏', relation:'女儿', born:'1992', short:'知夏', photo:'daughter'},
     nian: {name:'陈念念', relation:'孙女', born:'2016', birthDate:'2016-05-20', expecting:false, short:'念念', color:'rose'},
     mother: {name:'林慧', relation:'妈妈', born:'1965', short:'林', color:'rose'},
-    grandpa: {name:'陈明德', relation:'爷爷', born:'1938', short:'陈', color:'sand'}
+    grandpa: {name:'陈明德', relation:'爷爷', born:'1938', short:'陈', color:'sand'},
+    grandma: {name:'张玉兰', relation:'母亲', short:'张', color:'rose'}
   };
   /** 固定的演示人物种子仅用于重置；运行时仍由 PEOPLE 同一个对象提供人物事实。 */
   const PERSON_SEEDS=structuredClone(PEOPLE);
@@ -116,7 +117,7 @@
         personServices:{},billingOrders:[],usageReceipts:[],billingPeople:{},keepsakeBooks:[]
       };
     }
-    const members=['father','mother','xia','grandpa','nian'];
+    const members=['father','mother','xia','grandpa','nian','grandma'];
     const tasks=demoTasks();
     const stories=structuredClone(STORIES).map(story=>({...story,subject:'father',confirmedBy:'father',aiAllowed:true,viewers:story.scope==='family'?[...members]:[]}));
     stories.push(...demoCommonMemories(),{
@@ -136,23 +137,33 @@
       author:'xia',subject:'xia',confirmedBy:'xia',relatedMembers:['nian','xia','father','mother'],
       scope:'family',viewers:[...members],date:'2020年春节',eventDate:'2020-01-25',year:'2020',recorded:'2026年11月10日',
       recordedAt:Date.parse('2026-11-10T09:00:00+08:00'),
-      houseImage:'assets/zhumen/book-cover-photo.png',houseBytes:0,
-      text:['念念在门口练了好几遍，见到爷爷就自己说了声「新年好」。说完害羞地笑了，爷爷把她搂进怀里。'],
+      houseImage:'assets/family-home/reference/new-year-diary.webp',houseBytes:0,
+      photoPrint:'assets/family-home/reference/new-year-greeting.webp',
+      text:['出门前，她还问我，两只手要怎么放。'],
+      replies:[{author:'father',text:'她出门前，在镜子前练了三遍。'}],
       source:'陈知夏的家庭记录 · 虚构示例'
     },{
       id:'father-tea-day',title:'午后泡了一壶茶',category:'家里日常',fromFamily:true,
       author:'father',subject:'father',confirmedBy:'father',relatedMembers:['father'],
       scope:'family',viewers:[...members],date:'2026年11月9日',eventDate:'2026-11-09',year:'2026',recorded:'2026年11月9日',
-      recordedAt:Date.parse('2026-11-09T15:00:00+08:00'),houseImage:'assets/family-home/family-tea-banner.png',
+      recordedAt:Date.parse('2026-11-09T15:00:00+08:00'),houseImage:'assets/family-home/reference/afternoon-tea.webp',
       houseVoice:{url:'assets/family-home/elder-tea-demo.wav',bytes:0,sample:true},
       text:['下午和家里人坐了一会儿。茶泡开了，话也慢慢说开了。'],
       source:'陈远山的随手记 · 示例影像与合成语音'
     },{
       id:'father-first-work-photo',title:'爸爸第一天上班',category:'人生节点',lifeMilestone:true,lifeSample:true,fromFamily:true,
       author:'xia',subject:'xia',confirmedBy:'xia',relatedMembers:['father'],scope:'family',viewers:[...members],
-      date:'1987 年',year:'1987',recorded:'示例资料',houseImage:'assets/zhumen/life-young-portrait-demo.png',houseBytes:0,
+      date:'1987 年',year:'1987',recorded:'2026年11月8日',recordedAt:Date.parse('2026-11-08T09:00:00+08:00'),
+      houseImage:'assets/family-home/reference/first-day-at-work.webp',houseBytes:0,
       text:['整理照片时看到爸爸年轻时的样子，想听听他第一天上班的事。'],
       source:'陈知夏代记 · 合成的年代示意照片'
+    },{
+      id:'family-making-dumplings',title:'一家人包饺子',category:'家里日常',fromFamily:true,
+      author:'xia',subject:'xia',confirmedBy:'xia',relatedMembers:['father','mother','grandpa','nian'],scope:'family',viewers:[...members],
+      date:'2026年春节',year:'2026',recorded:'2026年2月17日',recordedAt:Date.parse('2026-02-17T18:00:00+08:00'),
+      houseImage:'assets/family-home/reference/making-dumplings.webp',houseBytes:0,
+      text:['一家人围在桌前，有人擀皮，有人拌馅，念念学着把饺子边捏紧。'],
+      source:'陈家的家庭记录 · 虚构示例'
     });
     return {billingSeedDate:new Date().toISOString().slice(0,10),billingToday:new Date().toISOString().slice(0,10),personServices:{},familyHome:null,billingOrders:[],usageReceipts:[],billingPeople:{},familyFocus:{xia:'father',nian:'father'},familyInvitations:{xia:['father','mother'],nian:['father']},familyAccess:{father:{archive:['xia','nian'],digital:['xia','nian'],space:['xia','nian']},mother:{archive:['xia'],digital:[],space:[]}},familyRequests:[],keepsakeBooks:[],keepsakeBookId:'',actor:'xia',route:'home',lifeTab:'overview',videoFilter:'all',archivePerson:'father',archiveAssets:null,archiveProfiles:null,archiveItemId:'',archiveChapterId:'',biographyMode:'read',archiveReturn:null,archivePlayback:{},familyTab:'列表',year:'1986',hotspot:'desk',guide:false,chatTarget:'father',chatContext:null,chatMessages:[],chatDrafts:{},questionDrafts:{},storyId:'first-order',saved:[],stories,members,invitations:[],pending:[],questions:tasks.questions,accessRequests:[],idSequence:0,materialDrafts:{},materialTabs:{},materialSubmissions:[],answerFeedback:tasks.answerFeedback,feedbackDrafts:{},feedbackReviewDrafts:{},feedbackReviewId:null,relationshipChapters:null,chapterDrafts:{},chapterNoteDrafts:{},chapterId:null,accounts:{father:{...newAccount(),videoDelivered:true,hasDigital:true,setupIncluded:true},xia:newAccount(),nian:newAccount()},record:emptyRecord(),fontLarge:false,modal:null,notice:''};
   }
@@ -169,12 +180,22 @@
   function button(label, action, cls='btn', extra='') { return `<button type="button" class="${cls}" data-action="${action}" ${extra}>${label}</button>`; }
   /** 生成站内导航按钮，保持静态文件也可进行页面切换。 */
   function link(label, route, cls='text-link', extra='') { return `<button type="button" class="${cls}" data-nav="${route}" ${extra}>${label}</button>`; }
-  /** 五位示例家人复用设计稿独立头像，避免从合照裁错人物；新增人物使用姓名缩写。 */
-  function avatar(id, size='') {
+  /** 示例头像按人物取自设计稿；新增人物使用姓名缩写。 */
+  function avatar(id, size='', { originalPortrait = false } = {}) {
     const p=PEOPLE[id];
     if (!p) return `<span class="avatar ${size}">家</span>`;
-    const hasPortrait=!App.state.familyWorkspace&&['grandpa','father','mother','xia','nian'].includes(id);
-    return hasPortrait ? `<span class="avatar ${size} ${id}"><img src="assets/zhumen/portrait-${id}.png" alt="${escape(p.name)}，设计稿中的示例人物"></span>` : `<span class="avatar ${size} ${p.color || ''}">${escape(p.short)}</span>`;
+    const portrait = !App.state.familyWorkspace && {
+      grandpa: 'assets/family-home/reference/grandpa.webp',
+      grandma: 'assets/family-home/reference/grandma.webp',
+      father: 'assets/family-home/reference/father.webp',
+      mother: 'assets/family-home/reference/mother.webp',
+      xia: 'assets/family-home/reference/xia.webp',
+      nian: 'assets/zhumen/portrait-nian.webp'
+    }[id];
+    const source = originalPortrait && portrait && ['grandpa', 'father', 'mother', 'xia'].includes(id)
+      ? 'assets/zhumen/portrait-' + id + '.webp'
+      : portrait;
+    return source ? `<span class="avatar ${size} ${id}"><img src="${source}" alt="${escape(p.name)}，设计稿中的示例人物"></span>` : `<span class="avatar ${size} ${p.color || ''}">${escape(p.short)}</span>`;
   }
   /** 内容标记同时使用文字，避免仅靠颜色传达意义。 */
   function badge(label, cls='') { return `<span class="badge ${cls}">${label}</span>`; }

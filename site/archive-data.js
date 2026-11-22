@@ -2,7 +2,7 @@
 'use strict';
 {
   /** 家庭可见范围固定为这批初始成员，新成员需另行获得资料授权。 */
-  const FAMILY=['father','mother','xia','grandpa','nian'];
+  const FAMILY=['father','mother','xia','grandpa','nian','grandma'];
   /** 章节保留叙述编排，已有事件只存 storyIds 引用；正文与授权由事件记录唯一维护。 */
   const people={
     father:{
@@ -86,72 +86,72 @@
   /** 视频为可播放的图片编排演示；kind 区分人生影片与生活影像，拍摄类型由查看人物与拍摄者关系决定。 */
   const assets=[
     // 年代示意与故事共用授权及关联，不作为历史实拍资料。
-    {"id":"father-photo-youth","subject":"father","kind":"photo","title":"青春求学 · 年代示意","date":"1979年场景 · 2026年生成","year":"1979","description":"AI依据虚构人物参考肖像生成的年代示意照片，非历史实拍。","poster":"assets/zhumen/life-youth-demo.png","author":"father","sourceLabel":"AI生成的年代示意照片 · 非历史实拍","scope":"family","viewers":["father","mother","xia","grandpa","nian"],"relatedStoryId":"school-days"},
-    {"id":"father-photo-wedding","subject":"father","kind":"photo","title":"相伴成家 · 年代示意","date":"1989年场景 · 2026年生成","year":"1989","description":"AI依据虚构人物参考肖像生成的年代示意照片，非历史实拍。","poster":"assets/zhumen/life-wedding-demo.png","author":"father","sourceLabel":"AI生成的年代示意照片 · 非历史实拍","scope":"family","viewers":["father","mother","xia","grandpa","nian"],"relatedStoryId":"wedding-day"},
-    {"id":"father-photo-career","subject":"father","kind":"photo","title":"创业起步 · 年代示意","date":"1998年场景 · 2026年生成","year":"1998","description":"AI依据虚构人物参考肖像生成的年代示意照片，非历史实拍。","poster":"assets/zhumen/life-career-demo.png","author":"father","sourceLabel":"AI生成的年代示意照片 · 非历史实拍","scope":"family","viewers":["father","mother","xia","grandpa","nian"],"relatedStoryId":"first-order"},
+    {"id":"father-photo-youth","subject":"father","kind":"photo","title":"青春求学 · 年代示意","date":"1979年场景 · 2026年生成","year":"1979","description":"AI依据虚构人物参考肖像生成的年代示意照片，非历史实拍。","poster":"assets/zhumen/life-youth-demo.webp","author":"father","sourceLabel":"AI生成的年代示意照片 · 非历史实拍","scope":"family","viewers":["father","mother","xia","grandpa","nian"],"relatedStoryId":"school-days"},
+    {"id":"father-photo-wedding","subject":"father","kind":"photo","title":"相伴成家 · 年代示意","date":"1989年场景 · 2026年生成","year":"1989","description":"AI依据虚构人物参考肖像生成的年代示意照片，非历史实拍。","poster":"assets/zhumen/life-wedding-demo.webp","author":"father","sourceLabel":"AI生成的年代示意照片 · 非历史实拍","scope":"family","viewers":["father","mother","xia","grandpa","nian"],"relatedStoryId":"wedding-day"},
+    {"id":"father-photo-career","subject":"father","kind":"photo","title":"创业起步 · 年代示意","date":"1998年场景 · 2026年生成","year":"1998","description":"AI依据虚构人物参考肖像生成的年代示意照片，非历史实拍。","poster":"assets/zhumen/life-career-demo.webp","author":"father","sourceLabel":"AI生成的年代示意照片 · 非历史实拍","scope":"family","viewers":["father","mother","xia","grandpa","nian"],"relatedStoryId":"first-order"},
 
     {
       id:'father-life-film',subject:'father',kind:'film',title:'陈远山 · 走过的这些年',
       date:'2026年10月 · 示例交付',year:'2026',duration:12,
       description:'展示专业人生影片完成后如何存档与观看。当前演示片由示例图片编排，不是真实客户拍摄成片。',
-      poster:'assets/zhumen/portrait-father.png',src:'assets/archive-demo/life-film.mp4',
+      poster:'assets/zhumen/portrait-father.webp',src:'assets/archive-demo/life-film.mp4',
       author:'father',sourceLabel:'人生影片播放演示 · 示例图片编排',scope:'family',viewers:[...FAMILY]
     },
     {
       id:'father-photo-portrait',subject:'father',kind:'photo',title:'人物肖像（示例）',
       date:'2026年10月 · 示例归档',year:'2026',
       description:'演示人物肖像，用于展示人物照片归档和大图查看。',
-      poster:'assets/zhumen/portrait-father.png',author:'father',sourceLabel:'演示人物肖像 · 非客户本人存档',scope:'family',viewers:[...FAMILY]
+      poster:'assets/zhumen/portrait-father.webp',author:'father',sourceLabel:'演示人物肖像 · 非客户本人存档',scope:'family',viewers:[...FAMILY]
     },
     {
       id:'father-photo-family',subject:'father',kind:'photo',title:'和家人坐在一起',
       date:'2026年 · 示例照片',year:'2026',description:'人物相关的家庭照片示例，和完整人生影片分别存档。画面为现有 AI 生成素材，不是历史实拍。',
-      poster:'assets/family.png',author:'father',sourceLabel:'AI 生成的家庭照片示例',scope:'family',viewers:[...FAMILY],relatedStoryId:'spring'
+      poster:'assets/family.webp',author:'father',sourceLabel:'AI 生成的家庭照片示例',scope:'family',viewers:[...FAMILY],relatedStoryId:'spring'
     },
     {
       id:'father-photo-home',subject:'father',kind:'photo',title:'记忆里生活过的地方',
       date:'2026年 · 场景示意归档',year:'2026',description:'与陈远山人生相关的老家场景图，用于展示照片与地点的关联；不是1986年的原始老照片。',
-      poster:'assets/room.png',author:'father',sourceLabel:'AI 生成的老家场景示例',scope:'family',viewers:[...FAMILY],relatedStoryId:'old-home'
+      poster:'assets/room.webp',author:'father',sourceLabel:'AI 生成的老家场景示例',scope:'family',viewers:[...FAMILY],relatedStoryId:'old-home'
     },
     {
       id:'father-clip-home',subject:'father',kind:'clip',title:'我拍下的家中一刻',
       date:'2026年10月 · 拍摄分类示例',year:'2026',duration:12,
       description:'视频入口中“本人拍摄”类型的生活影像示例，可查看拍摄人、时间和说明。演示画面由示例图片编排，并非本人真实拍摄。',
-      poster:'assets/room.png',src:'assets/archive-demo/home-moment.mp4',
+      poster:'assets/room.webp',src:'assets/archive-demo/home-moment.mp4',
       author:'father',sourceLabel:'本人拍摄分类演示 · 非真实实拍视频',scope:'family',viewers:[...FAMILY],relatedStoryId:'old-home'
     },
     {
       id:'father-clip-reunion',subject:'xia',kind:'clip',title:'爸爸拍下的知夏与家人',
       date:'2026年春节 · 分类示例',year:'2026',duration:12,
       description:'资料围绕陈知夏存档，拍摄者为陈远山，因此也会出现在陈远山的视频入口的“本人拍摄”类型。当前为图片编排演示，不是实际春节录像。',
-      poster:'assets/family.png',src:'assets/archive-demo/family-moment.mp4',
+      poster:'assets/family.webp',src:'assets/archive-demo/family-moment.mp4',
       author:'father',sourceLabel:'本人拍摄分类演示 · 非真实实拍视频',scope:'family',viewers:[...FAMILY],relatedStoryId:'spring'
     },
     {
       id:'father-clip-by-xia',subject:'father',kind:'clip',title:'知夏镜头里的爸爸',
       date:'2026年春节 · 分类示例',year:'2026',duration:12,
       description:'资料围绕陈远山存档，拍摄者为陈知夏。它属于“关于陈远山的视频”，不会被标成陈远山本人拍摄；当前为图片编排演示。',
-      poster:'assets/family.png',src:'assets/archive-demo/family-moment.mp4',
+      poster:'assets/family.webp',src:'assets/archive-demo/family-moment.mp4',
       author:'xia',sourceLabel:'家人拍摄分类演示 · 非真实实拍视频',scope:'family',viewers:[...FAMILY],relatedStoryId:'spring'
     },
     {
       id:'father-clip-private',subject:'father',kind:'clip',title:'只留给自己的拍摄草稿',
       date:'2026年10月 · 私密示例',year:'2026',duration:12,
       description:'仅本人可见的拍摄草稿示例。进入某个人的档案或加入家庭，不会自动获得这段内容的查看权限。',
-      poster:'assets/room.png',src:'assets/archive-demo/home-moment.mp4',
+      poster:'assets/room.webp',src:'assets/archive-demo/home-moment.mp4',
       author:'father',sourceLabel:'私密权限演示 · 非真实实拍视频',scope:'private',viewers:[]
     },
     // 著作、文章与书画统一作为作品资料，展示图复用已确认设计切图；不冒充出版物或真实原作。
-    {"id": "father-work-book-days", "subject": "father", "kind": "work", "title": "著作 · 把日子过成故事", "date": "2018年 · 虚构作品示例", "year": "2018", "description": "一本围绕工作、家庭与日常选择编排的虚构随笔集。此处展示目录与两个短节选，不是完整出版物。", "poster": "assets/works/father-work-book-days.png", "author": "father", "sourceLabel": "原型虚构著作节选 · 文字与展示图均为演示内容", "scope": "family", "viewers": ["father", "mother", "xia", "grandpa", "nian"], "body": ["示例目录：一、从老家出发；二、第一次把事情做成；三、留一盏回家的灯；四、把平常日子记下来。", "节选《留一盏灯》：年轻时总觉得，日子要有很大的事情发生，才值得写下来。后来才明白，一碗热面、一句到了没有、一盏等人回家的灯，都在悄悄告诉我，自己为什么要往前走。", "节选《慢慢讲》：有些选择，当年只顾着做，没来得及解释。现在想把它们讲给家人听，不是为了证明自己总是对的，而是让他们知道，我也犹豫过，也因为有人陪着，才多走了一步。"]},
-    {"id": "father-work-book-home", "subject": "father", "kind": "work", "title": "著作 · 老屋里的四季", "date": "2022年 · 虚构作品示例", "year": "2022", "description": "以老屋、四季和家庭记忆为主题的虚构散文集，展示内容提要与短节选，无真实出版信息。", "poster": "assets/works/father-work-book-home.png", "author": "father", "sourceLabel": "原型虚构著作节选 · 文字与展示图均为演示内容", "scope": "family", "viewers": ["father", "mother", "xia", "grandpa", "nian"], "body": ["内容提要：从春天窗前的光，到冬天饭桌旁的热气，用四个季节串起关于家与成长的记忆。", "节选《夏天的窗边》：午后的风从窗缝进来，把桌上摊开的书翻过一页。那时候觉得，窗外才是想去的远方；很多年以后，远方走过了，最想回去的却是这扇窗边。", "节选《冬天的一顿饭》：家里人陆续回来，门一开一合。菜可以晚一点上齐，话也不必一次说完，只要围着同一张桌子坐下，冬天就没有那么冷。"]},
-    {"id": "father-work-essay-order", "subject": "father", "kind": "work", "title": "文章 · 第一笔订单之后", "date": "2020年 · 虚构作品示例", "year": "2020", "description": "关于创业与信任的虚构短文。与人生事件分开作为创作成果保存。", "poster": "assets/works/father-work-essay-order.png", "author": "father", "sourceLabel": "原型虚构文章 · 文字与展示图均为演示内容", "scope": "family", "viewers": ["father", "mother", "xia", "grandpa", "nian"], "body": ["第一笔订单来的时候，我最先想到的不是庆祝，而是能不能把答应的事做好。那张纸上的每一个字，都像在提醒我：别人已经把信任交过来了。", "后来做的事情多了，才慢慢懂得，生意里的长久关系，常常来自一些很小的坚持。答应什么时候回电话，就什么时候回；做不到的事情，早点说清楚。", "我想留给晚辈的，并不是某一种成功办法。只是希望他们遇到选择时，除了问值不值得，也问一句：这件事，我能不能对自己和相信我的人交代。"]},
-    {"id": "father-work-essay-reunion", "subject": "father", "kind": "work", "title": "文章 · 团圆不必等到节日", "date": "2026年 · 虚构作品示例", "year": "2026", "description": "写给日常相处的虚构生活随笔，呈现文章阅读与资料追问的方式。", "poster": "assets/works/father-work-essay-reunion.png", "author": "father", "sourceLabel": "原型虚构文章 · 文字与展示图均为演示内容", "scope": "family", "viewers": ["father", "mother", "xia", "grandpa", "nian"], "body": ["以前总想着，等忙完这一阵，再好好陪家人。可这一阵后面，往往还有下一阵。回头看，真正让人记得的团圆，未必都安排在日历上。", "一起去买一次菜，饭后多坐十分钟，听孩子把一件小事讲完，这些都算。相处不一定需要很隆重，愿意把时间交给彼此，就已经有了分量。", "下次想家了，不妨先打个电话。也许没有什么特别的事可说，但熟悉的声音，本身就是一件值得留下的小事。"]},
-    {"id": "father-work-calligraphy", "subject": "father", "kind": "work", "title": "书法 · 家和", "date": "2024年 · 虚构作品示例", "year": "2024", "description": "“家和”二字的书法作品归档示例。画面裁自已确认设计稿，是AI示意，不是真实书法扫描。", "poster": "assets/works/father-work-calligraphy.png", "author": "father", "sourceLabel": "原型虚构书法 · 文字与展示图均为演示内容", "scope": "family", "viewers": ["father", "mother", "xia", "grandpa", "nian"], "body": ["作品内容：家和。", "创作说明（虚构）：想把这两个字留在家里，提醒自己和晚辈，意见不一样时，也可以把话慢慢说清楚。", "展示说明：当前使用设计稿中的AI书法配图，正式资料可替换为整幅原作、局部细节与落款照片；本示例不提供真实书法家、尺寸或收藏鉴定信息。"]},
-    {"id": "father-work-painting", "subject": "father", "kind": "work", "title": "绘画 · 山居小景", "date": "2025年 · 虚构作品示例", "year": "2025", "description": "以远山、树木与小屋构成的设计稿AI配图，用于演示绘画归档，不是陈远山真实画作。", "poster": "assets/works/father-work-painting.png", "author": "father", "sourceLabel": "原型虚构绘画 · 文字与展示图均为演示内容", "scope": "family", "viewers": ["father", "mother", "xia", "grandpa", "nian"], "body": ["画面说明：远处的山层层展开，近处是一间小屋和几棵树。画面留出大片天空，想表达安静、舒展的感觉。", "创作说明（虚构）：外出走过很多地方后，仍然喜欢有山、有树、有人家的景色。它像记忆里的一个去处，不必与某个真实地点完全对应。", "展示说明：当前画面为已确认设计稿中的AI绘画示意；正式归档可保存原作高清图、创作手记和细节照片。"]},
+    {"id": "father-work-book-days", "subject": "father", "kind": "work", "title": "著作 · 把日子过成故事", "date": "2018年 · 虚构作品示例", "year": "2018", "description": "一本围绕工作、家庭与日常选择编排的虚构随笔集。此处展示目录与两个短节选，不是完整出版物。", "poster": "assets/works/father-work-book-days.webp", "author": "father", "sourceLabel": "原型虚构著作节选 · 文字与展示图均为演示内容", "scope": "family", "viewers": ["father", "mother", "xia", "grandpa", "nian"], "body": ["示例目录：一、从老家出发；二、第一次把事情做成；三、留一盏回家的灯；四、把平常日子记下来。", "节选《留一盏灯》：年轻时总觉得，日子要有很大的事情发生，才值得写下来。后来才明白，一碗热面、一句到了没有、一盏等人回家的灯，都在悄悄告诉我，自己为什么要往前走。", "节选《慢慢讲》：有些选择，当年只顾着做，没来得及解释。现在想把它们讲给家人听，不是为了证明自己总是对的，而是让他们知道，我也犹豫过，也因为有人陪着，才多走了一步。"]},
+    {"id": "father-work-book-home", "subject": "father", "kind": "work", "title": "著作 · 老屋里的四季", "date": "2022年 · 虚构作品示例", "year": "2022", "description": "以老屋、四季和家庭记忆为主题的虚构散文集，展示内容提要与短节选，无真实出版信息。", "poster": "assets/works/father-work-book-home.webp", "author": "father", "sourceLabel": "原型虚构著作节选 · 文字与展示图均为演示内容", "scope": "family", "viewers": ["father", "mother", "xia", "grandpa", "nian"], "body": ["内容提要：从春天窗前的光，到冬天饭桌旁的热气，用四个季节串起关于家与成长的记忆。", "节选《夏天的窗边》：午后的风从窗缝进来，把桌上摊开的书翻过一页。那时候觉得，窗外才是想去的远方；很多年以后，远方走过了，最想回去的却是这扇窗边。", "节选《冬天的一顿饭》：家里人陆续回来，门一开一合。菜可以晚一点上齐，话也不必一次说完，只要围着同一张桌子坐下，冬天就没有那么冷。"]},
+    {"id": "father-work-essay-order", "subject": "father", "kind": "work", "title": "文章 · 第一笔订单之后", "date": "2020年 · 虚构作品示例", "year": "2020", "description": "关于创业与信任的虚构短文。与人生事件分开作为创作成果保存。", "poster": "assets/works/father-work-essay-order.webp", "author": "father", "sourceLabel": "原型虚构文章 · 文字与展示图均为演示内容", "scope": "family", "viewers": ["father", "mother", "xia", "grandpa", "nian"], "body": ["第一笔订单来的时候，我最先想到的不是庆祝，而是能不能把答应的事做好。那张纸上的每一个字，都像在提醒我：别人已经把信任交过来了。", "后来做的事情多了，才慢慢懂得，生意里的长久关系，常常来自一些很小的坚持。答应什么时候回电话，就什么时候回；做不到的事情，早点说清楚。", "我想留给晚辈的，并不是某一种成功办法。只是希望他们遇到选择时，除了问值不值得，也问一句：这件事，我能不能对自己和相信我的人交代。"]},
+    {"id": "father-work-essay-reunion", "subject": "father", "kind": "work", "title": "文章 · 团圆不必等到节日", "date": "2026年 · 虚构作品示例", "year": "2026", "description": "写给日常相处的虚构生活随笔，呈现文章阅读与资料追问的方式。", "poster": "assets/works/father-work-essay-reunion.webp", "author": "father", "sourceLabel": "原型虚构文章 · 文字与展示图均为演示内容", "scope": "family", "viewers": ["father", "mother", "xia", "grandpa", "nian"], "body": ["以前总想着，等忙完这一阵，再好好陪家人。可这一阵后面，往往还有下一阵。回头看，真正让人记得的团圆，未必都安排在日历上。", "一起去买一次菜，饭后多坐十分钟，听孩子把一件小事讲完，这些都算。相处不一定需要很隆重，愿意把时间交给彼此，就已经有了分量。", "下次想家了，不妨先打个电话。也许没有什么特别的事可说，但熟悉的声音，本身就是一件值得留下的小事。"]},
+    {"id": "father-work-calligraphy", "subject": "father", "kind": "work", "title": "书法 · 家和", "date": "2024年 · 虚构作品示例", "year": "2024", "description": "“家和”二字的书法作品归档示例。画面裁自已确认设计稿，是AI示意，不是真实书法扫描。", "poster": "assets/works/father-work-calligraphy.webp", "author": "father", "sourceLabel": "原型虚构书法 · 文字与展示图均为演示内容", "scope": "family", "viewers": ["father", "mother", "xia", "grandpa", "nian"], "body": ["作品内容：家和。", "创作说明（虚构）：想把这两个字留在家里，提醒自己和晚辈，意见不一样时，也可以把话慢慢说清楚。", "展示说明：当前使用设计稿中的AI书法配图，正式资料可替换为整幅原作、局部细节与落款照片；本示例不提供真实书法家、尺寸或收藏鉴定信息。"]},
+    {"id": "father-work-painting", "subject": "father", "kind": "work", "title": "绘画 · 山居小景", "date": "2025年 · 虚构作品示例", "year": "2025", "description": "以远山、树木与小屋构成的设计稿AI配图，用于演示绘画归档，不是陈远山真实画作。", "poster": "assets/works/father-work-painting.webp", "author": "father", "sourceLabel": "原型虚构绘画 · 文字与展示图均为演示内容", "scope": "family", "viewers": ["father", "mother", "xia", "grandpa", "nian"], "body": ["画面说明：远处的山层层展开，近处是一间小屋和几棵树。画面留出大片天空，想表达安静、舒展的感觉。", "创作说明（虚构）：外出走过很多地方后，仍然喜欢有山、有树、有人家的景色。它像记忆里的一个去处，不必与某个真实地点完全对应。", "展示说明：当前画面为已确认设计稿中的AI绘画示意；正式归档可保存原作高清图、创作手记和细节照片。"]},
     {
       id:'old-home-letter',subject:'father',kind:'document',title:'离家后的家书 · 节选',
       date:'1986—1992年 · 虚构节选',year:'1986',description:'“那张一直没换的书桌”事件的书信资料示例，不是原始信件扫描。家书与该事件关联，不计入个人作品。',
-      poster:'assets/room.png',author:'father',sourceLabel:'事件书信资料示例 · 虚构家书节选',scope:'family',viewers:[...FAMILY],relatedStoryId:'old-home',
+      poster:'assets/room.webp',author:'father',sourceLabel:'事件书信资料示例 · 虚构家书节选',scope:'family',viewers:[...FAMILY],relatedStoryId:'old-home',
       body:[
         '亲爱的家人：家里一切可好？今天又在窗边坐了一会儿，想起离家前你们收拾行李的样子。路上有许多新鲜事，等下次回去，再慢慢讲给你们听。',
         '这里的日子忙碌，我会好好照顾自己。你们也不要太累。想家的时候，我会把想说的话写下来，好像隔着信纸，仍能听见家里熟悉的声音。',
@@ -161,23 +161,23 @@
     {
       id:'mother-photo-family',subject:'mother',kind:'photo',title:'林慧的家庭相册 · 团聚',
       date:'2026年 · 示例归档',year:'2026',description:'林慧档案中的家庭相关照片示例。画面为共享示意素材，不认定其中人物为林慧本人。',
-      poster:'assets/family.png',author:'mother',sourceLabel:'AI 生成的家庭关联照片示例',scope:'family',viewers:[...FAMILY]
+      poster:'assets/family.webp',author:'mother',sourceLabel:'AI 生成的家庭关联照片示例',scope:'family',viewers:[...FAMILY]
     },
     {
       id:'mother-clip-home',subject:'mother',kind:'clip',title:'家里的日常',
       date:'2026年 · 拍摄分类示例',year:'2026',duration:12,description:'林慧视频入口中本人拍摄类型的演示条目，与陈远山的影像列表独立。当前画面由示例图片编排，不是她本人拍摄的录像。',
-      poster:'assets/room.png',src:'assets/archive-demo/home-moment.mp4',
+      poster:'assets/room.webp',src:'assets/archive-demo/home-moment.mp4',
       author:'mother',sourceLabel:'本人拍摄分类演示 · 非真实实拍视频',scope:'family',viewers:[...FAMILY]
     },
     {
       id:'xia-photo-family',subject:'xia',kind:'photo',title:'知夏的相册 · 家人相伴',
       date:'2026年 · 示例归档',year:'2026',description:'陈知夏独立档案中的家庭照片示例，不会因为她是家人，就被混入父亲的个人照片统计。',
-      poster:'assets/family.png',author:'xia',sourceLabel:'AI 生成的家庭关联照片示例',scope:'family',viewers:[...FAMILY],relatedStoryId:'spring'
+      poster:'assets/family.webp',author:'xia',sourceLabel:'AI 生成的家庭关联照片示例',scope:'family',viewers:[...FAMILY],relatedStoryId:'spring'
     },
     {
       id:'xia-clip-reunion',subject:'xia',kind:'clip',title:'我想留下的团聚片段',
       date:'2026年春节 · 分类示例',year:'2026',duration:12,description:'陈知夏视频入口中本人拍摄类型的演示条目，由她的独立档案展示；当前使用示例图片编排，不是实际本人拍摄。',
-      poster:'assets/family.png',src:'assets/archive-demo/family-moment.mp4',
+      poster:'assets/family.webp',src:'assets/archive-demo/family-moment.mp4',
       author:'xia',sourceLabel:'本人拍摄分类演示 · 非真实实拍视频',scope:'family',viewers:[...FAMILY]
     },
     {
@@ -189,14 +189,14 @@
     {
       id:'nian-new-year-photo',subject:'nian',author:'xia',kind:'photo',title:'过年时拍的一张全家福',
       date:'2020年2月8日',eventDate:'2020-02-08',year:'2020',description:'家人合影的成长记录示例。',
-      poster:'assets/zhumen/entry-preview-family.png',sourceLabel:'陈家的成长记录 · 示例影像',scope:'family',viewers:[...FAMILY],
+      poster:'assets/zhumen/entry-preview-family.webp',sourceLabel:'陈家的成长记录 · 示例影像',scope:'family',viewers:[...FAMILY],
       relatedMembers:['nian'],fromFamily:true
     },
     {
       id:'nian-growth-video',subject:'nian',author:'xia',kind:'clip',title:'四岁时的家庭影像',
       date:'2020年5月24日',eventDate:'2020-05-24',year:'2020',duration:12,
       description:'以原型内置的家庭示例影像演示成长视频。',
-      poster:'assets/zhumen/entry-preview-family.png',src:'assets/archive-demo/family-moment.mp4',
+      poster:'assets/zhumen/entry-preview-family.webp',src:'assets/archive-demo/family-moment.mp4',
       sourceLabel:'陈家的成长记录 · 视频示例',scope:'family',viewers:[...FAMILY],
       relatedMembers:['nian'],fromFamily:true
     }
@@ -223,7 +223,7 @@
     {id:'first-office',subject:'father',title:'第一间办公室',description:'从第一笔订单，了解创业起点的经历。空间漫游暂未开放。',storyIds:['first-order'],hasSpace:false}
   ];
   window.App.ARCHIVE_DATA={
-    notice:'人物与传记为虚构原型资料；视频由示例图片编排，参考肖像来自用户提供图片，不代表真实客户影片或本人实拍。',
+    notice:'人物与传记为虚构原型资料；视频由示例图片编排，人物肖像为演示素材，不代表真实客户影片或本人实拍。',
     people,assets,captions,places
   };
 }

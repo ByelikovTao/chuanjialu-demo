@@ -87,9 +87,9 @@
       return `<article class="card question-card"><h2>${e(story.title)}</h2>
         <p>${e(status(item))}${notice(item)?' · 有留言待查看':''}</p>${l('回这条往事查看','story/'+e(id),'btn secondary')}</article>`;
     }).filter(Boolean);
-    return `<div class="page"><h1 class="page-title">家人留言</h1><p class="page-subtitle">点开对应的往事查看留言和回复。</p>
+    return `<div class="page"><p class="page-subtitle">点开对应的往事查看留言和回复。</p>
       <div class="section stack">${items.join('')||'<p class="note">还没有留言。可以打开一条家庭往事，给记录的家人留个问题。</p>'}</div>
-      ${l('查看家庭往事','house-stories/family','btn secondary full')}</div>`;
+      ${l('查看家庭往事','house-stories/family','btn secondary full section')}</div>`;
   }
   function submit(form){
     const id=form.dataset.storyQuestion,answerId=form.dataset.questionAnswer;

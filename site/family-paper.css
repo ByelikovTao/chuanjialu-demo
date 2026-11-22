@@ -1,0 +1,92 @@
+/* 全站以浅粉青灰作底，纸页和朱砂印记共用同一组颜色。 */
+:root {
+  --family-font: "Source Han Serif SC", "Noto Serif SC", "Songti SC", STSong, SimSun, serif;
+  --family-hand: KaiTi, STKaiti, var(--family-font);
+  --family-ink: #3b2717;
+  --family-muted: #6e5138;
+  --family-brand: #a8311d;
+  --family-pressed: #812615;
+  --family-paper: #fff7ed;
+  --family-surface: #fffaf1;
+  --family-line: #dfc9b4;
+  --family-soft: #f6e3d8;
+  --family-blush: #f9ebe6;
+  --family-sage: #dce5db;
+  --family-canvas:
+    radial-gradient(ellipse at 100% 0, var(--family-sage), transparent 62%),
+    radial-gradient(ellipse at 0 100%, #e2e8dd, transparent 48%),
+    var(--family-blush);
+  --family-texture: url("assets/family-home/reference/paper-grain.webp");
+  --family-shadow: 0 2px 4px rgb(91 56 31 / 12%), 0 8px 24px rgb(91 56 31 / 8%);
+}
+
+.paper-document {
+  --canvas: var(--family-blush);
+  --surface: var(--family-surface);
+  --ink: var(--family-ink);
+  --secondary: var(--family-muted);
+  --subtle: var(--family-muted);
+  --copper: #815333;
+  --brand: var(--family-brand);
+  --soft: var(--family-soft);
+  --line: var(--family-line);
+  --paper: var(--family-paper);
+  --sheet: var(--family-surface);
+  --red: var(--family-brand);
+  --blush: var(--family-soft);
+  --serif: var(--family-font);
+  color: var(--family-ink);
+  font-family: var(--family-font);
+}
+
+@media screen {
+  .paper-document {
+    min-height: 100dvh;
+    background: var(--family-canvas);
+    background-attachment: fixed;
+  }
+
+  .paper-document :is(.masthead, .report-toolbar, .briefing-header, .photo-header) {
+    background: var(--family-surface);
+    border-bottom: 1px solid var(--family-line);
+    color: var(--family-ink);
+  }
+
+  .paper-document :is(.briefing-header, .memory-guest-main, .photo-screen, .table-frame) {
+    background: var(--family-texture) center top / 600px auto var(--family-paper);
+    background-blend-mode: multiply;
+    border-color: var(--family-line);
+    box-shadow: var(--family-shadow);
+  }
+
+  .paper-document .memory-guest-main {
+    width: min(100% - 24px, 600px);
+    margin-block: 16px;
+    border: 1px solid var(--family-line);
+    border-radius: 16px;
+  }
+
+  .paper-document .memory-guest-invitation {
+    border: 1px solid var(--family-line);
+    border-radius: 12px;
+    background: var(--family-surface);
+  }
+
+  .paper-document .photo-header::before,
+  .paper-document .photo-page h1::before {
+    content: none;
+  }
+
+  .paper-document .phone-frame {
+    background: var(--family-paper);
+    box-shadow: 0 0 0 1px var(--family-line), var(--family-shadow);
+  }
+
+  .paper-document.overview-document :is(h1, h2, footer, header a) {
+    color: var(--family-brand);
+  }
+
+  .paper-document.overview-document header p {
+    color: var(--family-muted);
+  }
+}

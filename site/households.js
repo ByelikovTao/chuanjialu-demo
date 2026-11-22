@@ -12,19 +12,46 @@
     plannedAudioHours: 8
   };
   const EXAMPLE='example', exampleName=P.HOME_NAME;
-  const services={
-    film:{title:'AI 人生故事片',summary:'顾问上门采集口述和老照片，确认主角小样，再交付成片。',price:'15,000 元／位',route:'film-delivery'},
-    digital:{title:'数字人创建',summary:'用本人授权的资料创建互动数字人，家人可在授权范围内提问并回看引用来源。',price:'按人物与制作范围报价',route:'chat'},
-    vr:{title:'VR 房间建模',summary:'将房间、老宅或家庭纪念空间做成可漫游的三维场景，家人可在授权范围内查看物件和故事。',price:'按空间和采集范围报价',route:'space'}
+  function unitQuote(label, amount, unit) {
+    return {price: `${label} ${amount} ${unit}`, priceLabel: label, amount, unit};
+  }
+  const services = {
+    film: {
+      title: 'AI 人生故事片', ask: '咨询故事片拍摄',
+      summary: '征得本人同意后，顾问上门采访并收集老照片。确认小样后制作成片。',
+      ...unitQuote('试点参考价', '15,000', '元／位'),
+      next: '顾问会先确认拍摄对象、地点和想讲的故事，再约定采集安排。', route: 'film-delivery'
+    },
+    digital: {
+      title: '数字人创建', ask: '咨询数字人制作',
+      summary: '本人先确认可以使用的资料。制作完成后，可以向指定家人开放提问，回答可回看引用的往事。',
+      price: '按人物与制作范围报价', next: '顾问会先了解素材和本人意愿，再与本人确认授权范围并报价。', route: 'chat'
+    },
+    vr: {
+      title: 'VR 房间建模', ask: '咨询老宅建模',
+      summary: '从一间房或一个院子开始，采集房间和老物件，做成可漫游的三维场景，按授权向家人开放。',
+      price: '按空间和采集范围报价', next: '顾问会与你核对房间数量、重要物件和采集地点，再给出报价。', route: 'space'
+    },
+    book: {
+      title: '纸质纪念书', ask: '咨询纸书制作',
+      summary: '编辑帮你从已获授权的往事里选材、排版。家人先看校样，确认样书后再印制。',
+      price: '编辑、样书、印制分段报价', next: '编辑会先了解想收录哪些往事、准备印几册，再给出分项报价。', route: 'books'
+    },
+    frame: {
+      title: '爸妈大屏相框', ask: '咨询门店试售价',
+      summary: '家人可以用手机添照片，爸妈能在相框上回语音。门店会单独说明选片预装和配送费用。',
+      ...unitQuote('演示价', '699', '元／台'),
+      next: '门店会确认设备售价、是否包含预装和配送，再由你决定是否购买。', route: 'house-screen'
+    }
   };
   const titles={'house-create':'创建家庭','house-switch':'创建或切换家庭','house-add':'添加记录','house-record':'记录一件往事','house-story':'家庭往事','house-moment':'记一刻',
-    'house-stories':'记录','house-baby':'宝宝成长','house-elders':'爸妈的日子','house-couple':'两个人的日子','house-couple-setup':'伴侣邀请',
-    'house-book':'家庭故事册','house-book-preview':'故事册预览','house-book-saved':'已保存故事册','house-addons':'独立增值服务','house-service':'服务详情'};
+    'house-stories':'记录','house-baby':'成长记','house-elders':'长辈岁月','house-couple':'相伴记','house-couple-setup':'伴侣邀请',
+    'house-book':'家庭纪事册','house-book-preview':'纪事册预览','house-book-saved':'已保存纪事册','house-addons':'传家定制','house-service':'服务详情','service-order':'定制进度'};
   const RECORD_SCOPES={private:'仅自己',selected:'指定家人',family:'当前家庭成员'};
   const STORY_PROFILE_LIMITS = { name: 24, intro: 600, hometown: 48, education: 1200, work: 1200 };
   const STORY_CATEGORIES={
-    photo:{label:'照片',kind:'photo',unit:'张'},
-    video:{label:'视频',kind:'clip',unit:'段',preview:2},
+    photo:{label:'照片',personLabel:'留影',kind:'photo',unit:'张'},
+    video:{label:'视频',personLabel:'影录',kind:'clip',unit:'段',preview:2},
     work:{label:'作品',kind:'work',unit:'件',preview:2}
   };
 
@@ -60,7 +87,9 @@
   function action(label,key,primary=false,attrs=''){return b(label,key,primary?'btn full':'btn secondary full',attrs);}
   function toolbar(...items){return `<div class="house-actions section">${items.join('')}</div>`;}
   function page(title,note,body,extra=''){
-    return `<div class="page house-page ${extra}"><h1 class="page-title">${title}</h1><p class="page-subtitle">${note}</p>${body}</div>`;
+    // 公共页头已显示同名标题时，正文可从说明开始。
+    const heading = title ? `<h1 class="page-title">${title}</h1>` : '';
+    return `<div class="page house-page ${extra}">${heading}<p class="page-subtitle">${note}</p>${body}</div>`;
   }
   function card(title,note,controls=''){return `<section class="card house-card section"><h2>${title}</h2><p>${note}</p>${controls}</section>`;}
   function field(label,name,placeholder,max=24){
@@ -243,19 +272,23 @@
   function sharedRecord(){
     const family=current();
     if(!family)return empty();
+    const cover = registry.routeId === 'home-cover';
+    const album = registry.routeId === 'home-album';
+    const diary = registry.routeId === 'diary';
     if(registry.routeId==='photo'){
       const first=!isExample()&&!P.state.stories.some(story=>story.photoToken);
       const title=first?'发第一张老照片':'给老照片添句话';
       const note=first?'选一张家里的老照片，发给家人，请他们说说照片背后的故事。':'选一张照片，问家人一件想知道的事。';
       return page(title,note,P.PhotoStories.composer({first,relatedMembers:memberIds([registry.routeDetail])}));
     }
-    return page('留下一件家里的事',`保存到 ${e(family.name)} · 写下你记得的细节。`,
+    const title = cover ? '传一张全家福' : album ? '放入照片' : diary ? '记一件事' : '留下一件家里的事';
+    return page(title,`保存到 ${e(family.name)} · ${cover ? '全家人都可以在首页看到这张照片。' : '写下你记得的细节。'}`,
       form('house-record-form',field('往事标题','title','例如 院子里的合照',48)+
-        '<label class="form-field"><span>写下你记得的事</span><textarea name="text" maxlength="5000" rows="5" required></textarea></label>'+
-        '<label class="form-field"><span>选一张照片（可选）</span><input name="image" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></label>'+
-        memberFields(memberIds([registry.routeId]))+audienceFields('house-record-scope')+
-        '<p class="caption">分享按保存时选定的家人开放。</p>','保存往事')+
-      toolbar(jump('录音或补写家人的经历','record')));
+        `<label class="form-field"><span>${cover || album ? '照片说明（可选）' : '写下你记得的事'}</span><textarea name="text" maxlength="5000" rows="${cover || album ? 3 : 5}"${cover || album ? '' : ' required'}></textarea></label>`+
+        `<label class="form-field"><span>选一张照片${cover || album ? '' : '（可选）'}</span><input name="image" type="file" accept="image/png,image/jpeg,image/webp,image/gif"${cover || album ? ' required' : ''}></label>`+
+        memberFields(memberIds([registry.routeId]))+(cover ? '' : audienceFields('house-record-scope', album || diary ? 'family' : 'private')+
+        '<p class="caption">分享按保存时选定的家人开放。</p>'), cover || album ? '保存照片' : '保存往事')+
+      (cover || album ? '' : toolbar(jump('录音或补写家人的经历','record'))));
   }
   function isPhotoStory(story){
     return Boolean(story.photoToken||story.houseImage||story.houseBytes);
@@ -268,23 +301,19 @@
     const date=({item})=>item.recordedAt||Date.parse(item.recorded||item.date)||0;
     return [...stories,...materials].sort((left,right)=>date(right)-date(left));
   }
-  function recordRows(entries,{showRelated=false,activity=false}={}){
+  function recordRows(entries,{showRelated=false}={}){
     const labels={photo:['photo','照片'],clip:['play','视频'],work:['book','作品'],story:['edit','往事']};
-    const activityLabels={photo:'分享了照片',clip:'分享了视频',work:'分享了作品',story:'记录了往事'};
     return entries.map(({item,kind,material})=>{
       const [icon,label]=kind==='story'&&item.houseVoice?['mic','语音']:labels[kind];
-      const cover=item.houseImage||(material&&(!activity||item.kind!=='clip')?item.poster:'');
+      const cover=item.houseImage||(material?item.poster:'');
       const thumb=cover?`<img src="${e(cover)}" alt="" loading="lazy">`:i(icon);
       const name=e(item.authorName||P.PEOPLE[item.author]?.name||'家人');
-      const replies=!activity&&!material&&(showRelated||item.photoToken)?P.PhotoStories.countLabel(item):'';
+      const replies=!material&&(showRelated||item.photoToken)?P.PhotoStories.countLabel(item):'';
       const notice=material?'':P.QuestionInbox.storyNotice(item);
       const related=showRelated?relatedMemberNames(item):'';
-      const scope=!activity&&!item.coupleId&&['private','selected'].includes(item.scope)?RECORD_SCOPES[item.scope]:'';
+      const scope=!item.coupleId&&['private','selected'].includes(item.scope)?RECORD_SCOPES[item.scope]:'';
       const route=(material?'archive-item/':'story/')+e(item.id);
-      const recorded = activity && (item.recorded || item.date);
-      const meta = activity
-        ? `${name} · ${item.babyMilestone ? '记录了成长里程碑' : item.houseVoice ? '留下了语音' : activityLabels[kind]}${recorded ? ' · ' + e(recorded) : ''}`
-        : [item.babyMilestone?'成长里程碑':label,name,e(item.recorded||item.date||''),scope,replies].filter(Boolean).join(' · ')+notice;
+      const meta = [item.babyMilestone?'成长里程碑':label,name,e(item.recorded||item.date||''),scope,replies].filter(Boolean).join(' · ')+notice;
       return l(`<span class="family-record-thumb">${thumb}</span>
         <span class="family-record-copy"><strong>${e(item.title)}</strong><small>${meta}</small>${related?`<small>关联 ${e(related)}</small>`:''}</span>${i('arrow')}`,
       route,'family-record-row');
@@ -295,20 +324,6 @@
     const familyId = current()?.id;
     return recentEntries({ includeAllMedia }).filter(({ item }) =>
       item.coupleId ? item.coupleGrant?.familyId === familyId : item.scope !== 'private');
-  }
-  function recentRecords(limit) {
-    return recordRows(sharedFamilyEntries().slice(0, limit), {activity:true});
-  }
-  /** 首页相册复用共享记录的权限。保留近期顺序，首屏最多提前一段可播放的视频。 */
-  function recentAlbum(limit) {
-    const entries = sharedFamilyEntries().filter(({ item, kind, material }) =>
-      (kind === 'photo' && (material ? item.poster : item.houseImage)) || (kind === 'clip' && item.src));
-    const firstVideo = entries.findIndex(({ kind }) => kind === 'clip');
-    if (firstVideo > 2) {
-      const [video] = entries.splice(firstVideo, 1);
-      entries.splice(2, 0, video);
-    }
-    return entries.slice(0, limit).map(albumEntry);
   }
   function albumEntry({ item, kind, material }) {
     return {
@@ -348,7 +363,7 @@
     return Array.from(groups).sort(([left],[right])=>right-left).map(([year,entries])=>
       `<section class="section story-photo-year"><h3>${year?year+' 年':'拍摄年代待补充'}</h3>${storyCards(entries,person)}</section>`).join('');
   }
-  /** 家庭档案和首页复用共享范围，私密记录由本人在个人档案回看。 */
+  /** 家庭档案和首页复用共享范围，私密记录由本人在人物志回看。 */
   function filteredStories({family,person}){
     if(family)return sharedFamilyEntries();
     const ownProfile = person === P.state.actor;
@@ -379,19 +394,19 @@
     }
     return photos.map(({item})=>item);
   }
-  function storyArchiveHeading(person){
-    return `<div class="story-archive-heading">
-      <div class="story-archive-intro">
-        <div class="story-archive-identity story-person-identity">
-          ${P.avatar(person)}
-          <div class="story-person-name">
-            <h2 class="story-archive-title">${e(P.PEOPLE[person].name)}</h2>
-            <p class="story-archive-meta">个人档案</p>
-          </div>
-        </div>
-        ${l(i('plus')+' 添加记录','house-add/'+e(person),'btn compact story-archive-add')}
-      </div>
-    </div>`;
+  function storyPersonCover(person) {
+    return `<header class="story-person-cover">
+      ${P.avatar(person, 'story-person-portrait')}
+      <h2 id="story-person-title" class="story-archive-title">${e(P.PEOPLE[person].name)}</h2>
+      <p class="story-person-title-slip">人物志</p>
+    </header>`;
+  }
+
+  function storyPersonActions(person, overview) {
+    const edit = overview && canEditStoryProfile(person) ? b(i('edit') + ' 编辑资料', 'house-story-profile-edit',
+      'story-person-action story-person-edit', `data-id="${e(person)}"`) : '';
+    const add = l(i('plus') + ' 添加记录', 'house-add/' + e(person), 'story-person-action');
+    return `<div class="story-person-actions">${edit}${add}</div>`;
   }
   function canEditStoryProfile(person) {
     return person === P.state.actor && Object.hasOwn(P.state.accounts, person) && memberIds([person]).length > 0;
@@ -416,13 +431,13 @@
             <label class="form-field"><span>籍贯</span><input name="hometown" value="${e(details?.hometown || '')}"
               maxlength="${limits.hometown}" placeholder="例如 贵州贵阳"></label>
           </div>
-          <label class="form-field"><span>个人简介</span><textarea name="intro" rows="3" maxlength="${limits.intro}">${e(intro)}</textarea></label>
+          <label class="form-field"><span>小传</span><textarea name="intro" rows="3" maxlength="${limits.intro}">${e(intro)}</textarea></label>
         </section>
         <section class="story-person-editor-section" aria-labelledby="story-person-experience-fields">
-          <h3 id="story-person-experience-fields">人生经历</h3>
-          <label class="form-field"><span>求学经历</span><textarea name="education" rows="3" maxlength="${limits.education}"
+          <h3 id="story-person-experience-fields">经历</h3>
+          <label class="form-field"><span>求学</span><textarea name="education" rows="3" maxlength="${limits.education}"
             placeholder="可写年份、学校和专业，多段可分行">${e(details?.education || '')}</textarea></label>
-          <label class="form-field"><span>工作经历</span><textarea name="work" rows="3" maxlength="${limits.work}"
+          <label class="form-field"><span>从业</span><textarea name="work" rows="3" maxlength="${limits.work}"
             placeholder="可写年份、单位和岗位，多段可分行">${e(details?.work || '')}</textarea></label>
         </section>
       </div>
@@ -492,19 +507,28 @@
     return Boolean(key === 'film' ? account?.videoDelivered : account?.hasDigital);
   }
 
-  function storyPersonServices(person) {
+  function storyPersonServices(person, returnLabel = '返回人物志') {
     const entries = [
       ['film', 'play', 'AI 纪录片', '观看'],
       ['digital', 'mic', '数字人', '对话']
     ].map(([key, icon, title, readyLabel]) => {
       const access = personServiceAccess(key, person);
-      const label = access ? readyLabel : personServiceDelivered(key, person) ? '查看权限' : '了解制作';
-      const route = access?.route || `house-service/${key}/${person}`;
-      return l(`${i(icon)}<strong class="story-person-service-title">${title}</strong>
-        <span class="story-person-service-action">${label}${i('arrow')}</span>`,
-        e(route), 'story-person-service', `data-profile-service="${key}" aria-label="${e(P.PEOPLE[person].name + '的' + title + '，' + label)}"`);
+      const delivered = personServiceDelivered(key, person);
+      const consulted = visibleOrder(findServiceOrder(key, person));
+      let label = consulted ? '查看咨询进度' : '了解定制费用';
+      if (access) label = readyLabel;
+      else if (delivered) label = '查看权限';
+      const content = `${i(icon)}<strong class="story-person-service-title">${title}</strong>
+        <span class="story-person-service-action"><span data-addon-label>${label}</span>${i('arrow')}</span>`;
+      const attrs = `data-profile-service="${key}" aria-label="${e(P.PEOPLE[person].name + '的' + title + '，' + label)}"`;
+      // 已交付的服务沿用观看、对话和申请授权入口；未交付的咨询留在当前人物页查进度。
+      if (access || delivered) {
+        return l(content, e(access?.route || `house-service/${key}/${person}`), 'story-person-service', attrs);
+      }
+      return b(content, 'house-addon-open', 'story-person-service',
+        `${attrs} data-id="${key}" data-person="${e(person)}" data-return="${e(returnLabel)}"`);
     }).join('');
-    return `<div id="story-person-services" class="story-person-service-list" role="group" aria-label="增值服务">${entries}</div>`;
+    return `<div id="story-person-services" class="story-person-service-list" role="group" aria-label="传家定制">${entries}</div>`;
   }
 
   /** 本人填写的简介、籍贯和经历沿用人物档案的可见范围，传记和原记录仍单独核验。 */
@@ -531,39 +555,23 @@
         ? `<details><summary>${heading}${i('down')}</summary><div class="story-person-experience-copy">${chapterContent}</div></details>`
         : `<div class="story-person-experience-label">${heading}</div>`}</li>`;
     }).join('');
-    const written = [['求学经历', details?.education], ['工作经历', details?.work]]
+    const written = [['求学', details?.education], ['从业', details?.work]]
       .filter(([, text]) => text)
-      .map(([label, text]) => `<div><h3>${label}</h3><p>${e(text)}</p></div>`).join('');
-    const edit = canEditStoryProfile(person) ? b(i('edit') + ' 编辑资料', 'house-story-profile-edit',
-      'story-person-action story-person-edit', `data-id="${e(person)}"`) : '';
-    const add = l(i('plus') + ' 添加记录', 'house-add/' + e(person), 'story-person-action story-person-add story-archive-add');
-    return `<section class="story-person-card" aria-labelledby="story-person-title">
-      <header class="story-person-card-header">
-        <div class="story-person-identity">
-          ${P.avatar(person)}
-          <div class="story-person-name">
-            <p class="story-archive-meta">个人档案</p>
-            <h2 id="story-person-title" class="story-archive-title">${e(member.name)}</h2>
-          </div>
-        </div>
-        <div class="story-person-actions">${edit}${add}</div>
-      </header>
-      ${storyPersonServices(person)}
-      <div class="story-person-summary">
-        <dl class="story-person-facts">
-          <div><dt>生日</dt><dd>${birth}</dd></div>
-          <div><dt>籍贯</dt><dd>${e(details?.hometown || (canReadDetails ? '待补充' : '暂无可查看'))}</dd></div>
-          <div><dt>与我的关系</dt><dd>${e(P.relation(person))}</dd></div>
-        </dl>
-        <h3 id="story-person-intro">个人简介</h3>
-        <p>${e(intro || '暂无可查看的简介。')}</p>
-      </div>
+      .map(([label, text]) => `<div><h4>${label}</h4><p>${e(text)}</p></div>`).join('');
+    return `<section class="story-person-summary" aria-labelledby="story-person-intro">
+      <h3 id="story-person-intro" class="story-person-chapter-title">小传</h3>
+      <p>${e(intro || '暂无可查看的小传。')}</p>
+      <dl class="story-person-facts">
+        <div><dt>生日</dt><dd>${birth}</dd></div>
+        <div><dt>籍贯</dt><dd>${e(details?.hometown || (canReadDetails ? '待补充' : '暂无可查看'))}</dd></div>
+        <div><dt>与我的关系</dt><dd>${e(P.relation(person))}</dd></div>
+      </dl>
     </section>
     <section class="story-archive-section" aria-labelledby="story-person-experiences">
-      <div class="story-archive-section-heading"><h2 id="story-person-experiences">人生经历</h2></div>
+      <div class="story-archive-section-heading"><h3 id="story-person-experiences" class="story-person-chapter-title">经历</h3></div>
       ${written ? `<div class="story-person-summary story-person-written">${written}</div>` : ''}
       ${timeline ? `<ol class="story-person-timeline">${timeline}</ol>` : ''}
-      ${!written && !timeline ? '<p class="story-person-summary">暂无可查看的人生经历。</p>' : ''}
+      ${!written && !timeline ? '<p class="story-person-summary">暂无可查看的经历。</p>' : ''}
     </section>`;
   }
   function storyArchivePicker({family,person}) {
@@ -591,8 +599,11 @@
       </div>
     </details>`;
   }
-  function storySectionHeading(title,action=''){
-    return `<div class="story-archive-section-heading"><h2>${title}</h2>${action}</div>`;
+  function storySectionHeading(title, action = '', personChapter = false) {
+    const heading = personChapter
+      ? `<h3 class="story-person-chapter-title">${title}</h3>`
+      : `<h2>${title}</h2>`;
+    return `<div class="story-archive-section-heading">${heading}${action}</div>`;
   }
   function storyArchiveEmpty(filters){
     if(filters.section==='work')return `<div class="story-archive-empty">${i('book')}
@@ -603,11 +614,14 @@
     </div>`;
   }
   /** 总览用少量记录展示各类资料，展开后仍访问原记录与当前筛选。 */
-  function storyOverview(entries,categories,filters){
+  function storyOverview(entries, categories, filters, recentTitle) {
     const recentRoute=storyListRoute({...filters,section:'recent'});
     const latest=entries.slice(0,3);
+    const recentLink = latest.length
+      ? l('查看全部 ' + i('arrow'), recentRoute, 'text-link story-archive-link', `aria-label="查看全部${e(recentTitle)}"`)
+      : '';
     const recent=`<section class="story-archive-section">
-      ${storySectionHeading('最近记录',latest.length?l('查看全部 '+i('arrow'),recentRoute,'text-link story-archive-link','aria-label="查看全部最近记录"'):'')}
+      ${storySectionHeading(recentTitle, recentLink, Boolean(filters.person))}
       ${latest.length?`<div class="story-archive-list">${recordRows(latest)}</div>`:storyArchiveEmpty(filters)}
     </section>`;
     const previews=categories.map(([id,{label,unit,preview},records])=>{
@@ -634,30 +648,34 @@
     const {person,section}=filters;
     const overview=section==='overview';
     const familyOverview=overview&&filters.family;
+    const recentTitle = filters.family ? '新近所记' : '新记';
     const entries=filteredStories(filters);
-    const categories=Object.entries(STORY_CATEGORIES).map(([id,category])=>
-      [id,category,entries.filter(entry=>entry.kind===category.kind)]);
-    const tabs=[['overview',filters.family?'总览':'简介'],...categories.map(([id,{label}])=>[id,label])].map(([id,label])=>
+    // 人物志的题签同时用于分类页和预览标题，仍按原分类标识查找记录。
+    const categories = Object.entries(STORY_CATEGORIES).map(([id, category]) => {
+      const label = filters.family ? category.label : (category.personLabel || category.label);
+      return [id, { ...category, label }, entries.filter(entry => entry.kind === category.kind)];
+    });
+    const tabs=[['overview',filters.family?'总览':'小传'],...categories.map(([id,{label}])=>[id,label])].map(([id,label])=>
       l(label,storyListRoute({...filters,section:id}),'',id===section?'aria-current="page"':'')).join('');
-    const categoryNav=`<nav class="story-archive-tabs${filters.family?'':' story-person-tabs'}" aria-label="档案分类">${tabs}</nav>`;
+    const categoryNav=`<nav class="story-archive-tabs${filters.family?'':' story-person-tabs'}" aria-label="${filters.family?'档案分类':'人物志目录'}">${tabs}</nav>`;
     const topics=familyOverview?`<section class="story-archive-section">
-      ${storySectionHeading('专题相册')}${P.FamilyEditions.entrances()}
+      ${storySectionHeading('主题影集')}${P.FamilyEditions.entrances()}
     </section>`:'';
     const noRecords=storyArchiveEmpty(filters);
     let body;
     if(section==='recent'){
       body=`<section class="story-archive-section">
-        ${storySectionHeading('最近记录',`<span class="story-archive-meta">${entries.length} 条</span>`)}
+        ${storySectionHeading(recentTitle, `<span class="story-archive-meta">${entries.length} 条</span>`, Boolean(person))}
         ${entries.length?`<div class="story-archive-list">${recordRows(entries,{showRelated:true})}</div>`:noRecords}
       </section>`;
     }else if(overview){
-      const {recent,previews}=storyOverview(entries,categories,filters);
+      const {recent,previews}=storyOverview(entries, categories, filters, recentTitle);
       body=familyOverview?recent+topics+categoryNav+previews:entries.length?recent+previews:noRecords;
     }else{
       const [,{label,unit},records]=categories.find(([id])=>id===section);
       const byYear=family.storyOrder==='photo-year';
       const order=section==='photo'&&records.length?`<select id="house-story-order" aria-label="照片排列方式">
-        <option value="recent" ${!byYear?'selected':''}>最近记录</option><option value="photo-year" ${byYear?'selected':''}>按照片年代</option>
+        <option value="recent" ${!byYear?'selected':''}>最近收录在前</option><option value="photo-year" ${byYear?'selected':''}>按照片年代</option>
       </select>`:'';
       body=`<section class="story-archive-section">
         ${storySectionHeading(`${label} <small class="story-archive-meta">${records.length} ${unit}</small>`,order)}
@@ -665,22 +683,36 @@
         ${records.length?(section==='photo'&&byYear?photoYears(records,person):storyCards(records,person)):noRecords}
       </section>`;
     }
+    const content = `<div class="archive-content" data-archive-tab="${section}">
+      ${person && overview ? storyPersonOverview(person) : ''}${body}
+    </div>`;
+    // 个人各分类共用册面和目录，家庭全部记录仍按集合浏览。
+    const reading = person ? `<article class="story-person-volume" aria-labelledby="story-person-title">
+      ${storyPersonCover(person)}${categoryNav}${storyPersonActions(person, overview)}
+      ${overview ? `<section class="story-archive-section story-person-service-section" aria-labelledby="story-person-services-title">
+        <div class="story-archive-section-heading"><h3 id="story-person-services-title">传家定制</h3></div>
+        ${storyPersonServices(person)}
+      </section>` : ''}
+      ${content}
+    </article>` : `${familyOverview ? '' : categoryNav}${content}`;
     return `<div class="page house-page family-story-page">
       ${storyArchivePicker(filters)}
-      ${familyOverview?'':categoryNav}
-      ${person?(overview?storyPersonOverview(person):storyArchiveHeading(person)):''}
-      <div class="archive-content" data-archive-tab="${section}">${body}</div>
+      ${reading}
       ${familyOverview?`<nav class="story-archive-tools" aria-label="整理家庭档案">
-        ${l(i('book')+' 家庭故事册 '+i('arrow'),'house-book','story-archive-tool')}
-        ${l(i('family')+' 共同回忆与故事集 '+i('arrow'),'common-memories','story-archive-tool')}
+        ${l(i('book')+' 家庭纪事册 '+i('arrow'),'house-book','story-archive-tool')}
+        ${l(i('family')+' 共忆集 '+i('arrow'),'common-memories','story-archive-tool')}
       </nav>`:''}
     </div>`;
   }
-  function replyPanel(story){
+  function replyPanel(story, journal = false){
     const questions=P.QuestionInbox.storyPanel(story);
     if(story.scope==='private')return questions;
-    const notes=(story.replies||[]).map(reply=>card(e(P.PEOPLE[reply.author]?.name||'家人'),e(reply.text))).join('')+
-      form('house-reply-form',`<input type="hidden" name="story" value="${e(story.id)}"><label class="form-field"><span>我记得…</span><textarea name="text" rows="3" maxlength="800" required></textarea></label><p class="caption">能看原往事的家人也能看你的补写。</p>`,'补充这段往事');
+    const replyForm = form('house-reply-form',`<input type="hidden" name="story" value="${e(story.id)}"><label class="form-field"><span>我记得…</span><textarea name="text" rows="3" maxlength="800" required></textarea></label><p class="caption">能看原往事的家人也能看你的补写。</p>`,'补充这段往事');
+    if (journal) {
+      const notes = (story.replies || []).map(reply => `<div class="journal-note"><h2>${e(P.PEOPLE[reply.author]?.short || '家人')}补记</h2><p>${e(reply.text)}</p></div>`).join('');
+      return `<section class="journal-replies">${notes}<details><summary>${i('plus')} 补一笔</summary>${replyForm}</details></section>${questions}`;
+    }
+    const notes = (story.replies || []).map(reply => card(e(P.PEOPLE[reply.author]?.name || '家人'), e(reply.text))).join('') + replyForm;
     const familyNotes=story.photoToken?`<details class="card section"><summary>家人补写</summary>${notes}</details>`:'<h2>家人补写</h2>'+notes;
     return `<section class="house-page section">${questions}${familyNotes}</section>`;
   }
@@ -704,7 +736,7 @@
       ${photo}
       ${story.text.map(value=>`<p class="house-copy">${e(value)}</p>`).join('')}
       ${(story.replies||[]).map(reply=>`<div class="family-book-reply"><p class="caption">${e(P.PEOPLE[reply.author]?.name||'家人')}补写</p><p class="house-copy">${e(reply.text)}</p></div>`).join('')}
-      ${P.FamilyMoment.playback(story)}${P.PhotoStories.bookVoices(story)}</article>`;
+      ${P.FamilyMoment.playback(story)}${P.PhotoStories.bookVoices(story)}${P.HouseScreen.bookVoices(story)}</article>`;
   }
   function bookCover(title,count,label){
     return `<header class="book-cover family-book-cover"><div class="family-book-label">
@@ -731,9 +763,25 @@
     document.getElementById('app-content').scrollTop=0;
   }
   function bookSelection(f,candidates=bookCandidates()){
-    const draft=f.bookDraft||{title:f.name+'的故事册',ids:candidates.slice(-3).map(story=>story.id)};
+    const draft=f.bookDraft||{title:f.name+'的纪事册',ids:candidates.slice(-3).map(story=>story.id)};
     const allowed=new Set(candidates.map(story=>story.id));
     return {title:draft.title,ids:draft.ids.filter(id=>allowed.has(id))};
+  }
+  /** 大屏原声随原照片入册，继续使用样册的分享规则和选篇上限。 */
+  function selectScreenStory(story){
+    const f=current(),candidates=bookCandidates();
+    if(!f||!candidates.includes(story))return false;
+    const {title,ids}=bookSelection(f,candidates);
+    if(!ids.includes(story.id)){
+      if(ids.length>=PLAN.storyLimit){
+        P.toast('样册篇数已满，请先在纪事册里调整选篇。');
+        return false;
+      }
+      ids.push(story.id);
+    }
+    f.bookDraft={title,ids};
+    f.previewPage=ids.indexOf(story.id);
+    return true;
   }
   function bookEditor(candidates,selection){
     const selected=new Set(selection.ids);
@@ -760,7 +808,7 @@
   }
   function bookShelf(books){
     if(!books.length)return '';
-    return `<section class="section"><div class="section-heading"><h2>已保存的故事册</h2></div>
+    return `<section class="section"><div class="section-heading"><h2>已保存的纪事册</h2></div>
       <div class="family-record-list">${books.map(book=>l(
         `<span class="family-record-thumb">${i('book')}</span><span class="family-record-copy"><strong>${e(book.title)}</strong><small>收录 ${book.ids.length} 篇往事</small></span>${i('arrow')}`,
         'house-book-saved/'+e(book.id),'family-record-row')).join('')}</div>
@@ -773,20 +821,22 @@
     const entries=selection.ids.map(id=>candidates.find(story=>story.id===id));
     const index=Math.min(f.previewPage||0,Math.max(0,entries.length-1));
     const controls=candidates.length?`<div class="family-book-controls">
-      ${bookEditor(candidates,selection)}${entries.length?b('保存故事册','house-book-save','btn compact'):''}
+      ${bookEditor(candidates,selection)}${entries.length?b('保存纪事册','house-book-save','btn compact'):''}
     </div>`:'';
-    const sample=entries.length?`<section class="section" aria-label="故事册样页">
+    const sample=entries.length?`<section class="section" aria-label="纪事册样页">
       <div class="family-book-reading-bar"><p>样页预览</p>${entries.length>1?bookPager(index,entries.length):''}</div>
       ${bookBody(entries[index],index)}
+      <div class="family-book-controls">${P.Households.addonEntry('book','做成纸质纪念书（单独收费）',
+        {returnLabel:'返回纪事册样页',className:'text-link'})}</div>
     </section>`:'';
     const start=candidates.length?'':`<section class="family-book-start section">
-      <h2>从一段往事开始</h2><p>留下一张老照片或一段文字，设为全家可见，就能排成故事册样页。</p>
+      <h2>从一段往事开始</h2><p>留下一张老照片或一段文字，设为全家可见，就能排成纪事册样页。</p>
       <div class="family-book-controls">
         ${l('发张老照片','house-record/photo','btn compact')}${l('写一段往事','house-record','text-link')}
       </div>
     </section>`;
     return `<div class="page house-page family-book-page">
-      ${bookCover(selection.title,entries.length,entries.length?'免费样册':'电子故事册')}
+      ${bookCover(selection.title,entries.length,entries.length?'免费样册':'电子纪事册')}
       ${controls}${sample}${start}${bookShelf(f.books)}
     </div>`;
   }
@@ -797,11 +847,13 @@
     return `<div class="page house-page family-book-page house-book-saved">
       ${bookCover(book.title,entries.length,'已保存')}
       <div class="family-book-controls">
-        ${l(i('back')+' 返回故事册','house-book','text-link')}
+        ${l(i('back')+' 返回家庭纪事册','house-book','text-link')}
         ${entries.length?b('打印或另存为 PDF','house-book-print','btn compact'):''}
+        ${entries.length?P.Households.addonEntry('book','做成纸质纪念书（单独收费）',
+          {returnLabel:'返回已保存的纪事册',className:'text-link'}):''}
       </div>
       ${entries.length!==book.ids.length?'<p class="notice section">有往事的分享范围已改变，已隐藏对应内容。</p>':''}
-      ${entries.length?`<section class="section family-book-chapters" aria-label="故事册正文">${entries.map(bookBody).join('')}</section>`:''}
+      ${entries.length?`<section class="section family-book-chapters" aria-label="纪事册正文">${entries.map(bookBody).join('')}</section>`:''}
     </div>`;
   }
   function saveBook(f){
@@ -820,11 +872,11 @@
   function membership(){
     const f=current();if(!f)return pricing();
     const active=membershipActive(f);
-    return page('家庭会员',e(f.name)+' · '+(active?'已开通':'免费家庭'),
+    return page('',e(f.name)+' · '+(active?'已开通':'免费家庭'),
       `<section class="plan-card featured section"><p class="plan-price"><strong>¥${PLAN.price}</strong> <span>／家／年</span></p>
       <p>家庭总容量 ${capacity()} GB${active?' · 本期剩余故事册 '+(PLAN.books-activeBooks(f).length)+' 本':''}</p>
       ${active?'<p class="caption">有效至 '+e(f.membership.end)+'</p>':''}<p class="caption">当前已用 ${(storage()/1024**2).toFixed(1)} MB</p>
-      ${toolbar(active?jump('打开家庭故事册','house-book',true):action('模拟开通家庭会员','house-checkout',true))}</section>`+
+      ${toolbar(active?jump('打开家庭纪事册','house-book',true):action('模拟开通家庭会员','house-checkout',true))}</section>`+
       entitlementCards()+toolbar(jump('查看服务订单','service-orders')));
   }
   function entitlementCards(){
@@ -840,30 +892,165 @@
     return page('家庭服务收费',`试点新家庭免费共享 ${PLAN.freeGB} GB，家庭会员 ${PLAN.price} 元／家／年。`,
       entitlementCards()+toolbar(jump(family?'查看家庭会员':'免费创建家庭',family?'membership':'house-create',true)));
   }
+  function consultationOnly(key) {
+    return key === 'book' || key === 'frame';
+  }
+  function servicePerson(key, target) {
+    if (key === 'vr') return 'father';
+    return consultationOnly(key) ? P.state.actor : target || P.state.actor;
+  }
+  function findServiceOrder(key, person) {
+    return current()?.orders.find(order => !order.customization && order.key === key && order.person === person);
+  }
+  function visibleOrder(order) {
+    if (order?.customization) return P.Customization.canView(order);
+    const actor = P.state.actor;
+    return Boolean(order && (!order.person || order.person === actor || order.requesters?.includes(actor) || (order.key === 'vr' && canUseSpace())));
+  }
+  function addonEntry(key, label, {person, returnLabel = '返回原内容', className = 'text-link'} = {}) {
+    if (!current() || !Object.hasOwn(services, key)) return '';
+    const target = servicePerson(key, person);
+    const customization = P.Customization.latest(key, target);
+    if (customization) return l('查看定制进度', P.Customization.route(customization), className);
+    const existingLabel = key === 'frame' ? '补充相框咨询需求' : '查看' + services[key].title + '咨询';
+    const text = visibleOrder(findServiceOrder(key, target)) ? existingLabel : label;
+    return b(`<span data-addon-label>${e(text)}</span>`, 'house-addon-open', className,
+      `data-id="${e(key)}" data-person="${e(target)}" data-return="${e(returnLabel)}"`);
+  }
   function addons(){
-    return page('家庭增值服务','每项单独咨询和交付，免费家庭也可选购。',Object.entries(services).map(([key,value])=>
-      card(value.title,value.price,toolbar(jump('了解'+value.title,'house-service/'+key)))).join('')+
-      card('人工纪念书','编辑、样书和印制分段确认。适合需要人工整理和实物印制的家庭。',toolbar(jump('查看制作流程','books'))));
+    return page('','专业制作按项委托，相框按台购买。免费家庭也可单独咨询。',Object.entries(services).map(([key,item]) => {
+      const actions = [];
+      if (current() && consultationOnly(key)) {
+        actions.push(addonEntry(key, item.ask, {returnLabel:'返回传家定制', className:'btn full'}));
+        actions.push(key === 'book' ? jump('查看制作流程','books') : jump('体验爸妈的相框','house-screen'));
+      } else {
+        // 服务详情同时承接不同人物已经交付的内容，继续保留原有查看入口。
+        actions.push(jump('了解' + item.title,'house-service/' + key));
+      }
+      return card(item.title, item.price, toolbar(...actions));
+    }).join(''));
+  }
+
+  /** 同一家庭、服务和对象只建一条咨询。替家人咨询只加入经办名单，不改变任何内容授权。 */
+  function registerServiceRequest(family, key, person) {
+    let order = findServiceOrder(key, person);
+    if (!order) {
+      const item = services[key];
+      order = {id:P.nextId('addon'), person, key, title:item.title, price:item.price, status:'咨询意向已登记'};
+      family.orders.push(order);
+    }
+    if (person !== P.state.actor) order.requesters = [...new Set([...(order.requesters || []), P.state.actor])];
+    return order;
+  }
+
+  function addonAccess(key, person) {
+    if ((key === 'film' || key === 'digital') && (personServiceDelivered(key, person) || personServiceAccess(key, person))) {
+      return personServiceActions(key, person, findServiceOrder(key, person));
+    }
+    if (key === 'vr') {
+      if (canUseSpace()) return jump('进入故里 VR','space',true);
+      if (!isOwner()) {
+        if (!P.state.accounts.father?.hasSpace) return '<p class="notice">可请家庭管理人登记故里 VR 咨询。</p>';
+        return P.FamilyContext.invited('father')
+          ? b('向家庭管理人申请开放','family-request','btn full','data-person="father" data-kind="space"')
+          : '<p class="notice">这处空间仅向获授权的家人开放，可联系家庭管理人。</p>';
+      }
+      if (P.state.accounts.father?.hasSpace) return '<p class="caption">可到服务订单核对已交付的家庭空间。</p>';
+    }
+    return '';
+  }
+
+  function showAddon(context) {
+    const {key, person, returnLabel} = context;
+    const item = services[key];
+    const dialog = document.getElementById('addon-modal');
+    const access = addonAccess(key, person);
+    const receipt = visibleOrder(findServiceOrder(key, person));
+    const category = key === 'frame' ? '实物商品' : '单项定制';
+    const subject = key === 'film' || key === 'digital' ? P.PEOPLE[person].name : current().name;
+    let title = item.title;
+    let contextLine = `${category} · ${subject}`;
+    let description = item.summary;
+    let note = '';
+    let quote = '';
+    let action = access;
+    // 有可查看的交付或授权提示时优先展示；已登记的咨询只显示回执。
+    if (!access && receipt) {
+      title = '咨询意向已登记';
+      contextLine = `${item.title} · ${subject}`;
+      description = item.next;
+      note = '模拟咨询 · 本次未产生费用。';
+      action = P.state.route === 'service-orders' ? b(e(returnLabel), 'close-modal', 'btn') : jump('查看服务订单', 'service-orders');
+    } else if (!access) {
+      note = '无需会员，收到报价后再决定是否购买。';
+      const price = item.amount
+        ? `<strong class="addon-amount">${e(item.amount)}</strong> <span class="addon-unit">${e(item.unit)}</span>`
+        : `<strong>${e(item.price)}</strong>`;
+      quote = `<div class="addon-price"><span class="addon-price-label">${e(item.priceLabel || '收费方式')}</span>${price}</div>`;
+      action = b(e(item.ask), 'house-addon-register', 'btn', `data-id="${e(key)}"`);
+    }
+    dialog.addonContext = context;
+    P.modal(title, `<div class="addon-guide"><p>${e(description)}</p>${note ? `<p class="caption">${e(note)}</p>` : ''}
+      <div class="addon-actions">${quote}${action}</div></div>`, 'sheet', dialog, {eyebrow:contextLine, closeLabel:returnLabel});
+    const firstAction = dialog.querySelector('.addon-actions :is(button, a)') || dialog.querySelector('.modal-header button');
+    firstAction.focus({preventScroll:true});
+  }
+
+  function openAddon(el) {
+    const family = current();
+    const key = el.dataset.id;
+    if (!family || !Object.hasOwn(services, key)) return;
+    const person = servicePerson(key, el.dataset.person);
+    if (!memberIds([person]).length) return;
+    const returnLabel = el.dataset.return || '返回原内容';
+    const allowOther = el.hasAttribute('data-customization-request');
+    // 旧相框咨询打开需求表，提交时继续沿用本人已有的服务单。
+    if (P.Customization.supports(key) && (key === 'frame' || allowOther || P.Customization.latest(key, person) ||
+      (!visibleOrder(findServiceOrder(key, person)) && !addonAccess(key, person)))) {
+      P.Customization.open({key, item: services[key], person, allowOther, returnLabel});
+      return;
+    }
+    showAddon({family, key, person, actor:P.state.actor, returnLabel, trigger:el});
+  }
+  function submitAddon(el) {
+    const dialog = el.closest('#addon-modal[open]');
+    const context = dialog?.addonContext;
+    // 家庭、账号和交付状态可能已变化，提交时重新校验，旧弹层不能代替当前家人登记。
+    if (!context || context.key !== el.dataset.id || context.family !== current() || context.actor !== P.state.actor ||
+        !memberIds([context.person]).length) return;
+    if (!addonAccess(context.key, context.person)) {
+      registerServiceRequest(context.family, context.key, context.person);
+      const label = context.trigger.querySelector('[data-addon-label]');
+      if (label) {
+        const personal = context.trigger.hasAttribute('data-profile-service');
+        label.textContent = personal ? '查看咨询进度' : '查看' + services[context.key].title + '咨询';
+        if (personal) context.trigger.setAttribute('aria-label', P.PEOPLE[context.person].name + '的' + services[context.key].title + '，查看咨询进度');
+      }
+    }
+    showAddon(context);
   }
   function serviceActions(key,f,person,order){
+    if (!f) return jump('免费创建家庭','house-create',true);
+    const customization = P.Customization.latest(key, person);
+    if (customization) return jump('查看定制进度', P.Customization.route(customization), true);
     // 陈家示例先有交付内容，服务入口仍按各账号的查看授权显示。
-    if(key==='vr'&&f){
-      if(canUseSpace())return jump('进入故里 VR','space',true);
-      if(!isOwner())return P.state.accounts.father?.hasSpace?
-        b('向家庭管理人申请开放','family-request','btn full',`data-person="father" data-kind="space"`):
-        '<p class="caption">可请家庭管理人登记故里 VR 咨询。</p>';
+    if(key==='vr'){
+      const access = addonAccess(key, person);
+      if (access) return access;
     }
     const digital=key==='digital'&&f?P.state.members.filter(id=>P.ContentChat.available(id)):[];
     const access=digital.map(id=>jump('进入'+e(P.PEOPLE[id].name)+'的数字人','chat/'+e(id),true)).join('');
     if(digital.includes(person))return access;
     if(order?.status==='已模拟交付')return key==='film'?jump('进入已交付服务','film-delivery',true):access;
     if(order)return access+jump('查看咨询与交付进度','service-orders',!access);
-    return access+action(key==='digital'&&access?'咨询制作自己的数字人（演示）':'提交咨询意向（演示）',
-      'house-request',!access,`data-id="${key}"`);
+    return access+addonEntry(key, key==='digital'&&access?'咨询制作自己的数字人':services[key].ask,
+      {person, returnLabel:'返回服务详情', className:access?'btn secondary full':'btn full'});
   }
   function personServiceActions(key, person, order) {
     const access = personServiceAccess(key, person);
     if (access) return jump(access.label, e(access.route), true);
+    const customization = P.Customization.latest(key, person);
+    if (customization) return jump('查看定制进度', P.Customization.route(customization), true);
     if (personServiceDelivered(key, person)) {
       const kind = key === 'film' ? 'archive' : 'digital';
       if (person !== P.state.actor && P.FamilyContext.invited(person) && !P.FamilyContext.allowed(person, kind)) {
@@ -874,40 +1061,100 @@
     if (order && (person === P.state.actor || order.requesters?.includes(P.state.actor))) {
       return jump('查看咨询进度', 'service-orders', true);
     }
-    return action('提交咨询意向（演示）', 'house-request', true, `data-id="${key}" data-person="${e(person)}"`);
+    return addonEntry(key, services[key].ask, {person, returnLabel:'返回服务详情', className:'btn full'});
+  }
+
+  function serviceDetailPage(key, details, controls, fromProfile = false) {
+    const {title, summary} = services[key];
+    // 家史入口展示家庭服务说明，人物志入口对应具体服务人物。
+    const usesFamilyPaper = !fromProfile && (key === 'book' || key === 'film');
+    if (!usesFamilyPaper) {
+      return page(title, summary, details + controls);
+    }
+
+    const icon = key === 'book' ? 'book' : 'play';
+    return `<div class="page house-page family-service-page">
+      <article class="paper-card family-service-card" aria-labelledby="family-service-title">
+        <h1 id="family-service-title" class="page-title">${i(icon)}${title}</h1>
+        <p class="page-subtitle">${summary}</p>
+        ${details}
+      </article>
+      ${controls}
+    </div>`;
   }
 
   function service(){
     const key=registry.routeId;
     if(!Object.hasOwn(services,key))return addons();
     const item=services[key],f=current();
-    const fromProfile=Boolean(key!=='vr'&&registry.routeDetail);
+    const fromProfile=Boolean((key==='film'||key==='digital')&&registry.routeDetail);
     if(fromProfile&&!f)return empty();
     const person=fromProfile?memberIds([registry.routeDetail])[0]:key==='vr'?'father':P.state.actor;
     if(!person)return addons();
-    const order=f?.orders.find(value=>value.key===key&&value.person===person);
+    const order=findServiceOrder(key,person);
+    if (consultationOnly(key)) {
+      const entry = f ? addonEntry(key, item.ask, {returnLabel:'返回服务详情', className:'btn full'}) : jump('免费创建家庭','house-create',true);
+      return serviceDetailPage(key, card('收费方式', item.price), toolbar(entry, jump('返回传家定制', 'house-addons')));
+    }
     const customer=f&&(key!=='digital'||fromProfile)?card(key==='vr'?'服务家庭':'服务人物',e(key==='vr'?f.name:P.PEOPLE[person]?.name||'家人')):'';
     const actions=fromProfile?personServiceActions(key,person,order):serviceActions(key,f,person,order);
-    const back=fromProfile?jump('返回个人档案','house-stories/'+e(person)):jump('返回增值服务','house-addons');
-    return page(item.title,item.summary,customer+card('收费方式',item.price)+toolbar(actions,back));
+    const back=fromProfile?jump('返回人物志','house-stories/'+e(person)):jump('返回传家定制','house-addons');
+    return serviceDetailPage(key, customer + card('收费方式', item.price), toolbar(actions, back), fromProfile);
   }
+  const ORDER_ICONS = { book: 'book', film: 'play', digital: 'chat', vr: 'house', frame: 'screen' };
+
+  function serviceOrderCard({key, title, price, status}, controls = '') {
+    const icon = Object.hasOwn(ORDER_ICONS, key) ? ORDER_ICONS[key] : 'source';
+    const pending = ['咨询意向已登记', '待顾问回复', '待确认方案', '待验收'].includes(status) ||
+      (key === 'frame' && ['待模拟付款', '待确认收件'].includes(status));
+    return `<article class="paper-card house-card service-order-card">
+      <h2 class="service-order-title">${i(icon)}<span>${e(title)}</span></h2>
+      <div class="service-order-meta">
+        <p>${e(price)}</p>
+        ${status ? `<span class="service-order-status${pending ? ' is-pending' : ''}">${e(status)}</span>` : ''}
+      </div>
+      ${controls}
+    </article>`;
+  }
+
   function orders(){
     const f=current();if(!f)return empty();
     const actor=P.state.actor;
-    const visible=f.orders.filter(order=>!order.person||order.person===actor||order.requesters?.includes(actor)||order.key==='vr'&&canUseSpace());
-    const legacy=P.state.billingOrders.filter(order=>order.kind==='book'&&order.actor===actor);
-    return page('服务订单',e(f.name)+' · 演示订单',visible.map(order=>{
+    const visible=f.orders.filter(visibleOrder);
+    // 定制书的制作和结算进度从原服务单查看，既有独立纪念书仍单独展示。
+    const linkedBookIds = new Set(P.state.keepsakeBooks.filter(book => book.serviceOrderId).map(book => book.id));
+    const legacy=P.state.billingOrders.filter(order=>order.kind==='book'&&order.actor===actor&&!linkedBookIds.has(order.bookId));
+    const cards = visible.map(order=>{
+      if (order.customization) {
+        const info = {...order, title: P.Customization.listTitle(order),
+          price: order.customization.quote?.price || order.price,
+          status: P.Customization.progress(order)[0]};
+        return serviceOrderCard(info, toolbar(jump('查看定制进度', P.Customization.route(order))));
+      }
+      if (consultationOnly(order.key)) {
+        return serviceOrderCard(order,
+          toolbar(addonEntry(order.key,'查看咨询回执',{returnLabel:'返回服务订单',className:'btn secondary full'})));
+      }
       const personal=order.person&&(order.key==='film'||order.key==='digital');
       const title=personal?order.title+' · '+(P.PEOPLE[order.person]?.name||'家人'):order.title;
       const route='house-service/'+order.key+(personal&&order.person!==actor?'/'+e(order.person):'');
       const pending=order.status==='咨询意向已登记';
       const controls=pending&&order.person===actor?toolbar(action('模拟顾问交付','house-deliver',false,`data-id="${order.id}"`)):
         order.key?toolbar(jump(pending||personal&&order.person!==actor?'查看服务详情':'打开交付内容',route)):'';
-      return card(e(title),e(order.price)+' · '+e(order.status),controls);
-    }).join('')+
-      legacy.map(order=>card('人工纪念书编辑','¥'+e(order.cash)+' · 已模拟支付',toolbar(jump('查看制作进度','book-order/'+order.bookId)))).join('')+
-      (!visible.length&&!legacy.length?card('暂无订单','开通家庭会员或咨询增值服务后可在这里查看。'):'')+
-      toolbar(jump('查看家庭会员','membership'),jump('查看独立增值服务','house-addons')));
+      return serviceOrderCard({...order, title}, controls);
+    });
+    for (const order of legacy) {
+      cards.push(serviceOrderCard({key:'book', title:'人工纪念书编辑', price:'¥'+order.cash, status:'已模拟支付'},
+        toolbar(jump('查看制作进度','book-order/'+order.bookId))));
+    }
+    if (!cards.length) {
+      cards.push(serviceOrderCard({title:'暂无订单', price:'开通家庭会员或咨询传家定制后，可在这里查看订单。'}));
+    }
+    return `<div class="page house-page service-orders-page">
+      <p class="service-orders-context">${e(f.name)} · 演示订单</p>
+      <div class="service-orders-list">${cards.join('')}</div>
+      ${toolbar(jump('查看家庭会员','membership'),jump('查看传家定制','house-addons'))}
+    </div>`;
   }
   function confirmCheckout(f,saveAfter=false){
     if(!f||membershipActive(f))return;
@@ -917,16 +1164,23 @@
       ${toolbar(action(saveAfter?'模拟开通并保存':'确认模拟开通','house-pay',true,`data-id="${f.id}" ${saveAfter?'data-save-book="true"':''}`),
         b(saveAfter?'返回样页':'返回','close-modal','btn outline full'))}`,'sheet');
   }
+  /** 现有影片交付和定制验收共用样片归档，本人确认后才加入其私密档案。 */
+  function createDemoFilm(person) {
+    if (person !== P.state.actor || !memberIds([person]).length) return null;
+    const seed = P.ARCHIVE_DATA.assets.find(item => item.kind === 'film');
+    if (!seed) return null;
+    const asset = {...structuredClone(seed), id:P.nextId('film'), title:'人生故事片 · 交付演示样片',
+      subject:person, author:person, viewers:[person], scope:'private', sourceLabel:'虚构人物通用样片'};
+    P.PersonArchive.assets(person, 'video');
+    P.state.archiveAssets.push(asset);
+    P.state.accounts[person].videoDelivered = true;
+    return asset;
+  }
+
   function deliver(order){
     const s=P.state,person=order.person;
-    if(order.status!=='咨询意向已登记'||person!==s.actor)return;
-    if(order.key==='film'){
-      const seed=P.ARCHIVE_DATA.assets.find(item=>item.kind==='film');
-      const asset={...structuredClone(seed),id:P.nextId('film'),title:'人生故事片 · 交付演示样片',subject:person,author:person,viewers:[person],scope:'private',sourceLabel:'虚构人物通用样片'};
-      P.PersonArchive.assets(person,'video');
-      s.archiveAssets.push(asset);
-      s.accounts[person].videoDelivered=true;
-    }
+    if(order.customization||!Object.hasOwn(services,order.key)||consultationOnly(order.key)||order.status!=='咨询意向已登记'||person!==s.actor)return;
+    if(order.key==='film'&&!createDemoFilm(person))return;
     if(order.key==='digital')Object.assign(s.accounts[person],{hasDigital:true,standaloneDigital:true});
     if(order.key==='vr')s.accounts[person].hasSpace=true;
     order.status='已模拟交付';
@@ -935,10 +1189,20 @@
   }
 
   function handleAction(key,el){
+    if (key === 'family-request' && el.closest('#addon-modal')) {
+      P.closeAddon();
+      return P.FamilyContext.handleAction(key,el);
+    }
+    if (key === 'close-modal' && el.closest('#addon-modal')) {
+      P.closeAddon();
+      return true;
+    }
     if(key==='video-service'){P.navigate('house-service/film');return true;}
     if(!key.startsWith('house-'))return false;
     const f=current(),id=el.dataset.id;
     switch(key){
+      case 'house-addon-open':openAddon(el);break;
+      case 'house-addon-register':submitAddon(el);break;
       case 'house-example':selectHouse(EXAMPLE);break;
       case 'house-switch':selectHouse(id);break;
       case 'house-member':changeMember(id);break;
@@ -978,27 +1242,6 @@
         }
         break;
       }
-      case 'house-request':{
-        if(!Object.hasOwn(services,id))break;
-        if(!f){P.navigate('house-create');break;}
-        const actor=P.state.actor;
-        const target=el.dataset.person;
-        const person=id==='vr'?'father':target||actor;
-        if(id==='vr'&&!isOwner()){P.toast('请由家庭管理人登记家庭 VR 咨询。');break;}
-        if(target&&(id==='vr'||P.state.route!=='house-service'||registry.routeId!==id||registry.routeDetail!==person||
-            !memberIds([person]).length||personServiceDelivered(id,person)))break;
-        let order=f.orders.find(order=>order.key===id&&order.person===person);
-        if(!order){
-          order={id:P.nextId('addon'),person,key:id,title:services[id].title,price:services[id].price,status:'咨询意向已登记'};
-          f.orders.push(order);
-        }
-        // 家人可以登记咨询意向，订单归属和交付权限继续绑定服务人物。
-        if(target&&person!==actor){
-          order.requesters=[...new Set([...(order.requesters||[]),actor])];
-        }
-        P.navigate('service-orders');
-        break;
-      }
       case 'house-deliver':{
         const order=f?.orders.find(item=>item.id===id);
         if(order)deliver(order);
@@ -1031,16 +1274,26 @@
     if(!f)return true;
     if(element.id==='house-record-form'){
       const title=value('title'),storyText=value('text'),file=data.get('image');
-      if(!title||!storyText)return true;
-      const audience=recordAudience(data);
+      const cover = registry.routeId === 'home-cover';
+      const album = registry.routeId === 'home-album';
+      if(!title||((cover || album) ? !file?.size : !storyText))return true;
+      const audience = cover ? {scope: 'family'} : recordAudience(data);
       if(!audience)return true;
       const bytes=file?.size||0;
       if(bytes&&(!['image/png','image/jpeg','image/webp','image/gif'].includes(file.type)||bytes>20*1024**2)){
         P.toast('请选 20 MB 内的 JPG、PNG、WEBP 或 GIF 照片。');return true;
       }
       if(bytes&&!canUpload(bytes)){P.toast('当前家庭空间不足，已保留表单内容。');return true;}
-      saveStory({title,text:[storyText],quote:storyText.slice(0,52),photoUrl:bytes?URL.createObjectURL(file):'',bytes,
-        relatedMembers:data.getAll('relatedMembers'),...audience});
+      const options = {title,text:storyText ? [storyText] : [],quote:storyText.slice(0,52),photoUrl:bytes?URL.createObjectURL(file):'',bytes,
+        relatedMembers:data.getAll('relatedMembers'),...audience};
+      if (cover) {
+        // 首页全家福是家庭共享照片，收窄分享范围后会从封面轮播移除。
+        P.state.stories.push({...createStoryDraft(options), homeCover: true});
+        P.state.homeCoverIndex = 0;
+        P.navigate('home', { replace: true });
+      } else {
+        saveStory({...options, diary: registry.routeId === 'diary'});
+      }
     }else if(element.id==='house-reply-form'){
       const story=P.visibleStories().find(item=>item.id===value('story'));
       if(story&&story.scope!=='private'&&value('text')){
@@ -1057,17 +1310,21 @@
     return true;
   }
   /** 关联人物和访问名单分开保存，只有分享范围决定访问权限。 */
-  function saveStory({title,text,quote,photoUrl,bytes,photoToken,photoYear,moment=false,houseVoice,eventDate,dateLabel,babyMilestone=false,lifeMilestone=false,
-    replaceComposer=false,relatedMembers=[],scope='family',viewers=scope==='family'?[...P.state.members]:[]}){
+  function createStoryDraft({title,text,quote,photoUrl,bytes,photoToken,photoYear,moment=false,houseVoice,eventDate,dateLabel,babyMilestone=false,lifeMilestone=false,
+    relatedMembers=[],scope='family',viewers=scope==='family'?[...P.state.members]:[]}){
     const id=P.nextId('family-story'),actor=P.state.actor,now=new Date(),year=(eventDate||dateLabel)?.slice(0,4)||String(now.getFullYear());
     const happened=eventDate?new Date(eventDate+'T00:00:00'):now;
     const date=dateLabel||(moment?happened.toLocaleDateString('zh-CN',{dateStyle:'long'}):year+'年');
     const source=moment?'家人随手记录':photoToken?'家人分享的照片':'家庭成员文字记录';
     const category=babyMilestone?'宝宝成长':lifeMilestone?'人生节点':'共同回忆';
-    P.state.stories.push({id,title,text,quote,author:actor,subject:actor,photoToken,photoYear,moment,houseVoice,eventDate,babyMilestone,lifeMilestone,
+    return {id,title,text,quote,author:actor,subject:actor,photoToken,photoYear,moment,houseVoice,eventDate,babyMilestone,lifeMilestone,
       scope,viewers,relatedMembers:memberIds(relatedMembers),fromFamily:true,confirmedBy:actor,category,houseImage:photoUrl,houseBytes:bytes,
-      year,date,recorded:now.toLocaleDateString('zh-CN'),recordedAt:now.getTime(),source,duration:photoToken?'照片':houseVoice?'语音':'文字记录'});
-    P.navigate('story/'+id,{replace:replaceComposer});
+      year,date,recorded:now.toLocaleDateString('zh-CN'),recordedAt:now.getTime(),source,duration:photoToken?'照片':houseVoice?'语音':'文字记录'};
+  }
+  function saveStory(options){
+    const story=createStoryDraft(options);
+    P.state.stories.push(story);
+    P.navigate('story/'+story.id+(options.diary?'/diary':''),{replace:options.replaceComposer??false});
   }
   function memberOptions(){
     return current()&&!isExample()?Object.keys(P.state.accounts).map(id=>({id,name:P.PEOPLE[id].name,selected:id===P.state.actor})):null;
@@ -1124,13 +1381,13 @@
       P.render();
     }
   });
-  P.Households={titles,isExample,current,families,membershipActive,capacity,storage,canUpload,canUseSpace,memberOptions,changeMember,identityPicker,replyPanel,handleAction,submit,saveStory,recentRecords,recentAlbum,sharedFamilyEntries,reset,photoWorkspace,restorePhotoWorkspace,
-    memberIds,memberFields,relatedMemberIds,relatedMemberNames,audienceFields,recordAudience,openStoryList,fromStoryList,storyListPhotos,profileEntries,
+  P.Households={titles,isExample,current,families,membershipActive,capacity,storage,canUpload,canUseSpace,memberOptions,changeMember,identityPicker,replyPanel,handleAction,submit,saveStory,sharedFamilyEntries,reset,photoWorkspace,restorePhotoWorkspace,addonEntry,storyPersonServices,createDemoFilm,
+    createStoryDraft,memberIds,memberFields,relatedMemberIds,relatedMemberNames,audienceFields,recordAudience,openStoryList,fromStoryList,storyListPhotos,profileEntries,selectScreenStory,
     canRoute:name=>Boolean(current()&&Object.hasOwn(P.views,name))||['home','welcome','house-create','house-switch','billing-plan','house-addons','house-service','house-assistant','house-picks'].includes(name),
     activateExample:()=>activate(EXAMPLE),
     setRoute:(_route,id,detail,view)=>{registry.routeId=id||'';registry.routeDetail=detail||'';registry.routeView=view||'';},
     fallback:route=>({'house-create':'house-switch','house-switch':'profile','house-add':'house-stories','house-record':'house-stories','house-moment':'house-stories','house-story':'house-stories','house-stories':'home','house-baby':'house-stories','house-elders':'house-stories','house-couple':'house-stories','house-couple-setup':'profile-family',
-      'house-book':'profile','house-book-preview':'house-book','house-book-saved':'house-book','house-addons':'profile-services','house-service':'house-addons'})[route],
+      'house-book':'profile','house-book-preview':'house-book','house-book-saved':'house-book','house-addons':'profile-services','house-service':'house-addons','service-order':'service-orders'})[route],
     status:()=>{const f=current();return f?{名称:f.name,身份:P.PEOPLE[P.state.actor]?.name,
       往事:P.state.stories.filter(story=>!story.coupleId).length+P.visibleStories().filter(story=>story.coupleId).length,容量:capacity(),
       故事册:membershipActive(f)?PLAN.books-activeBooks(f).length:0}:null;}

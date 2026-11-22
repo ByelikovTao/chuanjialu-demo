@@ -7,7 +7,7 @@
   const sessionKey = 'chuanjia-story-invite-tokens';
   const workspaceKey = 'chuanjia-photo-trial-workspace';
   const tokenStorage = invites.network ? localStorage : sessionStorage;
-  const samplePhoto = 'assets/zhumen/life-wedding-demo.png';
+  const samplePhoto = 'assets/zhumen/life-wedding-demo.webp';
   const sampleAudio = 'assets/photo-card/sample-reply.wav';
   const maxBytes = 8 * 1024 ** 2;
   const pictureTypes = ['image/jpeg', 'image/png', 'image/webp'];
@@ -801,7 +801,7 @@
   invites.subscribe(refreshVisible);
   window.addEventListener('focus', refreshVisible);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshVisible(); });
-  P.PhotoStories = { composer, region, askButton, countLabel, albumReplies, homeReplies, bookVoices, mount, submit, handleAction, revokeStory, endSession };
+  P.PhotoStories = { composer, region, askButton, countLabel, albumReplies, homeReplies, bookVoices, loadViewPhoto, mount, submit, handleAction, revokeStory, endSession };
   if (invites.network) {
     try {
       const snapshot = JSON.parse(localStorage.getItem(workspaceKey) || 'null');

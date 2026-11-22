@@ -64,7 +64,7 @@
     return `<section class="page avatar-page ${quotaEnded?'quota-exhausted':''}">${quotaPanel}${P.ContentChat.contextView()}<div class="avatar-body">
       <div class="avatar-stage" data-call-state="${s.callState}">
       <div class="avatar-page-heading"><div><p class="avatar-eyebrow">视频对话演示 <span id="avatar-call-duration">${P.duration(s.elapsed)}</span></p><h1>${e(hello.viewer==='本人'?'和自己聊聊':'和'+hello.speaker+'坐一会儿')}</h1><p>${e(owner.name)} · ${e(hello.viewer==='本人'?'那些想留给家人的话':'你们的故事，慢慢聊')}</p></div>${b(i('source'),'avatar-about','avatar-about-button','aria-label="了解示例形象与对话"')}</div>
-      <div class="avatar-media"><img class="avatar-portrait" src="assets/avatar/father-portrait-v4.png" alt="二维数字人示例动画封面">${P.PortraitMotion.view()}<div class="avatar-image-shade" aria-hidden="true"></div><span class="avatar-preview-label">${P.state.familyWorkspace||P.state.chatTarget!=='father'?'通用示例形象':'二维人物演示'}</span></div>
+      <div class="avatar-media"><img class="avatar-portrait" src="assets/avatar/father-portrait-v4.webp" alt="二维数字人示例动画封面">${P.PortraitMotion.view()}<div class="avatar-image-shade" aria-hidden="true"></div><span class="avatar-preview-label">${P.state.familyWorkspace||P.state.chatTarget!=='father'?'通用示例形象':'二维人物演示'}</span></div>
       ${context?'':conversation(hello,messages)}</div>${context?conversation(hello,messages):''}
       <div class="avatar-live-status" data-phase="${s.phase}"><span aria-hidden="true"></span><p id="avatar-status" role="status">${e(s.status)}</p></div>
       ${P.BillingViews.chatQuota(P.state.chatTarget)}

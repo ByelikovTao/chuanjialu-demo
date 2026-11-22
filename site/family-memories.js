@@ -32,7 +32,7 @@
     const received=photos.length?`<h3>家人补的照片</h3>${filmPhotoCards(photos)}`:'';
     if(actor===film.subject)return pending||photos.length?`<section class="film-photo-section section" aria-label="家人补的照片">${pending?l(`核对家人补的照片（${pending}）`,'material-inbox','btn secondary full'):''}${received}</section>`:'';
     if(!P.MaterialLibrary.filmForContribution(film.id))return '';
-    const status=tasks.some(item=>item.status==='pending')?'已提交的照片正在等本人核对。':tasks.some(item=>item.status==='returned')?'有一张照片需要更正，可在共同回忆查看。':'';
+    const status=tasks.some(item=>item.status==='pending')?'已提交的照片正在等本人核对。':tasks.some(item=>item.status==='returned')?'有一张照片需要更正，可在共忆集查看。':'';
     return `<section class="film-photo-section section" aria-label="补充影片照片">${received}${b('补一张老照片','film-photo-add','btn secondary full',`data-film-id="${e(film.id)}"`)}<p class="caption">${status||'如果你也记得影片里的事，可以补一张有关的照片。'}</p></section>`;
   }
 
@@ -118,13 +118,13 @@
   /** 统一共同经历与故事集入口；原稿、纳入状态和两人故事集仍各用原数据与权限。 */
   function list() {
     const s=P.state,items=s.stories.filter(item=>item.commonWith===s.actor&&item.scope!=='private'&&item.viewers.includes(s.actor)||item.author===s.actor&&item.commonWith);
-    return `<div class="page"><h1 class="page-title">我们的共同回忆</h1><p class="page-subtitle">一起经历的事，随时记一段；想留成完整故事时，再把已有内容整理成故事集。</p>${s.actor!=='father'?b('记下一段共同回忆','family-common-new','btn full'):''}${filmMemories()}${l('查看全家的往事与补写','house-stories/family','btn secondary full section')}<h2 class="section">一起经历的事</h2>${items.map(memoryCard).join('')||'<p class="section">还没有共同回忆，可以从最近一起经历的一件小事开始。</p>'}${P.RelationshipChapters.overview()}<details class="section"><summary>我的授权申请</summary>${s.familyRequests.filter(item=>item.actor===s.actor).map(item=>`<p>${e(P.PEOPLE[item.person].name)} · ${{archive:'档案',digital:'交流',space:'场景'}[item.kind]} · ${{pending:'等待开放',accepted:'已同意',declined:'暂未开放'}[item.status]}</p>`).join('')||'<p>暂无申请。</p>'}</details>${l('返回我的','profile','text-link full')}</div>`;
+    return `<div class="page"><h1 class="page-title">共忆集</h1><p class="page-subtitle">一起经历的事，随时记一段；想留成完整故事时，再把已有内容整理成故事集。</p>${s.actor!=='father'?b('记下一段共同回忆','family-common-new','btn full'):''}${filmMemories()}${l('查看全家的往事与补写','house-stories/family','btn secondary full section')}<h2 class="section">一起经历的事</h2>${items.map(memoryCard).join('')||'<p class="section">还没有共同回忆，可以从最近一起经历的一件小事开始。</p>'}${P.RelationshipChapters.overview()}<details class="section"><summary>我的授权申请</summary>${s.familyRequests.filter(item=>item.actor===s.actor).map(item=>`<p>${e(P.PEOPLE[item.person].name)} · ${{archive:'档案',digital:'交流',space:'场景'}[item.kind]} · ${{pending:'等待开放',accepted:'已同意',declined:'暂未开放'}[item.status]}</p>`).join('')||'<p>暂无申请。</p>'}</details>${l('返回我的','profile','text-link full')}</div>`;
   }
   /** 封面复用原记录的示例影像，确认状态仍由纳入记录判断，不新增分享或确认标记。 */
   function memoryCard(item){
     const included=P.FamilyContext.inArchive(item,item.commonWith),reviewed=item.inclusions?.[item.commonWith]?.reviewed;
     const status=included?'已确认':item.scope==='private'?'仅自己保存':reviewed?'暂未纳入':'待确认';
-    const cover=!P.state.familyWorkspace&&['family','room'].includes(item.image)?`<img class="common-memory-photo" src="assets/${item.image}.png" alt="原记录使用的AI生成家庭场景示例">`:'';
+    const cover=!P.state.familyWorkspace&&['family','room'].includes(item.image)?`<img class="common-memory-photo" src="assets/${item.image}.webp" alt="原记录使用的AI生成家庭场景示例">`:'';
     return `<article class="card section" data-common-memory="${e(item.id)}">${cover}<div class="tags">${t(status,included?'':'warm')}</div><h2>${e(item.title)}</h2><p>${e(P.PEOPLE[item.author].name)}讲述 · 与${e(P.PEOPLE[item.commonWith].name)}共同经历</p><p class="caption">${included?'已纳入对方传记':'尚未纳入对方传记'} · ${item.inclusions?.[item.commonWith]?.ai?'已允许数字人引用':'未用于数字人问答'}</p>${item.author===P.state.actor?l('查看原始回忆','story/'+item.id,'text-link'):b('核对内容与范围','family-consent','btn secondary',`data-id="${item.id}"`)}</article>`;
   }
   /** 记录标题按语义替换完整标题节点，换行排版不影响原有记录去向。 */

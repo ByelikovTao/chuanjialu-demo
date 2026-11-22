@@ -1,18 +1,28 @@
 .phone .family-picks-page {
-  padding: 12px 16px 24px;
+  padding-block: 12px 32px;
 }
 
-.picks-heading {
-  margin-bottom: 8px;
-  font: 600 calc(24px * var(--unit)) / 1.333 KaiTi, STKaiti, serif;
+.phone .family-picks-page > .picks-heading {
+  inset-block-start: 5px;
+  inset-inline-start: 12px;
+  display: grid;
+  place-items: end start;
+  inline-size: max-content;
+  min-block-size: calc(24px * 1.35 * var(--unit));
+  margin-block-end: 4px;
+  padding-block-end: 1px;
+}
+
+.phone .family-picks-page > .picks-heading::before {
+  inset-block: calc(11px * var(--unit)) -5px;
 }
 
 .picks-categories {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 4px;
-  margin-bottom: 12px;
-  border-bottom: 1px solid var(--line);
+  margin-block-end: 16px;
+  border-block-end: 1px solid var(--line);
 }
 
 .phone .picks-category {
@@ -33,22 +43,222 @@
   font-weight: 600;
 }
 
-.picks-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px 12px;
-}
-
-.picks-product {
-  display: flex;
+/* 大图沿用首页相角，左侧纸脊和竖排商品名与照片共用册页。 */
+.picks-feature.paper-card {
+  display: block;
   width: 100%;
   min-width: 0;
-  flex-direction: column;
-  padding: 0;
-  border-radius: 8px;
-  background: transparent;
+  padding: 14px 9px 0 21px;
+  border-color: #dfc7a9;
   color: var(--ink);
-  text-align: left;
+  text-align: start;
+}
+
+.picks-feature.bound-paper::before {
+  width: 15px;
+}
+
+.picks-feature-spread {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.picks-feature-title {
+  display: block;
+  padding: 4px 0 4px 5px;
+  border-left: 1px solid var(--line);
+  font: 600 calc(18px * var(--unit)) / 1.35 var(--family-hand);
+  letter-spacing: .12em;
+  text-align: center;
+  text-orientation: upright;
+  writing-mode: vertical-rl;
+}
+
+.picks-feature .photo-mount {
+  aspect-ratio: 1.4;
+  border-color: var(--line);
+  box-shadow: none;
+}
+
+.picks-feature .photo-mount::before {
+  background-size: 11px 11px;
+  opacity: .74;
+}
+
+.picks-feature-caption {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin-block-start: 10px;
+  padding: 10px 3px 12px;
+  border-block-start: 1px solid var(--line);
+}
+
+.picks-feature-caption small {
+  color: var(--secondary);
+  font-size: calc(12px * var(--unit));
+  line-height: 1.5;
+}
+
+.picks-feature-spec {
+  overflow-wrap: anywhere;
+}
+
+.picks-feature-detail {
+  display: grid;
+  justify-items: end;
+  gap: 3px;
+}
+
+.picks-feature-detail .picks-price {
+  gap: 0;
+  font-size: calc(17px * var(--unit));
+  font-weight: 400;
+}
+
+.picks-feature-detail .picks-price > span {
+  font-size: inherit;
+}
+
+.picks-feature-detail small {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.picks-feature-detail .icon {
+  width: 12px;
+  height: 12px;
+}
+
+.picks-feature.picks-gift {
+  padding: 14px 13px 0 24px;
+}
+
+.picks-gift-product {
+  width: 100%;
+  padding: 0;
+  gap: 11px;
+  background: transparent;
+  text-align: start;
+}
+
+.picks-gift-info {
+  margin-block-start: 13px;
+  padding: 11px 1px 13px;
+  border-block-start: 1px solid rgb(128 75 47 / 17%);
+}
+
+.picks-gift-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  font: 600 calc(17px * var(--unit)) / 1.45 var(--family-hand);
+  letter-spacing: .055em;
+}
+
+.picks-gift-title span {
+  padding-inline-start: 9px;
+  border-inline-start: 1px solid rgb(128 75 47 / 27%);
+  color: var(--secondary);
+  font: 400 calc(12px * var(--unit)) / 1.4 var(--family-hand);
+  letter-spacing: 0;
+}
+
+.picks-gift-package {
+  margin: 6px 0 0;
+  font-size: calc(13px * var(--unit));
+  line-height: 1.5;
+}
+
+.picks-gift-description {
+  margin: 4px 0 0;
+  color: var(--secondary);
+  font-size: calc(12px * var(--unit));
+  line-height: 1.5;
+}
+
+.picks-gift-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 1px 13px;
+  border-block-start: 1px solid rgb(128 75 47 / 17%);
+}
+
+.picks-gift-footer .picks-gift-price {
+  gap: 5px;
+}
+
+.picks-gift-price .picks-price {
+  gap: 0;
+  font-size: calc(22px * var(--unit));
+  line-height: 1.25;
+}
+
+.picks-gift-price .picks-price > span {
+  font-size: inherit;
+}
+
+.picks-gift-price small {
+  font-size: calc(11px * var(--unit));
+}
+
+.picks-gift-footer .btn {
+  gap: 6px;
+}
+
+.picks-gift-footer .btn .icon {
+  width: 13px;
+  height: 13px;
+}
+
+.picks-thumbnails {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px 8px;
+  margin-block-start: 18px;
+}
+
+.picks-thumbnail {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  gap: 6px;
+  padding: 4px;
+  background: transparent;
+  font-size: calc(12px * var(--unit));
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.picks-thumbnail .photo-mount {
+  overflow: hidden;
+  aspect-ratio: 1.55;
+  padding: 2px;
+  border-color: transparent;
+  border-radius: 5px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.picks-thumbnail .photo-mount::before {
+  content: none;
+}
+
+.picks-thumbnail[aria-pressed="true"] .photo-mount {
+  border-color: var(--brand);
+}
+
+.picks-thumbnail[aria-pressed="true"] strong {
+  color: var(--brand);
 }
 
 .picks-photo {
@@ -75,20 +285,16 @@
   content: "";
 }
 
-.picks-product-info {
-  display: grid;
-  width: 100%;
-  gap: 4px;
-  padding: 8px 4px 4px;
-  overflow-wrap: anywhere;
+.picks-gallery .picks-photo {
+  height: 100%;
+  aspect-ratio: auto;
+  border-radius: 0;
 }
 
-.picks-product-info strong {
-  font-size: calc(16px * var(--unit));
-  line-height: 1.5;
+.picks-thumbnail .picks-photo {
+  border-radius: 3px;
 }
 
-.picks-product-info small,
 .picks-detail-price small {
   color: var(--secondary);
   font-size: calc(12px * var(--unit));
@@ -141,8 +347,35 @@
 }
 
 @media (hover: hover) {
-  .picks-product:hover,
+  .picks-feature:hover .picks-feature-detail small {
+    color: var(--brand);
+  }
+
   .phone .picks-category:hover {
-    background-color: #f0e3ce99;
+    background-color: var(--soft);
+  }
+}
+
+@media (max-width: 365px) {
+  /* 窄屏大字模式给四字分类留足一行宽度。 */
+  .large-text .picks-categories {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.4fr);
+  }
+
+  .picks-feature.paper-card,
+  .picks-feature.picks-gift {
+    padding: 12px 8px 0 19px;
+  }
+
+  .picks-feature.bound-paper::before {
+    width: 13px;
+  }
+
+  .picks-feature-spread {
+    gap: 7px;
+  }
+
+  .picks-feature-title {
+    font-size: calc(16px * var(--unit));
   }
 }

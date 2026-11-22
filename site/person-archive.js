@@ -2,7 +2,7 @@
 'use strict';
 {
   const P=window.App,{escape:e,button:b,link:l,icon:i,badge:t,avatar:a}=P;
-  const TABS={overview:'档案总览',video:'视频',photo:'照片',biography:'人生传记',work:'作品',place:'记忆地点'};
+  const TABS={overview:'档案总览',video:'视频',photo:'照片',biography:'传记',work:'作品',place:'足迹'};
   const VIDEO_FILTERS={all:'全部视频',film:'人生影片',self:'本人拍摄',family:'家人拍摄'};
   const TYPES={film:'人生影片',photo:'照片',clip:'生活影像',work:TABS.work,document:'书信与原始资料'};
   /** 已有示例资料视为完成本人问答授权；新增家人材料仍须逐份确认，重置时重建。 */
@@ -79,7 +79,7 @@
     const items=ensure().archiveAssets.filter(item=>item.relatedStoryId===story.id && item.subject===story.subject && assetReadable(item));
     return `<section class="section event-materials"><div class="section-heading"><h2>这段经历的资料 <small>${items.length}</small></h2></div><p class="caption">相关照片、影像、书信与原始资料，按各自授权展示。</p>${items.length?`<div class="archive-grid">${items.map(item=>card(item,story.subject,story.id)).join('')}</div>`:'<p class="caption">这段经历暂时没有向你开放的附加资料。</p>'}</section>`;
   }
-  /** 视频合并后保留四个入口：视频、照片、人生传记及作品。 */
+  /** 视频合并后保留四个入口：视频、照片、传记及作品。 */
   function shortcuts(person) {
     const profile=biography(person);
     const items=[['video','play',videos(person).length+' 段','人生影片、本人及家人拍摄'],['photo','photo',assets(person,'photo').length+' 张','人物、生活与地点照片'],['biography','book',profile?profile.sections.length+' 章':ensure().archiveProfiles[person]?'未开放':'待整理','完整阅读与按事件浏览'],['work','book',assets(person,'work').length+' 件','手稿、文章、习作与书画']];
@@ -125,7 +125,7 @@
   /** 传记内提供完整阅读与事件浏览；制作入口由档案页顶部统一提供。 */
   function biographyView(person) {
     const mode=P.state.biographyMode;
-    const toggle=`<div class="biography-mode-switch" role="group" aria-label="人生传记查看方式">${[['read','完整阅读'],['events','按事件浏览']].map(([value,label])=>b(label,'biography-mode',mode===value?'active':'',`data-value="${value}" aria-pressed="${mode===value}"`)).join('')}</div>`;
+    const toggle=`<div class="biography-mode-switch" role="group" aria-label="传记查看方式">${[['read','完整阅读'],['events','按事件浏览']].map(([value,label])=>b(label,'biography-mode',mode===value?'active':'',`data-value="${value}" aria-pressed="${mode===value}"`)).join('')}</div>`;
     return `${toggle}${mode==='events'?eventView(person):readingView(person)}`;
   }
   /** 全部章节默认展开以便连贯阅读；正文引用当前事件，章节末尾直达事件及资料。 */
@@ -143,7 +143,7 @@
   function readingView(person) {
     const profile=biography(person);
     if(!profile){const exists=ensure().archiveProfiles[person];return `<div class="empty">${i(exists?'lock':'book')}<h2>${exists?'传记暂未向你开放':'尚未整理这位家人的传记'}</h2><p>本人确认并分享后，可以在这里按章节阅读。</p></div>`;}
-    return `<article class="archive-biography"><p class="eyebrow">${e(P.PEOPLE[person].name)} · 人生传记</p><h2 class="serif">${e(profile.tagline)}</h2><p class="story-paragraph">${e(profile.bioIntro)}</p><div class="note"><p>${e(profile.sourceLabel)}</p></div><h3 class="section">完整阅读 · ${profile.sections.length} 章</h3>${profile.sections.map(section=>chapterView(person,section.id)).join('')}${additionalEvents(person,profile)}</article>`;
+    return `<article class="archive-biography"><p class="eyebrow">${e(P.PEOPLE[person].name)} · 传记</p><h2 class="serif">${e(profile.tagline)}</h2><p class="story-paragraph">${e(profile.bioIntro)}</p><div class="note"><p>${e(profile.sourceLabel)}</p></div><h3 class="section">完整阅读 · ${profile.sections.length} 章</h3>${profile.sections.map(section=>chapterView(person,section.id)).join('')}${additionalEvents(person,profile)}</article>`;
   }
   /** 事件是传记内部的另一种阅读方式，沿用原事件详情、追问和补充流程。 */
   function eventView(person) {
@@ -153,16 +153,16 @@
   /** 总览只展示四类内容预览，完整分类统一使用上方入口，不再复制一套分类按钮。 */
   function overview(person) {
     const videoItems=videos(person),photos=assets(person,'photo'),works=assets(person,'work'),profile=biography(person);
-    return `<p class="caption archive-preview-note">下方展示部分资料预览，完整内容请使用上方四个分类。</p><section data-archive-preview="video"><h2>视频预览</h2>${videoItems.length?`<div class="archive-grid section">${videoItems.slice(0,2).map(item=>card(item,person)).join('')}</div>`:'<p class="caption">暂无向你开放的视频。</p>'}</section><section class="section" data-archive-preview="photo"><h2>照片预览</h2>${photos.length?`<div class="archive-photo-strip section">${photos.slice(0,3).map(item=>card(item,person)).join('')}</div>`:'<p class="caption">暂无向你开放的照片。</p>'}</section><section class="archive-bio-preview section" data-archive-preview="biography"><h2>人生传记预览</h2><p>${e(profile?.bioIntro || '本人分享传记后，可以在这里阅读生平与事件。')}</p></section><section class="section" data-archive-preview="work"><h2>作品预览</h2>${works.length?`<div class="archive-grid section">${works.slice(0,2).map(item=>card(item,person)).join('')}</div>`:'<p class="caption">暂无向你开放的作品。</p>'}</section>`;
+    return `<p class="caption archive-preview-note">下方展示部分资料预览，完整内容请使用上方四个分类。</p><section data-archive-preview="video"><h2>视频预览</h2>${videoItems.length?`<div class="archive-grid section">${videoItems.slice(0,2).map(item=>card(item,person)).join('')}</div>`:'<p class="caption">暂无向你开放的视频。</p>'}</section><section class="section" data-archive-preview="photo"><h2>照片预览</h2>${photos.length?`<div class="archive-photo-strip section">${photos.slice(0,3).map(item=>card(item,person)).join('')}</div>`:'<p class="caption">暂无向你开放的照片。</p>'}</section><section class="archive-bio-preview section" data-archive-preview="biography"><h2>传记预览</h2><p>${e(profile?.bioIntro || '这位家人分享传记后，就能在这里读到这一路的故事。')}</p></section><section class="section" data-archive-preview="work"><h2>作品预览</h2>${works.length?`<div class="archive-grid section">${works.slice(0,2).map(item=>card(item,person)).join('')}</div>`:'<p class="caption">暂无向你开放的作品。</p>'}</section>`;
   }
   /** 地点沿用获授权事件，场景示例明确非实拍；能进入空间与仅有记录分别标示。 */
   function placeView(person) {
     if(P.state.familyWorkspace&&person==='father'&&P.state.accounts.father.hasSpace){
-      return `<h2>记忆地点</h2><div class="card section"><h3>回忆里的家</h3><p>家庭 VR 已模拟交付，场景以通用示例呈现。</p>
+      return `<h2>足迹</h2><div class="card section"><h3>回忆里的家</h3><p>家庭 VR 已模拟交付，场景以通用示例呈现。</p>
         ${l('查看故里 VR 服务','house-service/vr','btn secondary full')}</div>`;
     }
     const stories=events(person),places=P.ARCHIVE_DATA.places.filter(place=>place.subject===person&&place.storyIds.some(id=>stories.some(story=>story.id===id)));
-    return `<h2>记忆地点</h2><p class="caption">按生活过的地方探索同一份人生记录；能否进入空间会单独标明。</p>${places.length?`<div class="archive-place-list section">${places.map(place=>`<article class="archive-place-card" data-place-id="${place.id}"><img src="${place.hasSpace?'assets/room-portrait.png':'assets/room.png'}" alt="${e(place.title)}的AI场景示例，不代表历史实拍"><div class="section-heading"><h3>${e(place.title)}</h3>${t(place.hasSpace?'可走进老家':'仅事件记录','gray')}</div><p>${e(place.description)}</p>${place.hasSpace?l('查看故里 VR 服务','house-service/vr','btn secondary full'):''}${stories.filter(story=>place.storyIds.includes(story.id)).map(story=>l('查看关联事件：'+e(story.title),'story/'+story.id,'text-link full')).join('')}</article>`).join('')}</div>`:'<div class="empty"><h3>暂无向你开放的记忆地点</h3><p>整理并分享地点相关经历后，可以在这里查看。</p></div>'}`;
+    return `<h2>足迹</h2><p class="caption">按生活过的地方探索同一份人生记录；能否进入空间会单独标明。</p>${places.length?`<div class="archive-place-list section">${places.map(place=>`<article class="archive-place-card" data-place-id="${place.id}"><img src="${place.hasSpace?'assets/room-portrait.webp':'assets/room.webp'}" alt="${e(place.title)}的AI场景示例，不代表历史实拍"><div class="section-heading"><h3>${e(place.title)}</h3>${t(place.hasSpace?'可走进老家':'仅事件记录','gray')}</div><p>${e(place.description)}</p>${place.hasSpace?l('查看故里 VR 服务','house-service/vr','btn secondary full'):''}${stories.filter(story=>place.storyIds.includes(story.id)).map(story=>l('查看关联事件：'+e(story.title),'story/'+story.id,'text-link full')).join('')}</article>`).join('')}</div>`:'<div class="empty"><h3>暂无向你开放的足迹</h3><p>整理并分享地点相关经历后，可以在这里查看。</p></div>'}`;
   }
   /** 照片翻页遵守进入时的范围，事件资料中的照片不会扩展为整个人物相册。 */
   function photoSequence(person,storyId='') {
@@ -198,6 +198,8 @@
     const profile=biography(person),tab=s.lifeTab;
     const recordAction=person===s.actor?b('记录一刻','material-new','btn full',`data-person="${e(person)}" data-kind="biography"`):l('记录一刻','record','btn full');
     let body=tab==='overview'?overview(person):tab==='video'?videoView(person):tab==='biography'?biographyView(person):tab==='place'?placeView(person):listing(person,tab);
+    // 人物主页与人物志共用交付和授权判断，进入资料分类后专注于浏览该类内容。
+    if (tab === 'overview') body = P.Households.storyPersonServices(person, '返回人物档案') + body;
     // 仅陈远山使用其已有二维示例封面，其余人物保留各自头像，避免错配人物。
     return `<div class="page person-archive-page" data-archive-person="${e(person)}"><div class="archive-cover-heading">${s.actor==='father'?`<div class="form-field archive-person-picker"><label for="archive-person-select">当前查看的人物档案</label><select id="archive-person-select">${s.members.map(id=>`<option value="${id}" ${person===id?'selected':''}>${e(P.PEOPLE[id].name)} · ${e(P.relation(id))}</option>`).join('')}</select></div>`:person!==s.actor?P.FamilyContext.picker():''}<div class="person-heading">${a(person,'large')}<div><h1 class="page-title">${e(P.PEOPLE[person].name)}</h1><p class="caption">${e(P.PEOPLE[person].name)}的人物档案</p><p class="caption">${e(P.relation(person))}${P.PEOPLE[person].born?' · '+e(P.PEOPLE[person].born)+' 年生':''}</p></div></div><p class="page-subtitle">${e(profile?.tagline || '在这里保存影片、相片、传记与创作。')}</p></div>${P.KeepsakeBooks.entry(person)}<div class="section ${tab==='overview'?'':'heritage-family-shortcuts'}">${tab==='overview'?'':l('全家共同往事','house-stories/family','btn secondary')}${recordAction}</div>${shortcuts(person)}<nav class="archive-secondary-tabs" aria-label="档案浏览视角">${['overview','place'].map(id=>b(TABS[id],'archive-tab',tab===id?'active':'',`data-value="${id}"`)).join('')}</nav><section class="archive-content" data-archive-tab="${tab}">${addEntry(person,tab)}${body}</section><p class="archive-demo-note">${s.familyWorkspace?'此家庭的资料来自当前演示填写和选择的文件。':'示例人物与示例资料。'}</p></div>`;
   }
@@ -222,7 +224,7 @@
     const fromList=P.Households.fromStoryList();
     const from=s.history?.at(-1)?.split('/')[0];
     const fromHomeAlbum=from==='home'&&s.albumReturn?.route==='archive-item/'+s.archiveItemId;
-    const listLabel=fromHomeAlbum?'返回相册':{'house-baby':'返回成长相册','house-elders':'返回有声相册','house-assistant':'返回AI助手'}[from]||'返回记录';
+    const listLabel=fromHomeAlbum?'返回相册':{'house-baby':'返回成长相册','house-elders':'返回有声相册','house-assistant':'返回'+P.FamilyAssistant.title}[from]||'返回记录';
     const returnControl=fromList||fromHomeAlbum||from==='house-assistant'?b(listLabel,'back','btn'):l('返回记录','house-stories','btn');
     if(!item)return `<div class="page empty"><h2>没有找到这份档案资料</h2>${returnControl}</div>`;
     if(!assetReadable(item))return `<div class="page empty">${i('lock')}<h2>这份资料暂未向你开放</h2>${returnControl}</div>`;
@@ -350,6 +352,6 @@
     if(action==='archive-photo-step'){stepPhoto(Number(element.dataset.step));return true;}
     return false;
   }
-  P.PersonArchive={view,detail,detailMeta,filmCard,assets,familyMaterials,familyCard,videos,deliveredFilm,videoPlayer,videoType,getItem,biography,chapter,events,storyMaterials,open,handleAction,mount,stopPlayback};
+  P.PersonArchive={tabs:TABS,view,detail,detailMeta,filmCard,assets,familyMaterials,familyCard,videos,deliveredFilm,videoPlayer,videoType,getItem,biography,chapter,events,storyMaterials,open,handleAction,mount,stopPlayback};
   Object.assign(P.views,{'archive-item':detail,'film-delivery':delivery});
 }

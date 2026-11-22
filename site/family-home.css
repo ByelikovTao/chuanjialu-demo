@@ -1,4 +1,4 @@
-/* 精简首页只保留阅读层级，管理表单和既有业务页面继续使用原有组件。 */
+/* 首页、家谱编辑和相关记录轨道的布局。 */
 .heritage-home{--home-paper:var(--canvas);--home-tea:var(--brand);--home-ink:var(--ink);--home-muted:var(--secondary);--home-line:var(--line);padding:0 16px 32px;background:var(--home-paper);color:var(--home-ink);font-family:inherit;font-size:calc(16px * var(--unit));line-height:1.5}
 .heritage-home :is(h1,h2,h3,p){text-wrap:pretty;overflow-wrap:anywhere}
 .heritage-home :is(h1,h2,h3){text-wrap:balance;font-family:inherit;font-style:normal}
@@ -38,86 +38,8 @@
   border-radius:8px;
 }
 .heritage-trace-fields legend{padding:0 4px;font-weight:600;color:var(--brand)}
-.heritage-reader {
-  padding: 24px 16px 32px;
-}
-
-.heritage-reader > * + * {
-  margin-top: 24px;
-}
-
 .heritage-reader-text {
   white-space: pre-line;
-}
-
-.heritage-origin-timeline {
-  --origin-date-width: min(28%, calc(80px * var(--unit)));
-  --origin-track-width: 32px;
-  --origin-track-center: calc(var(--origin-date-width) + 12px);
-  --origin-dot-center: calc(14px * var(--unit));
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.heritage-origin-timeline > li {
-  position: relative;
-  display: grid;
-  grid-template-columns: var(--origin-date-width) var(--origin-track-width) minmax(0, 1fr);
-  align-items: start;
-}
-
-.heritage-origin-timeline > li::before {
-  position: absolute;
-  z-index: 1;
-  inset-block-start: calc(var(--origin-dot-center) - 6px);
-  inset-inline-start: calc(var(--origin-track-center) - 6px);
-  width: 12px;
-  height: 12px;
-  border: 2px solid #fbf7ef;
-  border-radius: 50%;
-  background: var(--brand);
-  box-shadow: 0 0 0 1px var(--brand);
-  content: "";
-}
-
-.heritage-origin-timeline > li:not(:last-child) {
-  padding-bottom: 24px;
-}
-
-.heritage-origin-timeline > li:not(:last-child)::after {
-  position: absolute;
-  inset-block: var(--origin-dot-center) calc(-1 * var(--origin-dot-center));
-  inset-inline-start: calc(var(--origin-track-center) - 1px);
-  width: 2px;
-  background: #b47d62;
-  content: "";
-}
-
-.heritage-origin-period {
-  grid-column: 1;
-  color: var(--brand);
-  font: 600 calc(20px * var(--unit)) / 1.4 KaiTi, STKaiti, serif;
-  text-align: end;
-}
-
-.heritage-origin-period-detail {
-  display: block;
-  color: var(--secondary);
-  font-size: calc(14px * var(--unit));
-  font-weight: 400;
-  line-height: 1.5;
-}
-
-.heritage-origin-event {
-  grid-column: 3;
-  font-size: calc(16px * var(--unit));
-  line-height: 1.75;
-}
-
-.heritage-reader > section > h2 {
-  font-size: calc(16px * var(--unit));
-  line-height: 1.5;
 }
 
 .heritage-origin-clues {
@@ -136,11 +58,6 @@
 .heritage-origin-clues dd {
   margin: 0;
   overflow-wrap: anywhere;
-}
-
-.heritage-reader > * + .heritage-origin-record {
-  padding-top: 16px;
-  border-top: 1px solid var(--line);
 }
 
 .heritage-reader-text + .heritage-origin-source {
@@ -370,39 +287,6 @@
 .heritage-pedigree-readable .heritage-pedigree-node:not(.is-focus) small{color:#795942}
 .heritage-pedigree-partners{display:grid;gap:8px}
 
-.phone[data-route="home"] .app-header {
-  min-height: 48px;
-  border-bottom: 1px solid #dfd0bd;
-  background: #fbf7ef;
-  color: #483629;
-}
-
-.phone .family-dashboard {
-  padding: 12px 16px 32px;
-}
-
-.heritage-body .home-section-heading {
-  margin-bottom: 8px;
-}
-
-.heritage-home :is(.home-section-heading, .home-leaf-heading) > h2 {
-  font-family: KaiTi, STKaiti, serif;
-}
-
-.home-section-heading h2 {
-  min-width: 0;
-}
-
-.home-section-heading .heritage-text-button {
-  flex-shrink: 0;
-  min-height: 40px;
-  color: var(--brand);
-}
-
-.home-heritage-leaf + section {
-  margin-top: 24px;
-}
-
 .home-motto-art {
   width: 100%;
   overflow: hidden;
@@ -443,10 +327,6 @@
   border-radius: 4px;
 }
 
-.home-motto-copy {
-  padding-top: 12px;
-}
-
 .home-section-empty {
   padding-block: 4px;
 }
@@ -457,35 +337,6 @@
   justify-content: space-between;
   gap: 8px;
   min-height: 28px;
-}
-
-.home-motto-sheet .home-leaf-heading {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-}
-
-.home-motto-sheet .home-leaf-heading h2 {
-  display: flex;
-  grid-column: 2;
-  align-items: center;
-  gap: 8px;
-  color: #783e33;
-  white-space: nowrap;
-}
-
-.home-motto-sheet .home-leaf-heading h2::before,
-.home-motto-sheet .home-leaf-heading h2::after {
-  flex: none;
-  width: 16px;
-  height: 1px;
-  background: currentColor;
-  opacity: 0.36;
-  content: "";
-}
-
-.home-motto-sheet .home-leaf-heading .home-edit-button {
-  grid-column: 3;
-  justify-self: end;
 }
 
 .phone .family-dashboard .home-edit-button {
@@ -524,14 +375,6 @@
   text-align: end;
 }
 
-.home-motto-signature::before {
-  flex: none;
-  width: 12px;
-  height: 1px;
-  background: #b38a74;
-  content: "";
-}
-
 [data-home-cover-preview] .home-motto-art,
 .modal .home-motto-art {
   border: 1px solid var(--line);
@@ -548,115 +391,6 @@
 
 .home-motto-art + .heritage-review-copy {
   margin-top: 8px;
-}
-
-.home-roots {
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px solid var(--home-line);
-}
-
-.home-roots-section {
-  display: grid;
-  grid-template-columns: 32px minmax(0, 1fr);
-  align-items: start;
-  gap: 4px 12px;
-}
-
-.home-roots-section + .home-roots-section {
-  margin-top: 16px;
-}
-
-.home-roots-section > :is(.home-leaf-heading, .home-roots-detail, .home-origin-link) {
-  grid-column: 2;
-}
-
-.home-roots-section .home-leaf-heading {
-  min-height: 32px;
-  align-self: center;
-}
-
-.home-roots-mark {
-  display: grid;
-  grid-area: 1 / 1;
-  align-self: center;
-  min-height: 32px;
-  place-items: center;
-}
-
-.home-surname-seal {
-  padding-block: 4px;
-  border-radius: 4px;
-  background: #963e32;
-  color: #fff7ed;
-  font: 600 16px / 1.25 KaiTi, STKaiti, serif;
-  text-align: center;
-  overflow-wrap: anywhere;
-}
-
-.home-origin-mark {
-  color: #863d32;
-}
-
-.home-origin-mark .icon {
-  width: 20px;
-  height: 20px;
-}
-
-.home-roots-summary {
-  color: #5f5046;
-  font-size: calc(16px * var(--unit));
-  line-height: 1.5;
-}
-
-/* 年代有记录时，圆点与年代首行对齐，细线沿着这段回忆延伸。 */
-.home-origin-timeline {
-  display: grid;
-  grid-area: 2 / 1;
-  grid-template-rows: auto 1fr;
-  justify-items: center;
-  align-self: stretch;
-  gap: 4px;
-  padding-top: calc(.75em - 3px);
-  font-size: calc(14px * var(--unit));
-}
-
-.home-origin-timeline::before {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--brand);
-  content: "";
-}
-
-.home-origin-timeline::after {
-  width: 1px;
-  background: var(--home-line);
-  content: "";
-}
-
-.home-origin-date {
-  margin-bottom: 4px;
-  color: #863d32;
-  font-size: calc(14px * var(--unit));
-  font-weight: 600;
-  line-height: 1.5;
-}
-
-.home-origin-summary {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  white-space: pre-line;
-}
-
-.phone .family-dashboard .home-origin-link {
-  justify-self: start;
-  min-height: 44px;
-  padding-block: 4px;
-  color: var(--brand);
-  font-size: calc(14px * var(--unit));
 }
 
 .home-family-panel {

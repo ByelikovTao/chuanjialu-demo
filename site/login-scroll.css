@@ -1,6 +1,6 @@
 /* 浅山水衬底、灰金裱边与深木轴增加层次，小印章保留朱红；展开仍只使用位移和缩放。 */
 .login-scroll{position:absolute;inset:0;z-index:40;overflow:auto;background:#EDE8DC;color:#49372B;font-family:KaiTi,STKaiti,serif;isolation:isolate}
-.login-scroll:before{content:'';position:absolute;inset:0;z-index:-1;background:url('assets/zhumen/home-ink-landscape.png') center top/100% 1100px repeat-y;opacity:.55;pointer-events:none}
+.login-scroll:before{content:'';position:absolute;inset:0;z-index:-1;background:url('assets/zhumen/home-ink-landscape.webp') center top/100% 1100px repeat-y;opacity:.55;pointer-events:none}
 .login-scroll:after{content:'';position:absolute;inset:12px;z-index:-1;background:url('assets/zhumen/family-meander-frame.svg') center/100% 100% no-repeat;filter:sepia(1);opacity:.2;pointer-events:none}
 .login-scroll-top{position:sticky;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#EDE8DCF2;color:#76674E;font-size:calc(14px * var(--unit));line-height:1.4286}
 .login-scroll-skip{min-height:44px;padding:8px 12px;border:1px solid #B6A380;border-radius:4px;background:#F7F1E5;color:#76674E;font:inherit}
@@ -10,7 +10,7 @@
 .login-scroll-main{max-width:420px;margin:auto;padding:24px 24px 40px;text-align:center}
 .login-scroll-eyebrow{margin:0 0 32px;font-size:calc(14px * var(--unit));line-height:1.4286;color:#8A745B;letter-spacing:4px}
 .login-scroll-wrap{position:relative;margin:0 8px}
-.login-scroll-paper{min-height:420px;padding:40px 24px 32px;position:relative;border:8px solid #B9B194;box-shadow:0 8px 24px #514A3420;background:#F4E7CD url('assets/zhumen/ivory-rice-paper.png') center/400px auto;transform-origin:center top;animation:login-scroll-unroll 1500ms cubic-bezier(.22,1,.36,1) both}
+.login-scroll-paper{min-height:420px;padding:40px 24px 32px;position:relative;border:8px solid #B9B194;box-shadow:0 8px 24px #514A3420;background:#F4E7CD url('assets/zhumen/ivory-rice-paper.webp') center/400px auto;transform-origin:center top;animation:login-scroll-unroll 1500ms cubic-bezier(.22,1,.36,1) both}
 .login-scroll-paper:before{content:'';position:absolute;inset:8px;background:url('assets/zhumen/family-meander-frame.svg') center/100% 100% no-repeat;opacity:.45;pointer-events:none}
 .login-scroll-words{position:relative;opacity:0;animation:login-scroll-ink 450ms cubic-bezier(.22,1,.36,1) 1050ms forwards}
 .login-scroll-words h1{margin:0 0 24px;font-size:calc(30px * var(--unit));line-height:1.2;font-weight:400;letter-spacing:4px;color:#514639}

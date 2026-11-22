@@ -11,7 +11,14 @@
       if(id==='father')return {父亲:'子女',母亲:'子女',儿子:'父母',女儿:'父母',孙子:'祖辈',孙女:'祖辈',妻子:'丈夫',丈夫:'妻子',兄弟姐妹:'兄弟姐妹'}[P.PEOPLE[viewer]?.relation]||'家人';
       return '家人';
     }
-    const known={father:{xia:'女儿',mother:'妻子',grandpa:'父亲',nian:'孙女'},mother:{father:'丈夫',xia:'女儿',grandpa:'公公',nian:'孙女'},grandpa:{father:'儿子',mother:'儿媳',xia:'孙女',nian:'曾孙女'},xia:{father:'爸爸',mother:'妈妈',grandpa:'爷爷',nian:'侄女'},nian:{father:'爷爷',mother:'奶奶',grandpa:'曾祖父',xia:'姑姑'}};
+    const known = {
+      father: {xia:'女儿', mother:'妻子', grandpa:'父亲', grandma:'母亲', nian:'孙女'},
+      mother: {father:'丈夫', xia:'女儿', grandpa:'公公', grandma:'婆婆', nian:'孙女'},
+      grandpa: {father:'儿子', mother:'儿媳', grandma:'妻子', xia:'孙女', nian:'曾孙女'},
+      grandma: {father:'儿子', mother:'儿媳', grandpa:'丈夫', xia:'孙女', nian:'曾孙女'},
+      xia: {father:'爸爸', mother:'妈妈', grandpa:'爷爷', grandma:'奶奶', nian:'侄女'},
+      nian: {father:'爷爷', mother:'奶奶', grandpa:'曾祖父', grandma:'曾祖母', xia:'姑姑'}
+    };
     if(known[viewer]?.[id])return known[viewer][id];
     if(viewer==='father')return P.PEOPLE[id]?.relation || '家人';
     if(id==='father')return {儿子:'爸爸',女儿:'爸爸',孙子:'爷爷',孙女:'爷爷',妻子:'丈夫'}[P.PEOPLE[viewer]?.relation] || '家人';
@@ -20,7 +27,7 @@
   /** 家人列表只显示基本身份，不根据关系开放私人资料。 */
   function memberRow(id) {
     const person=P.PEOPLE[id];
-    const recorded=id==='grandpa';
+    const recorded=id==='grandpa'||id==='grandma';
     const claimed=Boolean(P.state.accounts[id]);
     return b(`${a(id)}<span class="grow"><strong>${e(person.name)} <small>${e(relation(id))}</small></strong><em>${recorded?'历史人物 · 家人记载':id==='father'?(P.state.familyWorkspace?'家庭管理人':'人生记录与数字人已建立'):claimed?'独立账号 · 参与家庭记录':'关系已记录 · 等待本人认领'}</em></span>${t(recorded?'家人记载':claimed?'已认领':'待认领',recorded||!claimed?'gray':'')}${i('arrow')}`,'person','member-row',`data-id="${id}"`);
   }
@@ -32,7 +39,7 @@
     const ownAdditions=s.pending.filter(item=>item.author===s.actor);
     const additionStatus=ownAdditions.length?`<div class="section stack"><div class="section-heading"><h2>我提交的补充</h2></div>${ownAdditions.map(item=>`<div class="card"><h3 class="card-title">${e(item.title)}</h3><p class="caption">${item.status==='returned'?'本人建议更正':'等待本人核对'}</p>${item.feedback?`<p>${e(item.feedback)}</p>`:''}${item.status==='returned'?b('更正后再次提交','edit-pending','btn secondary compact',`data-id="${e(item.id)}"`):'<p class="caption">尚未进入已确认的人生档案。</p>'}</div>`).join('')}</div>`:'';
     const invitations=s.invitations.length?`<div class="section"><div class="section-heading"><h2>家庭邀请</h2></div>${s.invitations.map((x,index)=>`<div class="invitation-row"><div class="grow"><strong>${e(x.name)}</strong><p class="caption">${e(x.relation)} · ${x.status==='accepted'?'已确认加入':x.status==='revoked'?'邀请已撤回':'等待家人加入'}</p>${x.correctionNote?`<p class="caption">${e(x.correctionNote)}</p>`:''}</div>${x.status==='pending'?b('预览加入邀请','preview-invite','text-link',`data-index="${index}"`)+(s.actor==='father'?b('更正信息','edit-invite','text-link',`data-id="${x.id}"`)+b('撤回','revoke-invite','text-link',`data-id="${x.id}"`):''):t(x.status==='accepted'?'已加入':'已撤回','gray')}</div>`).join('')}</div>`:'';
-    return `<div class="page"><h1 class="page-title">家人关系与邀请</h1><p class="page-subtitle">查看家人关系，邀请家人加入后一起记录往事。</p><div class="family-actions section">${b(i('plus')+(s.actor==='father'?' 邀请加入家庭':' 请管理人发出加入邀请'),'invite','btn full')}</div>${pending?`<div class="notice row"><span class="grow">${pending} 条补充或查看申请等待你核对</span>${b('查看','pending','text-link')}</div>`:''}<div class="feature-entry">${l(i('book')+' 我们的共同回忆','common-memories','btn secondary')}</div><div class="family-summary"><div class="avatar-stack">${s.members.slice(0,3).map(id=>a(id)).join('')}</div><span>${s.members.length} 位家人 · 共同守护</span></div><div class="tabs">${b(i('list')+' 家人列表','family-tab',s.familyTab==='列表'?'active':'', 'data-value="列表"')}${b(i('tree')+' 关系树','family-tab',s.familyTab==='关系树'?'active':'','data-value="关系树"')}</div>${s.familyTab==='关系树'?tree:`<div class="member-list">${s.members.map(memberRow).join('')}</div>`}${additionStatus}${invitations}${l('查看一家人的往事','house-stories/family','btn secondary full section')}</div>`;
+    return `<div class="page"><h1 class="page-title">家人关系与邀请</h1><p class="page-subtitle">查看家人关系，邀请家人加入后一起记录往事。</p><div class="family-actions section">${b(i('plus')+(s.actor==='father'?' 邀请加入家庭':' 请管理人发出加入邀请'),'invite','btn full')}</div>${pending?`<div class="notice row"><span class="grow">${pending} 条补充或查看申请等待你核对</span>${b('查看','pending','text-link')}</div>`:''}<div class="feature-entry">${l(i('book')+' 共忆集','common-memories','btn secondary')}</div><div class="family-summary"><div class="avatar-stack">${s.members.slice(0,3).map(id=>a(id)).join('')}</div><span>${s.members.length} 位家人 · 共同守护</span></div><div class="tabs">${b(i('list')+' 家人列表','family-tab',s.familyTab==='列表'?'active':'', 'data-value="列表"')}${b(i('tree')+' 关系树','family-tab',s.familyTab==='关系树'?'active':'','data-value="关系树"')}</div>${s.familyTab==='关系树'?tree:`<div class="member-list">${s.members.map(memberRow).join('')}</div>`}${additionStatus}${invitations}${l('查看一家人的往事','house-stories/family','btn secondary full section')}</div>`;
   }
   /** 分享名单由当前真实成员生成，同一字段可传递多个指定家人。 */
   function shareViewerOptions(selected=[]) {
@@ -71,47 +78,73 @@
       </div>
       ${s.draftSaved?`<div class="notice section">有一份还没写完的回忆。${l('查看草稿','materials')}</div>`:''}
       <section class="profile-menu-group" aria-labelledby="profile-family-heading">
-        <h2 id="profile-family-heading">家庭与资料</h2>
+        <h2 id="profile-family-heading">家人家事</h2>
         <div class="profile-menu profile-main-menu">
-          ${profileMenu('family','我的家庭','profile-family')}
-          ${profileMenu('check','资料与核对'+(pending?' · '+pending+'待核对':''),'profile-materials')}
-          ${profileMenu('chat','家人留言'+(P.QuestionInbox.hasNotice()?' · 待查看':''),'questions')}
-          ${profileMenu('star','纪念与收藏','profile-keepsakes')}
+          ${profileMenu('family','我们一家','profile-family')}
+          ${profileMenu('check','家档核对'+(pending?' · '+pending+'待核对':''),'profile-materials')}
+          ${profileMenu('chat','家人留话'+(P.QuestionInbox.hasNotice()?' · 待查看':''),'questions')}
+          ${profileMenu('star','珍藏','profile-keepsakes')}
         </div>
       </section>
       <section class="profile-menu-group" aria-labelledby="profile-services-heading">
-        <h2 id="profile-services-heading">服务</h2>
+        <h2 id="profile-services-heading">家庭服务</h2>
         <div class="profile-menu profile-main-menu">
-          ${profileMenu('screen','爸妈大屏','house-screen')}
-          ${profileMenu('spark','增值服务','house-addons')}
+          ${profileMenu('screen','爸妈的相框','house-screen')}
+          ${profileMenu('spark','传家定制','house-addons')}
           ${profileMenu('source','服务与订单','profile-services')}
         </div>
       </section>
       <div class="profile-demo">${P.Households.identityPicker()}</div>
     </div>`;
   }
-  /** 资料与核对承接记录入口；本人和家人的原稿、草稿去向保持各自归属。 */
+  /** 家档核对承接记录入口；本人和家人的原稿、草稿去向保持各自归属。 */
   function recordPrompt() {
     const hasDraft=Boolean(P.state.draftSaved || P.state.record.text.trim());
     if(P.state.actor!=='father')return `<section class="record-prompt" data-record-entry><div>${i('edit')}<p>${hasDraft?'继续你的草稿':'留下我们的共同回忆'}<small>${e(P.PEOPLE[P.state.actor].name)} · ${hasDraft?'草稿仅自己可见':'先保存原稿，再请对方确认'}</small></p></div>${hasDraft?l('继续草稿 '+i('plus'),'record','text-link'):b('记下一刻 '+i('plus'),'family-common-new','text-link')}</section>`;
     return `<section class="record-prompt" data-record-entry><div>${i('edit')}<p>${hasDraft?'继续你的草稿':'为自己记录一刻'}<small>${e(P.PEOPLE[P.state.actor].name)} · 确认后进入本人人生印记${hasDraft?'，草稿仅自己可见。':'。'}</small></p></div>${l((hasDraft?'继续草稿 ':'记录一刻 ')+i('plus'),'record','text-link')}</section>`;
   }
+  /** 分组标题由公共页头显示，正文从说明和对应入口读起。 */
+  function profileSection(title, description, menu, extra = '') {
+    return `<div class="page profile-section-page">
+      <p class="page-subtitle">${e(description)}</p>
+      <nav class="profile-menu profile-section-menu" aria-label="${e(title)}">${menu}</nav>
+      ${extra}${l('返回我的', 'profile', 'text-link full section')}
+    </div>`;
+  }
   /** 资料页集中记录、提交与核对。 */
   function profileMaterials() {
-    return `<div class="page"><h1 class="page-title">资料与核对</h1><p class="page-subtitle">查看资料提交进度，核对家人补充的内容。</p><div class="profile-menu">${profileMenu('check','待我核对 · '+P.MaterialLibrary.reviewCount(),'material-inbox')}${profileMenu('plus','我提交的资料','materials')}</div>${recordPrompt()}${l('返回我的','profile','text-link full section')}</div>`;
+    const menu = profileMenu('check', '待我核对 · ' + P.MaterialLibrary.reviewCount(), 'material-inbox') +
+      profileMenu('plus', '我提交的资料', 'materials');
+    return profileSection('家档核对', '查看资料提交进度，核对家人补充的内容。', menu, recordPrompt());
   }
-  /** 首页整理、家庭关系、授权和共同内容集中在我的家庭，沿用各自权限。 */
+  /** 首页整理、家庭关系、授权和共同内容集中在「我们一家」，沿用各自权限。 */
   function profileFamily() {
-    return `<div class="page"><h1 class="page-title">我的家庭</h1><p class="page-subtitle">看看家人的连接，管理分享与共同记忆。</p><div class="profile-menu">${profileMenu('book','首页内容','home-manage')}${profileMenu('family','家人关系与邀请','family')}${profileMenu('family',P.Couples.profileLabel(),'house-couple-setup')}${profileMenu('lock','人生空间授权与共同经历确认','family-permissions')}${profileMenu('family','我们的共同回忆','common-memories')}</div>${l('返回我的','profile','text-link full section')}</div>`;
+    const menu = profileMenu('book', '首页内容', 'home-manage') +
+      profileMenu('family', '家人关系与邀请', 'family') +
+      profileMenu('family', P.Couples.profileLabel(), 'house-couple-setup') +
+      profileMenu('lock', '人生空间授权与共同经历确认', 'family-permissions') +
+      profileMenu('family', '共忆集', 'common-memories');
+    return profileSection('我们一家', '看看家人的连接，管理分享与共同记忆。', menu);
   }
   /** 纪念书入口沿用本人视频建档准入条件；所有账号均保留收藏入口。 */
   function profileKeepsakes() {
     const count=P.visibleStories().filter(story=>P.state.saved.includes(story.id)).length;
-    return `<div class="page"><h1 class="page-title">纪念与收藏</h1><p class="page-subtitle">把想珍藏的故事，留在手边。</p><div class="profile-menu">${profileMenu('book','家庭故事册','house-book')}${profileMenu('book','人工纪念书','books')}${profileMenu('star','我的收藏 · '+count,'saved')}</div>${l('返回我的','profile','text-link full section')}</div>`;
+    const menu = profileMenu('book', '家庭纪事册', 'house-book') +
+      profileMenu('book', '人工纪念书', 'books') +
+      profileMenu('star', '我的收藏 · ' + count, 'saved');
+    return profileSection('珍藏', '把想珍藏的故事，留在手边。', menu);
   }
   /** 会员、奖励和订单是低频服务操作；开通自己的空间仍遵循原拍摄条件。 */
   function profileServices() {
-    return `<div class="page"><h1 class="page-title">服务与订单</h1><p class="page-subtitle">查看家庭会员、独立增值服务及订单。</p><div class="profile-menu">${profileMenu('book','家庭会员与存储额度','membership')}${profileMenu('book','独立增值服务','house-addons')}${profileMenu('share','收到的心意','share-gifts')}${profileMenu('book','服务订单','service-orders')}${profileMenu('book','收费方案','billing-plan')}${P.PersonArchive.videos(P.state.actor,'film').length?profileMenu('play','已交付人生故事片','film-delivery'):''}</div>${l('返回我的','profile','text-link full section')}</div>`;
+    const film = P.PersonArchive.videos(P.state.actor, 'film').length
+      ? profileMenu('play', '已交付人生故事片', 'film-delivery')
+      : '';
+    const menu = profileMenu('book', '家庭会员与存储额度', 'membership') +
+      profileMenu('book', '传家定制', 'house-addons') +
+      profileMenu('share', '收到的心意', 'share-gifts') +
+      profileMenu('book', '服务订单', 'service-orders') +
+      profileMenu('book', '收费方案', 'billing-plan') + film;
+    return profileSection('服务与订单', '查看家庭会员、传家定制及订单。', menu);
   }
   Object.assign(P.views,{'profile-materials':profileMaterials,'profile-family':profileFamily,'profile-keepsakes':profileKeepsakes,'profile-services':profileServices});
   /** 主菜单以图标、标题、说明还原参考卡片；次级菜单保持同一导航与点击区域。 */
@@ -134,7 +167,7 @@
     return `<div class="page"><div class="invite-hero">${a('father','large')}<p class="caption">受邀人预览 · ${e(P.PEOPLE.father.name)}邀请你</p>
       <h1 class="page-title">加入「${e(P.HOME_NAME)}」</h1><p>一起听故事，也留下你的那一份。</p></div>
       <div class="card section"><p class="caption">这份邀请送给</p><h2 class="card-title">${e(item.name)}</h2>${relation}
-      ${claim?'<p class="caption">加入时会确认族谱里的这位家人是你。</p>':''}</div>
+      ${claim?'<p class="caption">加入时会确认家谱里的这位家人是你。</p>':''}</div>
       ${hasWelcomeStory?'<p class="note section">发起人为你选了一条往事，加入后就能查看。</p>':''}
       <form id="accept-invite-form" class="section"><input type="hidden" name="inviteId" value="${e(item.id)}">
       <button type="submit" class="btn full">${claim?'确认是我，加入家庭':'加入家庭'}</button></form>
@@ -149,7 +182,7 @@
   /** 收藏页只读取仍然获授权的内容。 */
   function saved() {
     const entries=P.visibleStories().filter(x=>P.state.saved.includes(x.id));
-    return `<div class="page"><h1 class="page-title">想再听一次的故事</h1><p class="page-subtitle">把打动你的片段，留在这里。</p><div class="section">${entries.length?entries.map(x=>l(`${x.houseImage?`<img src="${e(x.houseImage)}" alt="家庭往事照片">`:!P.state.familyWorkspace&&x.image?`<img src="assets/${e(x.image)}.png" alt="故事示意图">`:`<span class="saved-media" aria-hidden="true">${i('book')}</span>`}<span><strong>${e(x.title)}</strong><small>${x.year}年 · ${e(x.category)}</small></span>${i('arrow')}`,'story/'+x.id,'memory-entry saved-entry')).join(''):`<div class="empty">${i('star')}<h2>还没有收藏</h2><p>打开一段故事，点一下“收藏”，下次就容易找到了。</p>${l('去看看人生故事','life','btn')}</div>`}</div></div>`;
+    return `<div class="page"><h1 class="page-title">想再听一次的故事</h1><p class="page-subtitle">把打动你的片段，留在这里。</p><div class="section">${entries.length?entries.map(x=>l(`${x.houseImage?`<img src="${e(x.houseImage)}" alt="家庭往事照片">`:!P.state.familyWorkspace&&x.image?`<img src="assets/${e(x.image)}.webp" alt="故事示意图">`:`<span class="saved-media" aria-hidden="true">${i('book')}</span>`}<span><strong>${e(x.title)}</strong><small>${x.year}年 · ${e(x.category)}</small></span>${i('arrow')}`,'story/'+x.id,'memory-entry saved-entry')).join(''):`<div class="empty">${i('star')}<h2>还没有收藏</h2><p>打开一段故事，点一下“收藏”，下次就容易找到了。</p>${l('去看看人生故事','life','btn')}</div>`}</div></div>`;
   }
   /** 首次进入明确视频客户与受邀家人两条路径。 */
   function welcome() {

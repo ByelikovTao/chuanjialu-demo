@@ -156,7 +156,7 @@
     if(invitationId&&!editing)return P.toast('这份邀请已处理，不能继续更正。');
     personId=editing?.personId||personId;
     const available=P.state.members.filter(id=>!P.state.accounts[id]&&id!=='grandpa');
-    const claim=available.length?`<label class="form-field"><span>关联族谱中的人物</span><select id="invite-person" name="personId">
+    const claim=available.length?`<label class="form-field"><span>关联家谱中的人物</span><select id="invite-person" name="personId">
       <option value="">新增一位家人</option>${available.map(id=>`<option value="${e(id)}" ${id===personId?'selected':''}>${e(P.PEOPLE[id].name)}</option>`).join('')}
       </select></label>`:'<input type="hidden" name="personId" value="">';
     const stories=welcomeStories();
@@ -167,7 +167,7 @@
     P.modal(editing?'更正加入邀请':'邀请加入家庭',`<form id="invite-form">
       <input type="hidden" name="inviteId" value="${e(editing?.id||'')}">
       <label class="form-field"><span>家人的称呼</span><input id="invite-name" name="name" placeholder="例如 妈妈或陈晨" maxlength="20" required></label>
-      <details class="section" ${editing||personId?'open':''}><summary>${available.length?'补充亲属关系或关联族谱人物':'补充亲属关系'}（选填）</summary>
+      <details class="section" ${editing||personId?'open':''}><summary>${available.length?'补充亲属关系或关联家谱人物':'补充亲属关系'}（选填）</summary>
       ${claim}<label class="form-field"><span>对方是我的</span><select id="invite-relation" name="relation"><option value="">先不填写</option>
       ${INVITE_RELATIONS.map(value=>`<option>${value}</option>`).join('')}</select></label></details>
       ${welcome}<p class="caption">生成后可预览家人如何加入。邀请卡用于原型演示。</p>
@@ -339,9 +339,11 @@
     const s=P.state;
     if(P.Couples.handleAction(action,el)||P.FamilyEditions.handleAction(action,el)||P.FamilyMoment.handleAction(action)||P.PhotoStories.handleAction(action,el)||P.Households.handleAction(action,el)||P.FamilyHomeEditor.handleAction(action,el))return;
     if (P.FamilyTree.handleAction(action, el)) return;
+    if (action === 'family-album-photo') return P.FamilyJournal.openPhoto(el);
     if (P.FamilyAssistant.handleAction(action, el) || P.FamilyPicks.handleAction(action, el)) return;
     if(P.FamilyContext.handleAction(action,el)||P.FamilyMemories.handleAction(action,el))return;
     if(P.BillingViews.handleAction(action,el))return;
+    if(P.Customization.handleAction(action,el))return;
     if(P.KeepsakeBooks.handleAction(action,el))return;
     if(P.MaterialLibrary.handleAction(action,el)||P.AnswerFeedback.handleAction(action,el)||P.RelationshipChapters.handleAction(action,el))return;
     if(P.ContentChat.handleAction(action,el))return;
@@ -389,6 +391,7 @@
     if (P.FamilyAssistant.submit(form)) return;
     if(P.FamilyContext.submit(form)||P.FamilyMemories.submit(form))return;
     if(P.BillingViews.submit(form))return;
+    if(P.Customization.submit(form))return;
     if(P.KeepsakeBooks.submit(form))return;
     if(P.MaterialLibrary.submit(form,event)||P.AnswerFeedback.submit(form,event)||P.RelationshipChapters.submit(form,event))return;
     if(P.QuestionInbox?.submit(form))return;

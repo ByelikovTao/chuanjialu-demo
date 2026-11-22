@@ -1,4 +1,4 @@
-/** 宝宝成长和爸妈的日子是家庭档案的两种浏览方式，详情始终打开原记录。 */
+/** 成长记和长辈岁月是家庭档案的两种浏览方式，详情始终打开原记录。 */
 'use strict';
 {
   const P = window.App, { escape: e, icon: i, link: l, button: b, avatar: a } = P;
@@ -74,9 +74,9 @@
       ${example ? `<img src="${e(cover)}" alt="" loading="lazy">` : i(icon)}
     </span><strong>${title}</strong>`, route, 'family-edition-link');
     return `<nav class="family-edition-links" aria-label="家庭记录专版">
-      ${entry('宝宝成长', 'house-baby', 'photo', 'assets/zhumen/portrait-nian.png')}
-      ${entry('爸妈的日子', 'house-elders', 'mic', 'assets/family-home/family-tea-banner.png')}
-      ${P.Couples.hasAlbum() ? entry('两个人的日子', 'house-couple', 'family', 'assets/zhumen/couple-first-trip-demo.jpg') : ''}
+      ${entry('成长记', 'house-baby', 'photo', 'assets/zhumen/portrait-nian.webp')}
+      ${entry('长辈岁月', 'house-elders', 'mic', 'assets/family-home/family-tea-banner.webp')}
+      ${P.Couples.hasAlbum() ? entry('相伴记', 'house-couple', 'family', 'assets/zhumen/couple-first-trip-demo.webp') : ''}
     </nav>`;
   }
 

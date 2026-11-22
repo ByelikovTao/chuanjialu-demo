@@ -4,9 +4,10 @@
   const P=window.App;
   const FEES={editing:1200,sample:200,printing:360};
   const PHASES={draft:['选材草稿','尚未下单'],quote:['选材已确认','待确认报价'],editing:['编辑审校中','制作中'],proof:['排版校样待确认','等待本人定稿'],sample:['已定稿','样书制作'],sampleReview:['已定稿','样书待确认'],printPayment:['已定稿','待付印制费'],printing:['已定稿','印制中'],shipped:['已定稿','已发货'],delivered:['已定稿','已交付'],cancelRequested:['制作已暂停','取消核算中'],cancelled:['已取消','已取消'],aftercare:['已定稿','售后处理中']};
-  /** 只有已完成视频拍摄建档、且传记可用的本人，才能制作自己的纪念书。 */
-  function canStart(person) {
+  /** 已确认定制方案时，本人可从获授权资料选材，原有独立制作入口沿用建档条件。 */
+  function canStart(person, serviceOrderId = '') {
     if(person!==P.state.actor)return false;
+    if(serviceOrderId)return Boolean(P.Customization.permitsBook(serviceOrderId, person) && sources(person).some(item=>item.eligible));
     return P.state.familyWorkspace?sources(person).some(item=>item.eligible):
       Boolean(P.state.accounts[person]?.videoDelivered&&P.PersonArchive.biography(person));
   }
@@ -42,12 +43,20 @@
     if(JSON.stringify(keys)!==JSON.stringify(book.keys))book.approvedKeys=[];
     book.title=String(data.get('title')||'').trim();book.dedication=String(data.get('dedication')||'').trim();book.keys=keys;
   }
-  /** 创建动作复核本人及视频建档条件；重复开始时复用本人的选材草稿。 */
-  function start(person) {
-    if(!canStart(person))return P.toast('请先添加本人有权使用的故事、照片或作品。');
-    let book=P.state.keepsakeBooks.find(item=>item.creator===P.state.actor&&item.subject===person&&item.phase==='draft');
-    if(!book){book={id:P.nextId('book'),subject:person,creator:P.state.actor,title:P.PEOPLE[person].name+' · 走过的路',dedication:'把走过的路，慢慢讲给家人。',keys:sources(person).filter(item=>item.eligible).slice(0,3).map(item=>item.key),approvedKeys:[],phase:'draft',version:1,snapshots:[],paid:{editing:false,sample:false,printing:false},notes:[],serviceNote:''};P.state.keepsakeBooks.push(book);}
-    P.state.keepsakeBookId=book.id;P.navigate('book-edit/'+book.id);
+  /** 一笔定制对应一本纪念书，重复进入时打开同一个书稿。 */
+  function start(person, serviceOrderId = '') {
+    if (!canStart(person, serviceOrderId)) return P.toast('请先添加本人有权使用的故事、照片或作品。');
+    let book = P.state.keepsakeBooks.find(item => item.creator === P.state.actor && item.subject === person &&
+      (serviceOrderId ? item.serviceOrderId === serviceOrderId : !item.serviceOrderId && item.phase === 'draft'));
+    if (!book) {
+      book = {id:P.nextId('book'), subject:person, creator:P.state.actor, title:P.PEOPLE[person].name+' · 走过的路',
+        dedication:'把走过的路，慢慢讲给家人。', keys:sources(person).filter(item=>item.eligible).slice(0,3).map(item=>item.key),
+        approvedKeys:[], phase:'draft', version:1, snapshots:[], paid:{editing:false,sample:false,printing:false}, notes:[], serviceNote:''};
+      if (serviceOrderId) book.serviceOrderId = serviceOrderId;
+      P.state.keepsakeBooks.push(book);
+    }
+    P.state.keepsakeBookId = book.id;
+    P.navigate((book.phase === 'draft' ? 'book-edit/' : 'book-order/') + book.id);
   }
   /** 最终书稿是一次经确认的输出版本，原档案仍是经历与授权的唯一来源。 */
   function freeze(book) {
@@ -127,7 +136,7 @@
     if(!['keepsake-form','book-revision-form','book-service-form'].includes(form.id))return false;
     const book=current();if(!book)return true;
     if(form.id==='keepsake-form'){
-      if(form.featureState!==P.state||form.dataset.actor!==P.state.actor||book.creator!==P.state.actor||book.phase!=='draft'||!canStart(book.subject))return true;
+      if(form.featureState!==P.state||form.dataset.actor!==P.state.actor||book.creator!==P.state.actor||book.phase!=='draft'||!canStart(book.subject, book.serviceOrderId))return true;
       capture();if(!book.title||!book.keys.length||selected(book).length!==book.keys.length||!new FormData(form).get('consent')){P.toast('请填写书名、选择可用的本人资料并确认入书范围。');return true;}
       book.phase='quote';book.approvedKeys=[...book.keys];
       P.navigate('book-order/'+book.id);return true;
@@ -143,5 +152,5 @@
     }
     P.closeModal();P.render();return true;
   }
-  P.KeepsakeBooks={FEES,PHASES,canStart,readable,current,sources,selected,ready,capture,preview,paidTotal,entry,demo,handleAction,submit};
+  P.KeepsakeBooks={FEES,PHASES,canStart,start,readable,current,sources,selected,ready,capture,preview,paidTotal,entry,demo,handleAction,submit};
 }

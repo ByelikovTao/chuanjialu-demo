@@ -7,7 +7,18 @@
     陈: {
       text: '陈姓的一支源自西周初年的陈国。周武王封妫满于陈地，国都宛丘在今河南周口淮阳一带。妫满史称陈胡公，他的部分后代以国名为姓，世代沿用陈姓。',
       source: '河南省政协《“陈”姓的始源在这里》',
-      url: 'https://hnzx.gov.cn/2023/04-19/4319231.html'
+      url: 'https://hnzx.gov.cn/2023/04-19/4319231.html',
+      facts: [
+        { label: '姓字与读音', value: '陈／陳', detail: 'Chén' },
+        { label: '得姓源流', value: '陈国', detail: '陈胡公' },
+        { label: '陈国都城', value: '宛丘', detail: '今河南周口淮阳' }
+      ],
+      reading: {
+        title: '堂号、字辈与祠堂',
+        text: '堂号是宗族或支系沿用的称号，字辈是谱里用来标记世代的用字。广州陈家祠又称陈氏书院，由清末广东各地的陈氏宗族集资兴建。',
+        source: '广东民间工艺博物馆《陈家祠百年历史》',
+        url: 'https://www.gzcjc.com.cn/MYwebsite/rc/my_tyxq.htm?leixing=a98536&subpath=14&token=a30173ec89b04139b9849617a889cbdd'
+      }
     }
   };
   /** 所有示例均为虚构；正式内容和未发布草稿分别保存，刷新由原型统一重置。 */
@@ -21,17 +32,16 @@
             text: [
               '父亲陈明德，1938年出生，是我认识这个家的起点。祖籍、支系和更早的迁徙，还想和家人一起翻翻旧资料，慢慢补齐。',
               '',
-              '1963年 · 陈远山出生。说起最早对家的记忆，他想起窗边的光、桌上的书和忙碌的家人。',
-              '1989年 · 陈远山与林慧成家。两个人添了碗筷、选了窗帘，在小饭桌前吃了新家的第一顿饭。',
-              '1992年 · 女儿陈知夏出生。第一次抱起女儿，陈远山想起父亲平日把家里放在心上的样子。',
-              '1998年秋 · 陈远山接到第一笔订单。那晚林慧煮了面，两个人在饭桌边写下接下来的打算。',
-              '2016年 · 陈念念出生，陈家有了第四代。家人为念念留出了一份独立的成长档案。',
-              '2026年春节 · 一家人又围坐在一起。知夏记下这顿饭，也问起了年年都会做的那道家常菜。'
+              '1962年 · 爷爷进了木工铺｜陈明德在木工铺学做木活，成家后也常给家里添些自己做的小家具。',
+              '1989年 · 成家后的第一顿饭｜那天，陈远山和林慧在小饭桌前，吃了成家后的第一顿饭。',
+              '1998年秋 · 第一笔订单来的那天｜林慧煮了面，两个人在饭桌边写下接下来的打算。',
+              '2018年 · 念念第一次回老家｜家人抱着念念走过小时候常走的那条巷子，一路认着门口的老树。',
+              '2026年春节 · 又在爷爷奶奶家过年｜一家人又围坐在一起。知夏记下这顿饭，也问起那道年年做的家常菜。'
             ].join('\n'),
             source: '陈远山口述与家庭记录 · 虚构家庭示例',
             trace: {
               earliest: '1938年 · 陈明德出生',
-              migration: '1986年夏 · 陈远山离家工作，写给家里的第一封信在老宅的书桌上起稿。'
+              migration: '陈远山于1986年夏离家工作，写给家里的第一封信在老宅的书桌上起稿。'
             },
             confirmedBy: 'father',
             revision: 1
@@ -58,13 +68,13 @@
     const item = profile(person)[kind === 'surname' ? 'surnameOrigin' : kind];
     return item?.confirmedBy === person ? item : null;
   }
-  /** 优先展示本人确认的姓氏记载。无自填内容时，仅引用公开姓氏文化资料。 */
+  /** 首页和编辑器沿用原有取值顺序，详情页可以同时读取家庭记载和公开资料。 */
   function surnameDetails(person) {
     if (!readable(person)) return null;
     const name = profile(person).surname;
     const edited = document('surname', person);
     const culture = Object.hasOwn(SURNAME_CULTURE, name) ? SURNAME_CULTURE[name] : null;
-    return { name, ...(edited || culture) };
+    return { name, ...(edited || culture), record: edited, culture };
   }
   /** 图片仅来自当前事件关联且获授权的照片，不拿装饰图冒充史料佐证。 */
   function photo(story,person) {return P.PersonArchive.assets(person,'photo').find(item=>item.relatedStoryId===story.id)||null;}

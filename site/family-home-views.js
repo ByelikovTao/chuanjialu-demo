@@ -2,16 +2,22 @@
 'use strict';
 {
   const P=window.App,{escape:e,button:b,link:l,icon:i}=P;
+  const COVER_INTERVAL_MS = 3200;
+  const COVER_SLIDE_MS = 480;
+  const COVER_DRAG_SETTLE_MS = 260;
+  const COVER_DRAG_SLOP = 6;
+  const COVER_SWIPE_DISTANCE = 42;
   const ALBUM_SCROLL_SPEED = 18;
   const ALBUM_RESUME_MS = 1200;
   const PEDIGREE_ADD_WIDTH = 44;
   const PEDIGREE_ADD_GAP = 8;
   const PEDIGREE_ADD_GUTTER = PEDIGREE_ADD_WIDTH + PEDIGREE_ADD_GAP;
   let stopAlbum = null;
+  let stopCover = null;
   /** 点击家谱节点进入按此人筛选的家庭往事。 */
   function kinNode(id,person,position='',editing=false) {
     const focus=id===person,label=focus?(P.state.familyWorkspace?'当前人物':'档案人'):P.relation(id,person);
-    return b(`${P.avatar(id)}<span><strong>${e(P.PEOPLE[id].name)}</strong><small>${e(label)}</small></span>`,'house-story-person',`heritage-pedigree-node ${focus?'is-focus':''}`,`data-id="${e(id)}" data-pedigree-person="${e(id)}" aria-label="${e(P.PEOPLE[id].name)}，${e(label)}，查看相关往事" ${position}${editing?' inert':''}`);
+    return b(`${P.avatar(id, '', { originalPortrait: true })}<span><strong>${e(P.PEOPLE[id].name)}</strong><small>${e(label)}</small></span>`,'house-story-person',`heritage-pedigree-node ${focus?'is-focus':''}`,`data-id="${e(id)}" data-pedigree-person="${e(id)}" aria-label="${e(P.PEOPLE[id].name)}，${e(label)}，查看相关往事" ${position}${editing?' inert':''}`);
   }
   /** 编辑时为各分支预留一个新节点，配偶的添加线直接从档案人引出。 */
   function compactPedigree(person,groups,partners,editing) {
@@ -71,7 +77,7 @@
   function familyViewPanel(control, content, { map, editing }) {
     const editControl = map ? '' : P.FamilyTree.homeEditControl();
     const tools = editing
-      ? `<span class="home-family-edit-title">${i('edit')}编辑谱系</span>${editControl}`
+      ? `<span class="home-family-edit-title">${i('edit')}编辑家谱</span>${editControl}`
       : editControl + control;
     return `<div class="home-family-panel${map ? ' is-map' : editing ? ' is-editing' : ''}">
       <div class="home-family-panel-tools">${tools}</div>
@@ -91,15 +97,12 @@
         <div>${groups.others.map(id => kinNode(id, person, '', editing)).join('')}${editing ? P.FamilyTree.homeAddNode('others') : ''}</div></div>`
       : '';
     // 地图用关系树占位计算卡片高度，编辑时仅让新节点响应添加操作。
-    const viewportLabel = editing ? `${name}的家族谱系编辑` : `${name}的已知亲缘关系`;
+    const viewportLabel = editing ? `${name}的家谱编辑` : `${name}的已知亲缘关系`;
     const viewport = `<div class="heritage-pedigree-viewport"${map ? ' inert' : ''} role="group" aria-label="${viewportLabel}">${diagram}</div>`;
     return `<div class="heritage-kinship home-kinship-preview">
       ${familyViewPanel(viewSwitch, editing ? viewport + others : viewport, { map, editing })}
       ${editing ? '' : others}
     </div>`;
-  }
-  function sectionHeading(id, title, action = '') {
-    return `<div class="section-heading home-section-heading"><h2 id="${id}">${title}</h2>${action}</div>`;
   }
   function editLink(kind, person, label) {
     return P.FamilyHome.editable(kind, person)
@@ -110,16 +113,51 @@
   /** 示例家庭使用示例全家福，新建家庭在上传前沿用中性的老屋封面。 */
   function mottoArtwork(cover = '') {
     const example = P.Households.isExample();
-    const src = cover || (example ? 'assets/zhumen/entry-preview-family.png' : 'assets/family-home/motto-room.webp');
+    const src = cover || (example ? 'assets/zhumen/entry-preview-family.webp' : 'assets/family-home/motto-room.webp');
     const alt = cover ? '家训背景图' : example ? '示例全家福' : '';
     return `<div class="home-motto-art${cover ? ' is-uploaded' : ''}"><img src="${e(src)}" alt="${alt}"></div>`;
   }
   function leafHeading(id, title, edit) {
     return `<div class="home-leaf-heading"><h2 id="${id}">${title}</h2>${edit}</div>`;
   }
+  function coverPhotos() {
+    const photos = P.Households.sharedFamilyEntries().filter(({ item }) => item.homeCover && item.scope === 'family' && item.houseImage)
+      .map(({ item }) => ({ src: item.houseImage, caption: item.title }));
+    if (P.Households.isExample()) {
+      photos.push(
+        { src: 'assets/family-home/reference/family-reunion.webp', caption: '2026 年除夕 · 在爷爷奶奶家' },
+        { src: 'assets/family.webp', caption: '过年时，我们拍了一张全家福' },
+        { src: 'assets/family-home/reference/making-dumplings.webp', caption: '一家人在家包饺子' }
+      );
+    }
+    return photos;
+  }
+  function cover() {
+    const photos = coverPhotos();
+    const index = Math.min(P.state.homeCoverIndex || 0, Math.max(photos.length - 1, 0));
+    const photo = photos[index];
+    const keyboard = photos.length > 1 ? ' tabindex="0" role="group" aria-label="全家福，使用左右方向键切换照片"' : '';
+    const slides = photos.map(({ src, caption }, page) => {
+      const active = page === index;
+      return `<img class="home-cover-slide${active ? ' is-current' : ''}" ${active ? 'src' : 'data-cover-src'}="${e(src)}"
+        alt="${e(caption)}" aria-hidden="${!active}" draggable="false">`;
+    }).join('');
+    return `<header class="home-cover">
+      <h1>我们${e(P.FamilyJournal.familyName())}</h1>
+      <p class="home-cover-brand">${P.FamilyJournal.seal()} 传家录</p>
+      ${photo ? `<figure class="home-cover-photo">
+        <div class="wood-frame"><div class="home-cover-window"${keyboard}>${slides}</div></div>
+        <figcaption>${e(photo.caption)}</figcaption>
+      </figure>` : '<p class="home-cover-empty wood-frame">上传一张全家福</p>'}
+      <div class="home-cover-tools">
+        ${P.HouseScreen.homeEntry()}
+        ${l(i('plus') + ' 传全家福', 'house-record/home-cover', 'heritage-text-button paper-outline')}
+      </div>
+    </header>`;
+  }
   function motto(owner) {
     const doc = P.FamilyHome.document('motto');
-    const signature = doc?.kind === 'new' ? '立' : '整理确认';
+    const signature = doc?.kind === 'new' ? '手书' : '整理确认';
     const copy = doc
       ? `<div class="home-motto-text">
           <blockquote class="home-motto-quote">${e(doc.text)}</blockquote>
@@ -127,33 +165,46 @@
         </div>`
       : '<p class="heritage-empty">家训待整理。</p>';
     return `<section class="home-motto-sheet" data-home-section="motto" aria-labelledby="home-motto-title">
-      ${mottoArtwork(doc?.cover)}
-      <div class="home-motto-copy">
-        ${leafHeading('home-motto-title', '家训', editLink('motto', owner, '家训'))}
+      ${leafHeading('home-motto-title', '家训', editLink('motto', owner, '家训'))}
+      <div class="home-motto-board wood-frame">
+        ${doc?.cover ? mottoArtwork(doc.cover) : ''}
         ${copy}
       </div>
     </section>`;
   }
   function surname(owner) {
     const details = P.FamilyHome.surnameDetails(owner);
-    return `<section class="home-roots-section" data-home-section="surname" aria-labelledby="home-surname-title">
-      <span class="home-roots-mark home-surname-seal">${e(details?.name || '姓')}</span>
-      ${leafHeading('home-surname-title', '姓氏源流', editLink('surname', owner, '姓氏源流'))}
-      <p class="home-roots-detail home-roots-summary">${e(details?.summary || details?.text || '姓氏源流待整理。')}</p>
+    const example = P.Households.isExample() && details?.name === '陈' && !P.FamilyHome.document('surname', owner);
+    const introduction = example ? '爷爷说，他小时候住在老街东头。那时家门口有棵枣树，过年回来，远远就能认出来。' :
+      details?.summary || details?.text || '姓源待整理。';
+    return `<section data-home-section="surname" aria-labelledby="home-surname-title">
+      ${leafHeading('home-surname-title', '姓源', editLink('surname', owner, '姓源'))}
+      <div class="paper-card home-surname-card">
+        <h3>我们${e(details?.name ? details.name + '家' : '家')}从哪里来</h3>
+        <div class="home-surname-content${example ? ' has-photo' : ''}">
+          ${example ? `<figure><span class="photo-mount"><img src="assets/family-home/reference/old-lane.webp" alt="老街的院门与枣树" loading="lazy"></span><figcaption>老街东头</figcaption></figure>` : ''}
+          <div><p>${e(introduction)}</p>${example ? '<p class="home-surname-author">陈远山口述</p>' : ''}</div>
+        </div>
+        ${details?.text ? l('看看' + e(details.name || '') + '姓的来历 ' + i('arrow'), 'home-surname/' + e(owner), 'paper-link') : ''}
+      </div>
     </section>`;
   }
   function origin(owner) {
     const doc = P.FamilyHome.document('origin', owner);
-    const earliest = doc?.trace?.earliest;
-    return `<section class="home-roots-section" data-home-section="origin" aria-labelledby="home-origin-title">
-      <span class="home-roots-mark home-origin-mark" aria-hidden="true">${i('book')}</span>
-      ${leafHeading('home-origin-title', '家族寻根', editLink('origin', owner, '家族寻根'))}
-      ${earliest ? '<span class="home-origin-timeline" aria-hidden="true"></span>' : ''}
-      <div class="home-roots-detail">
-        ${earliest ? `<p class="home-origin-date">${e(earliest)}</p>` : ''}
-        <p class="home-roots-summary home-origin-summary">${e(doc?.text || '祖籍和家族记载待整理。')}</p>
-      </div>
-      ${doc ? b('查看详情 ' + i('arrow'), 'heritage-origin', 'heritage-text-button home-origin-link', `data-person="${e(owner)}" aria-label="查看家族寻根详情"`) : ''}
+    const example = P.Households.isExample();
+    return `<section data-home-section="origin" aria-labelledby="home-origin-title">
+      ${leafHeading('home-origin-title', '家史', editLink('origin', owner, '家史'))}
+      ${doc ? `<div class="home-history-cover">
+        ${l(`<span class="bound-paper home-history-book"><strong>${e(P.FamilyJournal.familyName())}家史 ${P.FamilyJournal.seal()}</strong>
+          ${example ? '<span class="home-history-cover-image"><img src="assets/family-home/reference/old-lane.webp" alt="" loading="lazy"></span>' : i('book')}
+        </span><span>翻开家史 ${i('arrow')}</span>`, 'home-origin/' + e(owner), 'home-history-open')}
+        <div class="home-history-actions">
+          ${b(i('book') + '制作纸质书', 'house-addon-open', 'paper-link paper-outline',
+            'data-id="book" data-return="返回我家" data-customization-request aria-haspopup="dialog"')}
+          ${b(i('play') + '制作家庭影片', 'house-addon-open', 'paper-link paper-outline',
+            'data-id="film" data-return="返回我家" data-customization-request aria-haspopup="dialog"')}
+        </div>
+      </div>` : '<p class="paper-card home-section-empty">祖籍和家族记载待整理。</p>'}
     </section>`;
   }
   function familyTree(owner) {
@@ -163,7 +214,7 @@
     const viewSwitch = b(i(target) + label, 'home-family-display', 'heritage-text-button',
       `id="home-family-view-switch" data-view="${target}" aria-controls="home-family-view" aria-label="切换到${label}"`);
     return `<section data-home-section="tree" aria-labelledby="home-tree-title">
-      ${sectionHeading('home-tree-title', '家族谱系')}
+      <div class="section-heading home-section-heading"><h2 id="home-tree-title">家谱</h2></div>
       ${kinship(owner, viewSwitch, map)}
     </section>`;
   }
@@ -178,15 +229,6 @@
   function albumTrack(entries, id, label) {
     const scrollable = entries.length > 3 ? ' is-scrollable' : '';
     return `<div id="${e(id)}" class="home-album-track${scrollable}" role="group" aria-label="${e(label)}">${entries.map(albumCard).join('')}</div>`;
-  }
-  function album() {
-    const entries = P.Households.recentAlbum(12);
-    return `<section data-home-section="album" aria-labelledby="home-album-title">
-      ${sectionHeading('home-album-title', '家中留影', l('家庭全部记录 '+i('arrow'), 'house-stories/family', 'heritage-text-button'))}
-      ${entries.length
-        ? albumTrack(entries, 'home-album-track', '近期照片和视频')
-        : `<div class="home-section-empty"><p>家里还没有共享的照片或视频。</p>${l('添加记录', 'house-add', 'heritage-text-button')}</div>`}
-    </section>`;
   }
   /** 相册在视野内持续往返，手动滚动结束后从当前位置续播。 */
   function mountAlbum(content) {
@@ -290,13 +332,226 @@
     track.scrollLeft = position.left;
     content.scrollTop = position.top;
   }
-  function activity() {
-    const recent = P.Households.recentRecords(3);
-    return `<section class="family-dashboard-recent" data-home-section="activity" aria-labelledby="family-recent-heading">
-      ${sectionHeading('family-recent-heading', '家中近事', l('查看更多 '+i('arrow'), 'house-stories/family/recent', 'heritage-text-button'))}
-      ${P.PhotoStories.homeReplies()}
-      ${recent ? `<div class="family-record-list">${recent}</div>` : '<p class="home-section-empty">家里还没有新的共享记录。</p>'}
-    </section>`;
+  /** 自动切换从相框边缘进入，拖动松手后从手指停下的位置继续移动或回弹。 */
+  function slideCoverPhotos(previous, next, direction, signal, { start = 0, snapBack = false } = {}) {
+    const edge = direction * 100;
+    const end = snapBack ? 0 : -edge;
+    const timing = {
+      duration: start ? COVER_DRAG_SETTLE_MS : COVER_SLIDE_MS,
+      easing: 'cubic-bezier(.22, 1, .36, 1)',
+      fill: 'both'
+    };
+    const inactive = snapBack ? next : previous;
+    inactive.classList.add('is-leaving');
+    const animations = [
+      previous.animate({ transform: [`translateX(${start}%)`, `translateX(${end}%)`] }, timing),
+      next.animate({ transform: [`translateX(${edge + start}%)`, `translateX(${edge + end}%)`] }, timing)
+    ];
+    const stop = () => {
+      inactive.classList.remove('is-leaving');
+      signal.removeEventListener('abort', stop);
+      animations.forEach(animation => animation.cancel());
+    };
+    signal.addEventListener('abort', stop, { once: true });
+    return Promise.allSettled(animations.map(animation => animation.finished)).then(() => {
+      if (!signal.aborted) stop();
+    });
+  }
+
+  /** 保留相框和页面位置，只在图片就绪后切换照片和说明。 */
+  function mountCover(content) {
+    const cover = content.querySelector('.home-cover');
+    const viewport = cover?.querySelector('.home-cover-window');
+    if (!viewport) return;
+    const slides = [...viewport.querySelectorAll('.home-cover-slide')];
+    if (slides.length < 2) return;
+
+    const state = P.state;
+    const caption = cover.querySelector('figcaption');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const controller = new AbortController();
+    const { signal } = controller;
+    const unavailable = new Set();
+    let index = slides.findIndex(slide => slide.classList.contains('is-current'));
+    let request = 0;
+    let timer;
+    let inView = false;
+    let hovered = false;
+    let gesture;
+    let slideFinished;
+
+    const adjacentPage = direction => {
+      for (let offset = 1; offset < slides.length; offset++) {
+        const page = (index + direction * offset + slides.length) % slides.length;
+        if (!unavailable.has(page)) return page;
+      }
+    };
+    const prepareSlide = page => {
+      const slide = slides[page];
+      if (slide && !slide.hasAttribute('src')) slide.src = slide.dataset.coverSrc;
+      return slide;
+    };
+    const prepareNeighbors = () => {
+      prepareSlide(adjacentPage(-1));
+      prepareSlide(adjacentPage(1));
+    };
+    const clearPreview = drag => {
+      if (!drag.preview) return;
+      drag.photo.style.removeProperty('transform');
+      drag.preview.style.removeProperty('transform');
+      drag.preview.classList.remove('is-previewing');
+    };
+    const movePhotos = (previous, next, direction, options) => {
+      slideFinished = slideCoverPhotos(previous, next, direction, signal, options).then(() => {
+        slideFinished = null;
+      });
+    };
+    const schedule = () => {
+      window.clearTimeout(timer);
+      if (signal.aborted || !inView || hovered || gesture || document.hidden || reduceMotion.matches ||
+          viewport.matches(':focus-visible') || unavailable.size >= slides.length - 1) return;
+      timer = window.setTimeout(() => rotate(1), COVER_INTERVAL_MS);
+    };
+    const selectSlide = (page, direction, start = 0) => {
+      if (gesture) {
+        clearPreview(gesture);
+        gesture = null;
+      }
+      const previous = slides[index];
+      const slide = slides[page];
+      previous.classList.remove('is-current');
+      previous.setAttribute('aria-hidden', 'true');
+      index = state.homeCoverIndex = page;
+      slide.classList.add('is-current');
+      slide.setAttribute('aria-hidden', 'false');
+      caption.textContent = slide.alt;
+      if (!reduceMotion.matches) movePhotos(previous, slide, direction, { start });
+      prepareNeighbors();
+      schedule();
+    };
+    const show = async (page, direction) => {
+      window.clearTimeout(timer);
+      const version = ++request;
+      const slide = prepareSlide(page);
+      try {
+        await slide.decode();
+      } catch {
+        // 遇到无法读取的照片保留当前画面，之后轮播时跳过该照片。
+        unavailable.add(page);
+        if (version === request) schedule();
+        return;
+      }
+      // 等上一张滑到位，只处理等待期间最后一次选图，避免多张照片同时移动。
+      if (slideFinished) await slideFinished;
+      if (signal.aborted || version !== request) return;
+      selectSlide(page, direction);
+    };
+    const rotate = direction => {
+      const page = adjacentPage(direction);
+      if (page !== undefined) return show(page, direction);
+    };
+
+    // 相框获得键盘焦点时暂停自动切换，方向键仍可浏览相邻照片。
+    viewport.addEventListener('focusin', schedule, { signal });
+    viewport.addEventListener('focusout', () => queueMicrotask(schedule), { signal });
+    viewport.addEventListener('keydown', event => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+      event.preventDefault();
+      rotate(event.key === 'ArrowRight' ? 1 : -1);
+    }, { signal });
+    viewport.addEventListener('pointerenter', event => {
+      if (event.pointerType !== 'mouse') return;
+      hovered = true;
+      schedule();
+    }, { signal });
+    viewport.addEventListener('pointerleave', event => {
+      if (event.pointerType !== 'mouse') return;
+      hovered = false;
+      schedule();
+    }, { signal });
+    viewport.addEventListener('pointerdown', event => {
+      if (!event.isPrimary || event.button !== 0) return;
+      // 接管尚在加载的切换，防止读图完成时覆盖手指位置。
+      request++;
+      gesture = {
+        id: event.pointerId,
+        x: event.clientX,
+        y: event.clientY,
+        width: viewport.getBoundingClientRect().width,
+        photo: slides[index],
+        offset: 0
+      };
+      viewport.setPointerCapture(event.pointerId);
+      schedule();
+    }, { signal });
+    const dragPhotos = event => {
+      if (gesture?.id !== event.pointerId) return;
+      const dx = event.clientX - gesture.x;
+      const dy = event.clientY - gesture.y;
+      // 确定横向意图后才移动照片，纵向滚动和缩放继续由浏览器处理。
+      if (!gesture.axis && Math.abs(dx) >= COVER_DRAG_SLOP && Math.abs(dx) > Math.abs(dy) * 1.4) gesture.axis = 'x';
+      if (!gesture.axis && Math.abs(dy) >= COVER_DRAG_SLOP && Math.abs(dy) > Math.abs(dx)) gesture.axis = 'y';
+      if (gesture.axis !== 'x' || slideFinished || reduceMotion.matches || !gesture.width) return;
+
+      const direction = dx <= 0 ? 1 : -1;
+      const page = adjacentPage(direction);
+      const preview = prepareSlide(page);
+      if (preview !== gesture.preview) {
+        clearPreview(gesture);
+        gesture.preview = null;
+        gesture.offset = 0;
+      }
+      if (!preview?.naturalWidth) return;
+      const offset = Math.max(-100, Math.min(100, dx / gesture.width * 100));
+      gesture.page = page;
+      gesture.direction = direction;
+      gesture.preview = preview;
+      gesture.offset = offset;
+      gesture.photo.style.transform = `translateX(${offset}%)`;
+      preview.style.transform = `translateX(${offset + direction * 100}%)`;
+      preview.classList.add('is-previewing');
+    };
+    viewport.addEventListener('pointermove', dragPhotos, { signal });
+    const finishGesture = event => {
+      if (gesture?.id !== event.pointerId) return;
+      const released = event.type === 'pointerup';
+      if (released) dragPhotos(event);
+      const drag = gesture;
+      gesture = null;
+      const dx = event.clientX - drag.x;
+      const advance = released && drag.axis === 'x' && Math.abs(dx) >= COVER_SWIPE_DISTANCE;
+      clearPreview(drag);
+      // 预览尚未加载或上一段动画仍在收尾时，沿用原来的换图入口。
+      if (advance) {
+        if (drag.preview) selectSlide(drag.page, drag.direction, drag.offset);
+        else rotate(dx < 0 ? 1 : -1);
+        return;
+      }
+      if (drag.offset && !reduceMotion.matches) {
+        movePhotos(drag.photo, drag.preview, drag.direction, { start: drag.offset, snapBack: true });
+      }
+      schedule();
+    };
+    viewport.addEventListener('pointerup', finishGesture, { signal });
+    viewport.addEventListener('pointercancel', finishGesture, { signal });
+    viewport.addEventListener('lostpointercapture', finishGesture, { signal });
+    document.addEventListener('visibilitychange', schedule, { signal });
+    reduceMotion.addEventListener('change', schedule, { signal });
+    const observer = new IntersectionObserver(([entry]) => {
+      inView = entry.intersectionRatio >= .5;
+      schedule();
+    }, { root: content, threshold: .5 });
+    observer.observe(viewport);
+    prepareNeighbors();
+    stopCover = () => {
+      controller.abort();
+      observer.disconnect();
+      window.clearTimeout(timer);
+    };
+  }
+  function unmountCover() {
+    stopCover?.();
+    stopCover = null;
   }
   /** 管理入口复用既有编辑动作与确认规则，不在首页复制另一套操作。 */
   function managementRow(kind,person,title,note) {
@@ -306,11 +561,11 @@
   function manage() {
     const person=P.FamilyContext.current();if(!person||!P.FamilyHome.member())return '<div class="page empty"><h2>暂无可整理的家庭内容</h2></div>';
     const home=P.FamilyHome.ensure(),mottoDoc=P.FamilyHome.document('motto',person),pending=home.family.suggestions.filter(item=>item.status==='pending').length;
-    const personal=managementRow('surname',person,'姓氏源流','整理姓氏及相关记载')+
-      managementRow('origin',person,'家族寻根','补充祖籍、迁徙和家庭资料');
-    const family=managementRow('motto',person,mottoDoc?'编辑家庭家训':'建立家庭家训','全家共用，由指定的档案本人确认');
+    const personal=managementRow('surname',person,'姓源','整理姓氏及相关记载')+
+      managementRow('origin',person,'家史','补充祖籍、迁徙和家庭资料');
+    const family=managementRow('motto',person,mottoDoc?'编辑家训':'建立家训','全家共用，由指定的档案本人确认');
     const suggestions=P.FamilyHome.editable('motto',person)?(pending?b(`${i('family')}<span>家人建议 ${pending}</span>${i('arrow')}`,'heritage-suggestions','menu-row'):''):b(`${i('family')}<span>协助整理家训</span>${i('arrow')}`,'heritage-suggest','menu-row');
-    return `<div class="page heritage-manage"><h1 class="page-title">首页内容</h1><p class="page-subtitle">${e(P.PEOPLE[person]?.name||'家人')}的家庭电子族谱</p>${!personal?'<p class="note section">家族来源由档案本人整理，你可以协助提交家训建议。</p>':''}<div class="profile-menu section">${personal}${family}${suggestions}</div>${mottoDoc?`<div class="note section"><strong>当前家庭家训</strong><p class="heritage-review-copy">${e(mottoDoc.text)}</p><p>${e(mottoDoc.source)}</p><p class="caption">${e(P.PEOPLE[home.family.mottoOwner]?.name||'指定本人')}确认 · ${e(mottoDoc.date)}</p></div>`:''}${l('返回我的家庭','profile-family','text-link full section')}</div>`;
+    return `<div class="page heritage-manage"><h1 class="page-title">首页内容</h1><p class="page-subtitle">${e(P.PEOPLE[person]?.name||'家人')}的家谱</p>${!personal?'<p class="note section">姓源与家史由档案本人整理，你可以协助提交家训建议。</p>':''}<div class="profile-menu section">${personal}${family}${suggestions}</div>${mottoDoc?`<div class="note section"><strong>当前家训</strong><p class="heritage-review-copy">${e(mottoDoc.text)}</p><p>${e(mottoDoc.source)}</p><p class="caption">${e(P.PEOPLE[home.family.mottoOwner]?.name||'指定本人')}确认 · ${e(mottoDoc.date)}</p></div>`:''}${l('返回我们一家','profile-family','text-link full section')}</div>`;
   }
   /** 首页围绕当前家庭的档案人，切换预览账号时沿用同一份家庭传承。 */
   function render() {
@@ -319,17 +574,14 @@
       return '<div class="page empty"><h2>还没有可查看的家庭档案</h2></div>';
     }
     return `<div class="page home-family heritage-home family-dashboard"><div class="heritage-body">
-      <div class="home-heritage-leaf">
-        ${motto(owner)}
-        <div class="home-roots">
-          ${surname(owner)}
-          ${origin(owner)}
-        </div>
-      </div>
+      ${cover()}
+      ${motto(owner)}
+      ${surname(owner)}
+      ${origin(owner)}
       ${familyTree(owner)}
-      ${album()}
-      ${activity()}
+      ${P.FamilyJournal.albumPreview()}
+      ${P.FamilyJournal.diaryPreview()}
     </div></div>`;
   }
-  P.FamilyHomeViews={render,mottoArtwork,albumTrack,mountAlbum,unmountAlbum,restoreAlbum};P.views['home-manage']=manage;
+  P.FamilyHomeViews={render,mottoArtwork,albumTrack,mountAlbum,unmountAlbum,restoreAlbum,mountCover,unmountCover};P.views['home-manage']=manage;
 }

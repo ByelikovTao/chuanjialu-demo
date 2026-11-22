@@ -6,8 +6,8 @@
   const albumRoute = 'house-couple';
   const demoRecords = [
     { title: '第一次约会', eventDate: '1988-03-20', author: 'father', mark: '约会', text: ['约在茶馆见面，一聊就到了天黑。'] },
-    { title: '第一次旅行', eventDate: '1988-10-02', author: 'mother', mark: '旅行', photo: 'assets/zhumen/couple-first-trip-demo.jpg' },
-    { title: '领证纪念日', eventDate: '1989-09-16', author: 'father', mark: '纪念日', photo: 'assets/zhumen/life-wedding-demo.png' }
+    { title: '第一次旅行', eventDate: '1988-10-02', author: 'mother', mark: '旅行', photo: 'assets/zhumen/couple-first-trip-demo.webp' },
+    { title: '领证纪念日', eventDate: '1989-09-16', author: 'father', mark: '纪念日', photo: 'assets/zhumen/life-wedding-demo.webp' }
   ];
   const photoTypes = ['image/jpeg', 'image/png', 'image/webp'];
   const maxPhotoBytes = 8 * 1024 ** 2;
@@ -65,13 +65,13 @@
     let content;
     if (activePair()) {
       content = `<h2>你和${name}已关联</h2><p class="page-subtitle">到往事里一起记下你们的日子。</p>
-        ${l('打开两个人的日子', albumRoute, 'btn full section')}`;
+        ${l('打开相伴记', albumRoute, 'btn full section')}`;
     } else if (pair?.invitee === P.state.actor) {
       content = `<h2>${name}邀请你一起记录</h2><p class="page-subtitle">确认后，两人可以一起添加照片和原声。</p>
         ${b('接受伴侣邀请', 'couple-accept', 'btn full section', `data-id="${e(pair.id)}"`)}
         ${b('暂不接受', 'couple-dismiss', 'text-link full', `data-id="${e(pair.id)}"`)}`;
     } else if (pair) {
-      content = `<h2>已邀请${name}</h2><p class="page-subtitle">等对方确认后，「两个人的日子」会出现在「记录」里。</p>
+      content = `<h2>已邀请${name}</h2><p class="page-subtitle">等对方确认后，「相伴记」会出现在「记录」里。</p>
         <div class="couple-inline-actions">${previewAs(other)}${b('撤回邀请', 'couple-dismiss', 'text-link', `data-id="${e(pair.id)}"`)}</div>`;
     } else if (P.Households.isExample()) {
       const label = P.state.actor === 'mother' ? '邀请陈远山' : P.state.actor === 'father' ? '邀请林慧' : '以陈远山身份邀请林慧';
@@ -184,8 +184,8 @@
     if (!story) return '';
     const shared = familyReadable(story);
     const fromAlbum = P.state.history?.at(-1) === albumRoute;
-    const back = fromAlbum ? b(i('back') + ' 返回两个人的日子', 'back', 'text-link') :
-      l(i('back') + (shared ? ' 返回记录' : ' 返回两个人的日子'), shared ? 'house-stories/family' : albumRoute, 'text-link');
+    const back = fromAlbum ? b(i('back') + ' 返回相伴记', 'back', 'text-link') :
+      l(i('back') + (shared ? ' 返回记录' : ' 返回相伴记'), shared ? 'house-stories/family' : albumRoute, 'text-link');
     const photo = story.houseImage ? `<figure class="couple-photo"><img src="${e(story.houseImage)}" alt="${e(story.title)}"></figure>` : '';
     return `<div class="page archive-detail couple-edition"><div class="edition-album">
       ${back}<p class="caption">${shared ? '两人已确认分享给这个家' : '仅两人可见'}</p>

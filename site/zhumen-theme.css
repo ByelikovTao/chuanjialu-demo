@@ -12,7 +12,7 @@ body{background:#EAE1D4;font-family:"Source Han Serif SC","Noto Serif SC","Songt
 .app-header:before{content:none}
 .app-header :is(.my-button,.chat-message-trigger,.icon-button){color:inherit}
 .app-header h1{font-family:inherit;letter-spacing:1px;text-align:center;font-size:calc(20px * var(--unit))}
-.app-content{background:var(--canvas) url("assets/zhumen/ivory-rice-paper.png") center top/780px auto;background-blend-mode:soft-light;scrollbar-color:#C7A99A transparent}
+.app-content{background:var(--canvas) url("assets/zhumen/ivory-rice-paper.webp") center top/780px auto;background-blend-mode:soft-light;scrollbar-color:#C7A99A transparent}
 .bottom-nav{background:var(--surface);border-color:var(--line)}
 .bottom-nav button{color:#786A5F}
 .bottom-nav button.active{color:var(--brand)}
@@ -32,7 +32,7 @@ body{background:#EAE1D4;font-family:"Source Han Serif SC","Noto Serif SC","Songt
 .menu-row{border-color:var(--line)}
 .avatar{background:var(--soft)}
 .toast{background:#702023F5;border:1px solid #E7BFA7;border-radius:8px}
-.modal{background:var(--surface) url("assets/zhumen/ivory-rice-paper.png") center/500px;border:1px solid #C69B83;border-radius:12px;box-shadow:0 20px 80px #401B1933}
+.modal{background:var(--surface) url("assets/zhumen/ivory-rice-paper.webp") center/500px;border:1px solid #C69B83;border-radius:12px;box-shadow:0 20px 80px #401B1933}
 .modal::backdrop{background:#35221D66}
 .modal-header{border-bottom:1px solid var(--line);padding-bottom:12px}
 .modal-header h2{color:var(--brand)}
@@ -103,7 +103,7 @@ input[type=checkbox],input[type=radio]{accent-color:var(--brand)}
 .phone .message.user :is(p,small){color:inherit}
 .phone .message-label{color:var(--brand)}
 .phone .source-transcript{border:1px solid var(--line)}
-.phone .empty{background:url("assets/zhumen/red-home-doorway-transparent.png") center 16px/96px auto no-repeat;padding-top:128px}
+.phone .empty{background:url("assets/zhumen/red-home-doorway-transparent.webp") center 16px/96px auto no-repeat;padding-top:128px}
 .phone .empty :is(h2,p){position:relative}
 
 /* 操作状态保持可辨；可恢复失败继续使用原有说明和重试动作。 */
@@ -127,7 +127,7 @@ input[type=checkbox],input[type=radio]{accent-color:var(--brand)}
 
 /* 交流页采用设计稿的米白标题栏、长人物画幅与圆角输入，保留已有视频和对话。 */
 .phone[data-route=chat] .app-header{background:var(--canvas);color:var(--ink);padding-left:40px;min-height:56px}
-.phone[data-route=chat] .app-header:before{content:"";position:absolute;left:8px;top:0;width:24px;height:48px;background:url("assets/zhumen/chinese-knot-transparent.png") center/contain no-repeat}
+.phone[data-route=chat] .app-header:before{content:"";position:absolute;left:8px;top:0;width:24px;height:48px;background:url("assets/zhumen/chinese-knot-transparent.webp") center/contain no-repeat}
 .phone[data-route=chat] .app-header h1{font-weight:600}
 .phone[data-route=chat] .my-button{font-size:calc(12px * var(--unit));padding:0}
 .phone[data-route=chat] .chat-message-trigger{font-size:calc(14px * var(--unit));padding:0 0 0 8px}
@@ -151,7 +151,7 @@ input[type=checkbox],input[type=radio]{accent-color:var(--brand)}
 
 /* 档案封面回到设计稿的左文右人构图；四个分类同排，说明仍保留供读屏读取。 */
 .archive-cover-heading{position:relative;isolation:isolate;padding:8px 0 16px;min-height:208px}
-.person-archive-page[data-archive-person=father] .archive-cover-heading:after{content:"";position:absolute;z-index:-1;right:-20px;top:-16px;bottom:0;width:62%;background:url("assets/avatar/father-portrait-v4.png") center 26%/cover no-repeat;mask-image:linear-gradient(90deg,transparent,#000 38%)}
+.person-archive-page[data-archive-person=father] .archive-cover-heading:after{content:"";position:absolute;z-index:-1;right:-20px;top:-16px;bottom:0;width:62%;background:url("assets/avatar/father-portrait-v4.webp") center 26%/cover no-repeat;mask-image:linear-gradient(90deg,transparent,#000 38%)}
 .archive-cover-heading .family-focus{margin:0 0 12px;padding:0;border:0;background:transparent;box-shadow:none;max-width:54%}
 .archive-cover-heading .family-focus .caption{display:inline-block;color:var(--brand);background:var(--soft);border-radius:8px;padding:4px 8px}
 .archive-cover-heading .family-focus .text-link{font-size:calc(14px * var(--unit));justify-content:flex-start;min-height:32px}
@@ -195,7 +195,7 @@ input[type=checkbox],input[type=radio]{accent-color:var(--brand)}
 /* 淡墨山水铺在归家各段之间，纸面内容保持清晰。 */
 .phone .heritage-home{position:relative;isolation:isolate;background:#FBF7EF}
 .phone .heritage-body{position:relative;isolation:isolate}
-.phone .heritage-body:before{content:'';position:absolute;inset:0 -16px -32px;z-index:-1;pointer-events:none;background:url('assets/zhumen/home-ink-landscape.png') center top/100% 1600px repeat-y;opacity:.20;mask-image:linear-gradient(to bottom,transparent,#000 160px)}
+.phone .heritage-body:before{content:'';position:absolute;inset:0 -16px -32px;z-index:-1;pointer-events:none;background:url('assets/zhumen/home-ink-landscape.webp') center top/100% 1600px repeat-y;opacity:.20;mask-image:linear-gradient(to bottom,transparent,#000 160px)}
 .phone .heritage-body>section+section{margin-top:24px}
 .phone .heritage-home .heritage-pedigree-viewport{background-color:transparent}
 .phone .heritage-home .heritage-pedigree-node{background:#FFF7E9CC}

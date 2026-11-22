@@ -3,7 +3,7 @@
 {
   const P=window.App,{escape:e,button:b,link:l}=P,F=P.FamilyHome;
   const MOTTO_EDIT_ROUTE='home-motto-edit';
-  const LABELS={surname:'姓氏源流',origin:'家族寻根',motto:'家庭家训',suggestion:'家训整理建议'};
+  const LABELS={surname:'姓源',origin:'家史',motto:'家训',suggestion:'家训整理建议'};
   const COVER_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
   const MAX_COVER_BYTES = 8 * 1024 ** 2;
   const MAX_COVER_EDGE = 1280;
@@ -59,7 +59,7 @@
   }
   /** 未知线索可以留空，和家族记载、来源一起由档案本人核对发布。 */
   function traceFields(trace) {
-    return `<fieldset class="heritage-trace-fields"><legend>家族溯源（选填）</legend>
+    return `<fieldset class="heritage-trace-fields"><legend>家史线索（选填）</legend>
       ${ORIGIN_TRACE_FIELDS.map(({name,label,placeholder})=>`<label for="heritage-trace-${name}">${label}</label><input id="heritage-trace-${name}" name="${name}" maxlength="180" placeholder="${placeholder}" value="${e(trace?.[name]||'')}">`).join('')}
     </fieldset>`;
   }
@@ -139,7 +139,7 @@
     const surname=kind==='surname'?`<label for="heritage-surname">姓氏（可填写复姓）</label><input id="heritage-surname" name="surname" maxlength="8" value="${e(value.surname || '')}" required>`:'';
     const label=page?'家训正文':LABELS[kind];
     const originHelp = kind === 'origin'
-      ? '<p class="heritage-caption" id="heritage-origin-format">时间节点可以每行写一条，例如 1963年 · 陈远山出生。</p>'
+      ? '<p class="heritage-caption" id="heritage-origin-format">时间节点每行一条，可按「1963年 · 标题｜正文」填写。</p>'
       : '';
     const text=`<label for="heritage-text">${label}</label>${originHelp}<textarea id="heritage-text" name="text" rows="7" maxlength="1800"${page?' placeholder="写下想和家人一起记住的话。"':''}${originHelp?' aria-describedby="heritage-origin-format"':''} required>${e(value.text)}</textarea>`;
     const source=`<label for="heritage-source">${kind==='motto'?'传承来源或立训缘由':'资料来源或讲述者'}</label><input id="heritage-source" name="source" maxlength="180" value="${e(value.source)}" ${kind==='origin'?'required':''}>`;
@@ -265,38 +265,95 @@
     }
     return { dated, text: paragraphs.join('\n').trim() };
   }
-  function originPeriod(date) {
-    const year = date.match(/^(?:约\s*)?[1-9]\d{3}年(?:代)?/)?.[0];
-    const detail = year && date.slice(year.length);
-    return detail ? `${e(year)}<small class="heritage-origin-period-detail">${e(detail)}</small>` : e(date);
+  function originChapter({ date, text }) {
+    const separator = text.indexOf('｜');
+    const title = separator > 0 ? text.slice(0, separator) : text.split(/(?<=[。！？])/, 1)[0];
+    const body = separator > 0 ? text.slice(separator + 1).trim() : text;
+    return { date, title, body };
   }
-  /** 详情只读取已经确认并授权的溯源记载，年代不详的线索保留原文。 */
+  function historyBook(person, page, leaf) {
+    return `<div class="history-book" tabindex="-1" role="group" aria-label="家史"
+      data-history-person="${e(person)}" data-history-page="${page}" data-paper-swipe>${leaf}</div>`;
+  }
+  function historyPage(content) {
+    const book = content.querySelector('.history-book');
+    if (!book) return null;
+    return { book, person: book.dataset.historyPerson, number: Number(book.dataset.historyPage), leaf: book.querySelector('.history-leaf') };
+  }
+  /** 只在同一家史内复用刚离开的书页，切换其他人物时重新读取正文。 */
+  function showHistoryTurn(content, previousRoute, previousPage) {
+    const current = historyPage(content);
+    if (!current) return;
+    current.book.focus({ preventScroll: true });
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    if (previousRoute === 'home') {
+      const cover = document.createElement('div');
+      cover.className = 'bound-paper journal-sheet history-opening-cover';
+      const art = P.Households.isExample()
+        ? '<img src="assets/family-home/reference/old-lane.webp" alt="">'
+        : P.icon('book');
+      cover.innerHTML = `<strong>${e(P.FamilyJournal.familyName())}家史 ${P.FamilyJournal.seal()}</strong>
+        <span class="history-cover-art">${art}</span>`;
+      P.FamilyJournal.animatePaperTurn(current.leaf, cover, 'open', 'history');
+    } else if (previousPage?.person === current.person && previousPage.number !== current.number) {
+      const direction = previousPage.number < current.number ? 'next' : 'previous';
+      P.FamilyJournal.animatePaperTurn(current.leaf, previousPage.leaf, direction, 'history');
+    }
+  }
+  function originChapterView(chapter, page, chapters, route, person) {
+    const sample = P.Households.isExample() && person === 'father' && chapter.title === '成家后的第一顿饭' && chapter.date === '1989年';
+    const next = page < chapters.length;
+    const hint = next ? '向左滑，翻到下一篇' : page > 1 ? '向右滑，翻回上一篇' : '向右滑，返回目录';
+    return historyBook(person, page, `<article class="bound-paper journal-sheet history-chapter history-leaf">
+      <p class="history-period">${e(chapter.date)}</p>
+      <h1>${e(chapter.title)}</h1>
+      ${sample ? '<figure><img src="assets/family-home/reference/first-meal.webp" alt="陈远山与林慧在小饭桌前吃饭的示例照片"></figure>' : ''}
+      <p class="heritage-reader-text">${e(chapter.body)}</p>
+      ${P.FamilyJournal.turnPages({
+        previous: page > 1 ? route + '/' + (page - 1) : route,
+        next: next && route + '/' + (page + 1),
+        position: page + ' / ' + chapters.length,
+        previousLabel: page > 1 ? '上一篇' : '目录',
+        nextLabel: '下一篇'
+      })}
+      <p class="paper-swipe-hint">${hint}</p>
+    </article>`);
+  }
+  /** 详情只读取已确认且已授权的记载，年代不详的线索保留在目录的资料来源。 */
   function readOrigin(person) {
-    if (!F.readable(person)) return `<div class="page empty"><h2>家族寻根暂未开放</h2>${l('返回我家', 'home', 'btn section')}</div>`;
+    if (!F.readable(person)) return `<div class="page empty"><h2>家史暂未开放</h2>${l('返回我家', 'home', 'btn section')}</div>`;
     const doc = F.document('origin', person);
-    if (!doc) return '<div class="page empty"><p>家族寻根待整理。</p></div>';
+    if (!doc) return '<div class="page empty"><p>家史待整理。</p></div>';
     const record = readOriginRecord(doc.text);
     const clues = ORIGIN_TRACE_FIELDS.map(({ name, label }) => readOriginClue(label, doc.trace?.[name])).filter(Boolean);
-    const dated = [...clues.filter(clue => clue.date), ...record.dated].sort((first, second) => first.order - second.order);
+    const chapters = [...clues.filter(clue => clue.date), ...record.dated]
+      .sort((first, second) => first.order - second.order).map(originChapter);
     const undated = clues.filter(clue => !clue.date);
-    return `<article class="page heritage-reader">
-      ${dated.length ? `<ol class="heritage-origin-timeline" role="list" aria-label="溯源时间轴">
-        ${dated.map(({ date, text }) => `<li>
-          <p class="heritage-origin-period">${originPeriod(date)}</p>
-          <p class="heritage-reader-text heritage-origin-event">${e(text)}</p>
-        </li>`).join('')}
-      </ol>` : ''}
-      ${undated.length ? `<section aria-labelledby="heritage-origin-undated-title">
-        <h2 id="heritage-origin-undated-title">年代待考</h2>
-        <dl class="heritage-origin-clues">
+    const page = Number(P.state.homeHistoryPage);
+    const route = 'home-origin/' + e(person);
+    if (Number.isInteger(page) && chapters[page - 1]) {
+      return originChapterView(chapters[page - 1], page, chapters, route, person);
+    }
+    const sources = undated.length || record.text || doc.source;
+    return historyBook(person, 0, `<article class="bound-paper journal-sheet history-contents history-leaf">
+      <h1>${e(P.FamilyJournal.familyName())}家史 ${P.FamilyJournal.seal()}</h1>
+      ${chapters.length ? `<h2 class="journal-divider">目录</h2>
+        <ol class="history-chapters" role="list">
+          ${chapters.map(({ date, title }, index) => `<li>${l(
+            `<span>${e(date)}</span><strong>${e(title)}</strong>${P.icon('arrow')}`,
+            route + '/' + (index + 1), 'history-index-row')}</li>`).join('')}
+        </ol>
+        ${l(P.icon('arrow') + ' 从第一篇读起', route + '/1', 'paper-link history-first', 'data-paper-turn="next"')}` : ''}
+      ${sources ? `<details class="history-source"><summary>家族记载与资料来源</summary>
+        ${undated.length ? `<dl class="heritage-origin-clues">
           ${undated.map(({ label, text }) => `<div><dt>${label}</dt><dd>${e(text)}</dd></div>`).join('')}
-        </dl>
-      </section>` : ''}
-      ${record.text || doc.source ? `<section class="heritage-origin-record" aria-label="家族记载">
+        </dl>` : ''}
         ${record.text ? `<p class="heritage-reader-text">${e(record.text)}</p>` : ''}
         ${doc.source ? `<p class="heritage-origin-source">资料来源 · ${e(doc.source)}</p>` : ''}
-      </section>` : ''}
-    </article>`;
+      </details>` : ''}
+      ${P.Households.addonEntry('vr', '了解家中老宅的 VR 建模', { returnLabel: '返回家史目录', className: 'paper-link' })}
+    </article>`);
   }
   /** 家人的建议保留讲述者，只有指定本人可取用到待确认草稿。 */
   function suggestions() {
@@ -318,10 +375,6 @@
       P.toast('草稿已保留在本次演示中，仅自己可见。');
     }
     else if(action==='heritage-publish')publish(element.dataset.review);
-    else if(action==='heritage-origin'){
-      if(!F.readable(person))P.toast('这位家人的档案尚未向你开放。');
-      else P.navigate('home-origin/'+person);
-    }
     else if(action==='heritage-suggest')open('suggestion',person);
     else if(action==='heritage-suggestions')suggestions();
     else if(action==='heritage-use-suggestion'&&F.editable('motto',person)){
@@ -337,7 +390,7 @@
     capture();const error=review(form);if(error)form.querySelector('[role="alert"]').textContent=error;return true;
   }
   Object.assign(P.views,{
-    'home-origin':()=>readOrigin(P.state.homeOriginPerson||P.FamilyContext.current()),
+    'home-origin':()=>readOrigin(P.state.homeReaderPerson||P.FamilyContext.current()),
     [MOTTO_EDIT_ROUTE]:editMotto
   });
   document.addEventListener('change', event => {
@@ -346,5 +399,5 @@
       void changeCover(input.form, input);
     }
   });
-  P.FamilyHomeEditor={capture,enterPage,handleAction,submit};
+  P.FamilyHomeEditor={capture,enterPage,handleAction,submit,historyPage,showHistoryTurn};
 }
