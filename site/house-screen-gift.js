@@ -75,7 +75,7 @@
       }
     });
 
-    function render() {
+    function render(managementRoute) {
       const photos = stories();
       const available = new Set(photos.map(photo => photo.id));
       if (savedCount && readGift) restoreGift(readGift());
@@ -88,6 +88,7 @@
           <h3>给爸妈的相框准备好了</h3><p>首批 ${savedCount} 张照片已装入相框。</p>
           ${button('看爸妈打开相框的样子', 'open', 'primary full')}
           ${button('调整这份礼物', 'edit', 'plain')}
+          ${P.link('去相框管理', managementRoute, 'screen-button plain')}
         </div>`;
       }
       const selectedPhotos = photos.filter(photo => selected.has(photo.id));

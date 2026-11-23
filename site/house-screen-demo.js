@@ -3,11 +3,17 @@
 {
   const P = window.App;
   const { escape: e, icon: i, button: b, link: l } = P;
+  const reminders = P.HouseScreenReminders;
   const root = document.getElementById('house-screen-demo');
   const workspaces = new Map();
   const oldPhoto = 'father-first-work-photo';
   const sampleAudio = 'assets/photo-card/sample-reply.wav';
-  const tabs = { gift: '准备礼物', photos: '添照片', device: '设备设置' };
+  const managementTabs = { photos: '添照片', reminders: '提醒', device: '设备设置' };
+  const sampleDeliveries = [
+    ['family-making-dumplings', '爸妈，念念这次学会自己捏饺子了。'],
+    ['father-tea-day', '今天泡了壶茶，想起一家人围坐的时候。']
+  ];
+  const replyFocusActions = { reply: 'record', 'sample-voice': 'send-voice', 'cancel-voice': 'reply', 'send-voice': 'reply' };
   const browseSections = {
     new: { title: '看新照片', icon: 'photo', empty: '新送到相框的照片会出现在这里。' },
     people: { title: '按人找照片', icon: 'family', empty: '家人投来有关联人物的照片后，就能按人翻看。' },
@@ -72,7 +78,7 @@
       residents: example ? ['father', 'mother'] : ['father'], bound: example, online: true,
       paused: false, volume: 75, quietStart: '22:00', quietEnd: '07:00',
       delivered: new Map(), queued: new Map(), replies: new Map(), activeId: '', browse: null,
-      gift: null, opening: false, openingUntil: 0, importedUrls: new Set()
+      gift: null, opening: false, openingUntil: 0, importedUrls: new Set(), reminders: reminders.create(example)
     };
     if (example) {
       for (const id of [oldPhoto, 'nian-first-new-year']) {
@@ -87,6 +93,12 @@
         d.gift = { coverId: oldPhoto, note: '爸，生日快乐！这张是你第一天上班时拍的，还记得吗？', src: '' };
         showCover(d);
       }
+      // 模拟家人后来送达的照片，复用真实投送的未读规则和分享校验。
+      const arrivals = sampleDeliveries.flatMap(([id, note]) => {
+        const story = storyById(id);
+        return shareable(story) ? [[id, { sender: story.author, note }]] : [];
+      });
+      receivePhotos(d, arrivals);
     }
     workspaces.set(P.state, d);
     return d;
@@ -98,10 +110,9 @@
   }
 
   function homeEntry() {
-    const bound = isBound();
-    const label = bound ? '给爸妈添照片' : '准备相框礼物';
-    const panel = bound ? 'photos' : 'gift';
-    return l(`${i('screen')}<span>${label}</span>`, `house-screen//${panel}/home`, 'paper-link home-screen-entry');
+    const photos = isBound() ? l(`${i('screen')}<span>给爸妈添照片</span>`, 'house-screen//photos/home', 'paper-link home-screen-entry') : '';
+    const prepare = l(`${i('shoppingBag')}<span>相框礼物</span>`, 'house-screen//gift/home', 'paper-link home-screen-entry');
+    return photos + prepare;
   }
 
   function quiet(d, now = new Date()) {
@@ -237,6 +248,14 @@
     speechSynthesis.speak(speech);
   }
 
+  function announceReminders(d, now = new Date()) {
+    const messages = reminders.takeAnnouncements(d);
+    // 安静时段、录音或回听过程中只显示到点提醒，避免播报覆盖家人的原声。
+    if (!messages.length || draft || quiet(d, now) || window.speechSynthesis?.speaking ||
+      [...root.querySelectorAll('.screen-gallery audio')].some(player => !player.paused)) return;
+    say(messages.join('。'));
+  }
+
   function speakerOptions(d, value) {
     return d.residents.map(id => `<option value="${e(id)}" ${id === value ? 'selected' : ''}>${e(name(id))}</option>`).join('');
   }
@@ -348,6 +367,7 @@
 
   function browseView(d) {
     const { type, member, photo } = d.browse;
+    if (type === 'reminders') return reminders.screen(d, Boolean(draft));
     const section = browseSections[type];
     const title = member ? `${name(member)}的照片` : section.title;
     const back = photo ? '返回列表' : member ? '返回家人' : '回到轮播';
@@ -373,44 +393,58 @@
     const question = d.browse ? (draft ? draft.question : delivery.question)?.text : '';
     const canReply = d.online && d.bound;
     const photoYear = story.photoYear || (story.moment ? '' : story.year);
-    return `<figure class="screen-photo">
-      <img src="${e(story.houseImage)}" alt="${e(story.title)}">
-      <figcaption><strong>${e(story.title)}</strong><span>${e(name(delivery.sender))} ${delivery.giftOnly ? '选给爸妈的' : '发来'}${photoYear ? ' · ' + e(photoYear) : ''}</span></figcaption>
-      ${!d.browse && d.delivered.size > 1 ? `<div class="screen-photo-steps" aria-label="轮播照片">
-        ${button(i('back'), 'prev-photo', 'plain', 'aria-label="上一张照片"' + (locked ? ' disabled' : ''))}
-        ${button(i('arrow'), 'next-photo', 'plain', 'aria-label="下一张照片"' + (locked ? ' disabled' : ''))}
-      </div>` : ''}
-    </figure>
-    ${greeting && (d.opening || greeting.note || greeting.src) ? `<section class="screen-gift-intro">
-      <strong>${d.opening ? '给爸妈的开机礼物' : '家人的祝福'}</strong>
-      ${greeting.note ? `<p>${e(greeting.note)}</p>` : ''}
-      ${greeting.src ? `<audio controls preload="metadata" aria-label="听家人的祝福" src="${e(greeting.src)}"></audio>` : ''}
-      ${d.opening ? button('开始看照片', 'open-frame', 'secondary') : ''}
-    </section>` : ''}
-    ${question ? `<section class="screen-question"><strong>${e(name(delivery.sender))}想问你</strong><p>${e(question)}</p></section>` : ''}
-    ${delivery.note ? `<p class="screen-message">${e(delivery.note)}</p>` : ''}
-    ${draft ? replyControls(d) : `<div class="screen-actions">
-      ${delivery.note ? button(i('volume') + ' 听留言', 'listen') : ''}
-      ${d.browse?.type === 'new' ? button(`<span aria-hidden="true">${delivery.liked ? '♥' : '♡'}</span> 喜欢这张`,
-        'like-photo', 'secondary', `aria-pressed="${Boolean(delivery.liked)}" ${canReply ? '' : 'disabled'}`) : ''}
-      ${button(i('mic') + (question ? ' 开始讲述' : ' 回一句'), 'reply', 'primary', canReply ? '' : 'disabled')}
-    </div>`}`;
+    return `<div class="screen-photo">
+      <figure class="screen-photo-paper"><img src="${e(story.houseImage)}" alt="${e(story.title)}"></figure>
+      <div class="screen-photo-inscription">
+        <div class="screen-photo-caption">
+          ${photoYear ? `<p class="screen-photo-year">${e(photoYear)} 年</p>` : ''}
+          <h3>${e(story.title)}</h3>
+          <p class="screen-photo-sender">${e(name(delivery.sender))} ${delivery.giftOnly ? '选给爸妈的' : '发来'}</p>
+        </div>
+        ${greeting && (d.opening || greeting.note || greeting.src) ? `<section class="screen-gift-intro">
+          <strong>${d.opening ? '给爸妈的开机礼物' : '家人的祝福'}</strong>
+          ${greeting.note ? `<p>${e(greeting.note)}</p>` : ''}
+          ${greeting.src ? `<audio controls preload="metadata" aria-label="听家人的祝福" src="${e(greeting.src)}"></audio>` : ''}
+          ${d.opening ? button('开始看照片', 'open-frame', 'secondary') : ''}
+        </section>` : ''}
+        ${question ? `<section class="screen-question"><strong>${e(name(delivery.sender))}想问你</strong><p>${e(question)}</p></section>` : ''}
+        ${delivery.note ? `<p class="screen-message">${e(delivery.note)}</p>` : ''}
+        ${draft ? replyControls(d) : `<div class="screen-actions">
+          ${delivery.note ? button(i('volume') + ' 听留言', 'listen') : ''}
+          ${d.browse?.type === 'new' ? button(`<span aria-hidden="true">${delivery.liked ? '♥' : '♡'}</span> 喜欢这张`,
+            'like-photo', 'secondary', `aria-pressed="${Boolean(delivery.liked)}" ${canReply ? '' : 'disabled'}`) : ''}
+          ${button(i('mic') + (question ? ' 开始讲述' : ' 回一句'), 'reply', 'primary', canReply ? '' : 'disabled')}
+        </div>`}
+        ${!d.browse && d.delivered.size > 1 ? `<div class="screen-photo-steps" aria-label="轮播照片">
+          ${button(i('back'), 'prev-photo', 'plain', 'aria-label="上一张照片"' + (locked ? ' disabled' : ''))}
+          ${button(i('arrow'), 'next-photo', 'plain', 'aria-label="下一张照片"' + (locked ? ' disabled' : ''))}
+        </div>` : ''}
+      </div>
+    </div>`;
   }
 
   function deviceView(d) {
+    const { type, member, photo } = d.browse || {};
+    const currentView = type ? [type, member, photo].join('/') : `${d.opening ? 'gift' : 'slideshow'}/${d.activeId}`;
     return `<div class="screen-device" id="screen-device" tabindex="-1">
-      <div class="screen-bezel wood-frame"><div class="screen-glass">
-        <header class="screen-device-header"><strong>${i('home')} 爸妈客厅</strong>
+      <div class="screen-bezel"><div class="screen-glass">
+        <header class="screen-device-header">
+          <strong>爸妈客厅</strong>
+          ${reminders.entry(d, Boolean(draft))}
           <time class="screen-frame-clock">${clock(new Date())}</time>
-          <span class="screen-chip ${d.online && d.bound ? 'is-online' : ''}">${connectionLabel(d)}</span></header>
-        <div class="screen-device-grid">${discoveryNav(d)}<div class="screen-gallery">${d.browse ? browseView(d) : screenPhoto(d)}</div></div>
-        ${!d.bound && d.delivered.size ? '<p class="screen-sync">演示配对码 486 217 · 联网后可以收新照片</p>' : ''}
-        <footer class="screen-device-footer"><span>${e(P.Households.current().name)}</span>
-          <div>${button(i(d.paused ? 'play' : 'pause') + (d.paused ? ' 继续轮播' : ' 暂停轮播'), 'pause', 'plain',
-            `aria-pressed="${d.paused}" ${d.browse || d.delivered.size < 2 ? 'disabled' : ''}`)}
-            <label class="screen-volume">${i('volume')}<input type="range" name="volume" aria-label="大屏音量" min="0" max="100" value="${d.volume}"></label></div>
-        </footer>
-      </div></div><div class="screen-stand" aria-hidden="true"></div>
+          <span class="screen-chip ${d.online && d.bound ? 'is-online' : ''}">${connectionLabel(d)}</span>
+        </header>
+        <div class="screen-device-grid" data-screen-view="${e(currentView)}" role="region" aria-label="相框内容" tabindex="0">
+          <div class="screen-gallery">${d.browse ? browseView(d) : screenPhoto(d)}</div>
+        </div>
+        ${discoveryNav(d)}
+      </div></div>
+      ${!d.bound && d.delivered.size ? '<p class="screen-sync">演示配对码 486 217 · 联网后可以收新照片</p>' : ''}
+      <footer class="screen-device-footer"><span>${e(P.Households.current().name)}</span>
+        <div>${button(i(d.paused ? 'play' : 'pause') + (d.paused ? ' 继续轮播' : ' 暂停轮播'), 'pause', 'plain',
+          `aria-pressed="${d.paused}" ${d.browse || d.delivered.size < 2 ? 'disabled' : ''}`)}
+          <label class="screen-volume">${i('volume')}<input type="range" name="volume" aria-label="大屏音量" min="0" max="100" value="${d.volume}"></label></div>
+      </footer>
     </div>`;
   }
 
@@ -504,31 +538,38 @@
   }
 
   function phoneView(d) {
-    return `<aside class="screen-phone" id="screen-phone" aria-labelledby="screen-phone-title" tabindex="-1">
-      ${phoneReturn()}
-      <header class="screen-phone-header"><div><h2 id="screen-phone-title">相框管理</h2></div><span>${e(name(P.state.actor))}</span>
-        ${button('看大屏', 'jump-device', 'plain screen-jump')}</header>
-      <nav class="screen-tabs" aria-label="手机控制功能">${Object.entries(tabs).map(([id, label]) =>
-        button(label, 'tab', 'plain', `data-tab="${id}" aria-pressed="${tab === id}"`)).join('')}</nav>
-      ${tab === 'gift' ? gift.render() : tab === 'photos' ? photoPanel(d) : settingsPanel(d)}
-      <details class="screen-price-note"><summary>相框多少钱？需要开会员吗？</summary>
-        <p>相框演示价 699 元／台。试售总价、是否含预装和配送，以门店报价为准。</p>
-        <p>新家庭有 1 GB 免费共享空间，可添照片、收回话。需要更大空间时，家人可自选 249 元／家／年的 20 GB 会员。到期后仍可回看已有内容。</p>
-      </details>
-      <p class="screen-session-note">本页模拟手机和相框。照片和录音仅供本次演示，刷新后清空。</p>
-    </aside>`;
+    const panels = { photos: photoPanel, reminders: reminders.phone, device: settingsPanel };
+    const title = gift ? '准备相框礼物' : '相框管理';
+    return `<div class="screen-phone-wrap">
+      <h2 id="screen-phone-title" class="screen-preview-label">${title}</h2>
+      <aside class="screen-phone" id="screen-phone" aria-labelledby="screen-phone-title" tabindex="-1">
+        ${phoneReturn()}
+        <header class="screen-phone-header"><div><h3>爸妈客厅</h3></div><span>${e(name(P.state.actor))}</span>
+          ${button('看大屏', 'jump-device', 'plain screen-jump')}</header>
+        ${gift ? gift.render(d.bound ? 'house-screen//photos' : 'house-screen//device') : `
+          <nav class="screen-tabs" aria-label="相框管理功能">${Object.entries(managementTabs).map(([id, label]) =>
+            button(label, 'tab', 'plain', `data-tab="${id}" aria-pressed="${tab === id}"`)).join('')}</nav>
+          ${panels[tab](d)}`}
+        <details class="screen-price-note"><summary>相框多少钱？需要开会员吗？</summary>
+          <p>相框演示价 699 元／台。试售总价、是否含预装和配送，以门店报价为准。</p>
+          <p>新家庭有 1 GB 免费共享空间，可添照片、收回话。需要更大空间时，家人可自选 249 元／家／年的 20 GB 会员。到期后仍可回看已有内容。</p>
+        </details>
+        <p class="screen-session-note">本页模拟手机和相框。照片和录音仅供本次演示，刷新后清空。</p>
+      </aside>
+    </div>`;
   }
 
-  /** 保留当前操作焦点，轮播只更新屏端照片区域。 */
+  /** 框内操作保留所在页的滚动位置，换照片或换入口时从新内容顶部开始。 */
   function paint() {
     const focused = root.contains(document.activeElement) ? document.activeElement : null;
     const action = focused?.dataset.screenAction;
     const giftAction = focused?.dataset.giftAction;
     const field = focused?.name;
+    const oldViewport = root.querySelector('.screen-device-grid');
+    const oldScroll = oldViewport?.scrollTop;
     root.innerHTML = `<header class="screen-demo-heading">
       <div class="screen-demo-nav">${b(i('back') + ' 返回', 'back', 'screen-button secondary')}</div>
-      <div class="screen-demo-intro"><h1>爸妈的相框</h1>
-        <p>先装好照片和祝福，再把相框送给爸妈。爸妈讲的往事，也能在家庭相册里回听。</p></div>
+      <div class="screen-demo-intro"><h1>爸妈的相框</h1></div>
     </header>
     <div class="screen-demo-grid"><div class="screen-demo-device-wrap">
       <div class="screen-preview-bar"><h2 class="screen-preview-label">相框预览</h2>
@@ -546,14 +587,19 @@
     <footer class="screen-demo-footer">
       <a class="screen-research-link" href="briefing.html#strengths" target="_blank" rel="noopener">看同类相框与传家录的区别 ↗</a>
     </footer>`;
-    if (action || giftAction || field) {
+    const viewport = root.querySelector('.screen-device-grid');
+    if (oldViewport?.dataset.screenView === viewport.dataset.screenView) viewport.scrollTop = oldScroll;
+    if (focused && focused === oldViewport) {
+      viewport.focus({ preventScroll: true });
+    } else if (action || giftAction || field) {
       const controls = root.querySelectorAll('[data-screen-action], [data-gift-action], [name]');
       const next = [...controls].find(el => {
         if (action) return el.dataset.screenAction === action && el.dataset.tab === focused.dataset.tab && el.dataset.id === focused.dataset.id;
         if (giftAction) return el.dataset.giftAction === giftAction;
         return el.name === field && (focused.type !== 'checkbox' || el.value === focused.value);
       });
-      next?.focus({ preventScroll: true });
+      if (next) next.focus({ preventScroll: true });
+      else if (Object.hasOwn(replyFocusActions, action)) viewport.querySelector(`[data-screen-action="${replyFocusActions[action]}"]`)?.focus();
     }
     for (const audio of root.querySelectorAll('#screen-device audio')) audio.volume = demo.volume / 100;
   }
@@ -612,12 +658,13 @@
     if (!d.activeId) d.activeId = d.delivered.keys().next().value || '';
   }
 
-  /** 断网只影响远程添照，恢复时再把排队的照片送达。 */
+  /** 恢复联网时补送新照，并同步提醒与本机已确认的回执。 */
   function reconnect(d) {
     d.online = true;
     prune(d);
     receivePhotos(d, d.queued);
     d.queued.clear();
+    reminders.reconnect(d);
   }
 
   function sendPhotos(d, ids, message, { question = false, relatedMembers } = {}) {
@@ -741,8 +788,7 @@
         jump(control.dataset.screenAction === 'jump-phone' ? '#screen-phone' : '#screen-device');
         return;
       case 'tab':
-        if (!Object.hasOwn(tabs, control.dataset.tab)) return;
-        if (tab === 'gift' && control.dataset.tab !== 'gift') gift.suspend();
+        if (gift || !Object.hasOwn(managementTabs, control.dataset.tab)) return;
         tab = control.dataset.tab;
         break;
       case 'send-daily':
@@ -761,6 +807,7 @@
       case 'browse-new':
       case 'browse-people':
       case 'browse-stories':
+      case 'browse-reminders':
         openBrowse(d, action.slice('browse-'.length));
         break;
       case 'browse-person':
@@ -793,7 +840,7 @@
         likePhoto(d);
         break;
       case 'reply':
-        gift.suspend();
+        gift?.suspend();
         openVoice(d);
         break;
       case 'record':
@@ -823,6 +870,16 @@
       case 'archive-reply':
         archiveReply(d, Number(id));
         break;
+      case 'ack-reminder':
+      case 'snooze-reminder':
+      case 'next-reminder':
+      case 'advance-reminders': {
+        const result = reminders.action(d, action, id);
+        if (!result) return;
+        notice = result;
+        if (action === 'next-reminder' || action === 'advance-reminders') announceReminders(d);
+        break;
+      }
       case 'withdraw':
         if (!sendable(storyById(selected))) return;
         if (draft?.id === selected) cancelVoice();
@@ -835,10 +892,10 @@
         if (d.online) {
           cancelVoice();
           d.online = false;
-          notice = '相框已离线，装好的照片和祝福仍然可以看。';
+          notice = '相框已离线，已收到的照片、祝福和提醒仍可查看。';
         } else {
           reconnect(d);
-          notice = '已联网，待送达的照片已同步到相框。';
+          notice = '已联网，待送达的照片和提醒已同步。';
         }
         break;
       case 'unbind':
@@ -848,6 +905,7 @@
         clearGift(d);
         d.delivered.clear();
         d.queued.clear();
+        d.reminders = reminders.create(false);
         prune(d);
         notice = '已解除演示绑定，原照片和回话保留在往事里。';
         break;
@@ -873,7 +931,7 @@
     if (event.target.name === 'screen-actor') {
       P.Households.changeMember(event.target.value);
     } else if (event.target.name.startsWith('gift-')) {
-      gift.change(event.target);
+      gift?.change(event.target);
     } else if (event.target.name === 'daily-files') {
       void selectDaily(event.target.files);
     } else if (event.target.name === 'daily-members') {
@@ -904,7 +962,7 @@
 
   root.addEventListener('input', event => {
     if (!demo) return;
-    if (event.target.name.startsWith('gift-')) gift.input(event.target);
+    if (event.target.name.startsWith('gift-')) gift?.input(event.target);
     if (event.target.name === 'daily-note') dailyNote = event.target.value;
     if (event.target.name === 'note') note = event.target.value;
     if (event.target.name === 'volume') {
@@ -928,6 +986,10 @@
       const message = text('note');
       if (question && !message) return showError(form, '先写一句想问爸妈的问题。');
       sendPhotos(d, [story.id], message, { question });
+    } else if (form.dataset.screenForm === 'reminder') {
+      const result = reminders.submit(d, data);
+      if (result.error) return showError(form, result.error);
+      notice = result.message;
     } else if (form.dataset.screenForm === 'settings' && d.online) {
       d.quietStart = text('quietStart');
       d.quietEnd = text('quietEnd');
@@ -941,7 +1003,7 @@
   function leave() {
     if (!demo) return;
     cancelVoice();
-    gift.dispose();
+    gift?.dispose();
     gift = null;
     for (const item of photoDrafts.values()) URL.revokeObjectURL(item.houseImage);
     photoDrafts = null;
@@ -969,14 +1031,18 @@
       actor = P.state.actor;
       route = location.hash;
       const [, photoId, panel, source] = route.split('/');
-      tab = switchingActor ? 'photos' : Object.hasOwn(tabs, panel) ? panel : photoId ? 'photos' : 'gift';
-      focusPhone = Object.hasOwn(entryReturnLabels, source) && Object.hasOwn(tabs, panel);
+      // 备礼由独立入口开启。普通入口按绑定状态进入添照或设备配对。
+      const isGift = panel === 'gift';
+      const isManagementTab = Object.hasOwn(managementTabs, panel);
+      const defaultTab = photoId || d.bound ? 'photos' : 'device';
+      tab = switchingActor || !isManagementTab ? defaultTab : panel;
+      focusPhone = Object.hasOwn(entryReturnLabels, source) && (isGift || isManagementTab);
       photoDrafts = new Map();
       dailyDraftIds = [];
       dailyMembers = [];
       dailyNote = '';
       loadingDaily = false;
-      gift = P.HouseScreenGift.create({
+      gift = isGift ? P.HouseScreenGift.create({
         stories: availablePhotos, importPhotos, refresh: paint,
         deliver: options => prepareGift(d, options),
         readGift: () => d.gift?.sender === actor ? d.gift : null,
@@ -987,7 +1053,7 @@
           paint();
           jump('#screen-device');
         }
-      });
+      }) : null;
       notice = '';
       const requested = storyById(photoId);
       const defaultPhoto = storyById(oldPhoto);
@@ -998,11 +1064,16 @@
         const now = new Date();
         root.querySelector('.screen-frame-clock').textContent = clock(now);
         root.querySelector('.screen-chip').textContent = connectionLabel(d, now);
+        reminders.refresh(d, root);
+        announceReminders(d, now);
+        const viewport = root.querySelector('.screen-device-grid');
         if (d.browse || d.paused || d.opening && now.getTime() < d.openingUntil || draft || quiet(d, now) ||
-          [...root.querySelectorAll('.screen-gallery audio')].some(player => !player.paused) || d.delivered.size < 2 ||
-          root.querySelector('.screen-gallery')?.contains(document.activeElement)) return;
+          [...viewport.querySelectorAll('audio')].some(player => !player.paused) || d.delivered.size < 2 ||
+          viewport.contains(document.activeElement)) return;
         move(d, 1);
-        root.querySelector('.screen-gallery').innerHTML = screenPhoto(d);
+        viewport.dataset.screenView = 'slideshow/' + d.activeId;
+        viewport.querySelector('.screen-gallery').innerHTML = screenPhoto(d);
+        viewport.scrollTop = 0;
       }, slideshowInterval);
     }
     prune(d);
