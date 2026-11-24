@@ -489,6 +489,7 @@
   function render() {
     P.FamilyHomeViews.unmountCover();
     P.FamilyHomeViews.unmountAlbum();
+    P.FamilyHomeViews.unmountPedigree();
     P.FamilyTree.syncHomeEditor();
     syncFontMode();
     // 非维护人打开旧编辑链接或在编辑中切换身份时，回首页阅读正式稿。
@@ -531,6 +532,7 @@
     content.scrollTop=previousTop;
     P.FamilyHomeViews.mountCover(content);
     P.FamilyHomeViews.mountAlbum(content);
+    P.FamilyHomeViews.mountPedigree(content);
     if (s.route === 'home') P.FamilyMap.mount(content);
     renderHeader();renderNavigation();refreshControls();
     P.FamilyJournal.mount(content);
