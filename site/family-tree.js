@@ -133,7 +133,7 @@
     P.state.members.push(id);
     P.closeModal();
     P.render();
-    document.querySelector(`[data-pedigree-person="${id}"]`)?.scrollIntoView({block: 'nearest', inline: 'nearest'});
+    P.FamilyHomeViews.revealPedigreeMember(document.querySelector(`[data-pedigree-person="${id}"]`));
     document.getElementById('home-family-edit-toggle')?.focus({preventScroll: true});
     P.toast('已添加到家谱。');
     return true;

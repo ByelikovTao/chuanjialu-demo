@@ -4,6 +4,8 @@
   const P=window.App;
   const PARENT_RELATIONS = new Set(['父亲', '母亲', '爸爸', '妈妈', '父母']);
   const CHILD_RELATIONS = new Set(['儿子', '女儿', '子女']);
+  const GRANDPARENT_RELATIONS = new Set(['爷爷', '奶奶', '祖父', '祖母', '外公', '外婆', '外祖父', '外祖母', '祖辈']);
+  const GRANDCHILD_RELATIONS = new Set(['孙子', '孙女', '外孙', '外孙女']);
   // 辈分只决定卡片所在的行。亲子连线仍须有两人之间的直接关系。
   const PEDIGREE_GENERATIONS = new Map([
     ['曾祖父', -3], ['曾祖母', -3], ['爷爷', -2], ['奶奶', -2], ['外公', -2], ['外婆', -2], ['祖辈', -2],
@@ -150,6 +152,14 @@
   function isParent(parent, child) {
     return PARENT_RELATIONS.has(P.relation(parent, child));
   }
+  /** 只补画有称谓记录、且图中缺少完整父母链的祖孙关系。 */
+  function grandparentLinks(members) {
+    return members.flatMap(grandchild => members.filter(grandparent =>
+      (GRANDPARENT_RELATIONS.has(P.relation(grandparent, grandchild)) ||
+        GRANDCHILD_RELATIONS.has(P.relation(grandchild, grandparent))) &&
+      !members.some(parent => isParent(grandparent, parent) && isParent(parent, grandchild)))
+      .map(grandparent => [grandparent, grandchild]));
+  }
   /** 同一家庭的成员全部进入图谱，辈分未知的成员保留独立卡片。 */
   function pedigree(owner) {
     const person = P.Households.isExample() ? P.state.actor : owner;
@@ -168,5 +178,5 @@
     const home=ensure();home.family.motto=null;home.family.suggestions=[];home.drafts={};home.review=null;
     Object.values(home.profiles).forEach(value=>{value.origin=null;value.surnameOrigin=null;value.surname='';});
   }
-  P.FamilyHome={ensure,profile,originTitle,member,editable,readable,document,mottoByline,surnameDetails,photo,relatives,isParent,pedigree,empty};
+  P.FamilyHome={ensure,profile,originTitle,member,editable,readable,document,mottoByline,surnameDetails,photo,relatives,isParent,grandparentLinks,pedigree,empty};
 }

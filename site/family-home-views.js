@@ -17,9 +17,11 @@
   const PEDIGREE_SLOT_GUTTER = 52;
   const PEDIGREE_PREVIEW_ROWS = 3;
   const PEDIGREE_DRAG_THRESHOLD = 6;
+  const PEDIGREE_KEY_STEP = 32;
+  const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
   let stopAlbum = null;
   let stopCover = null;
-  let stopPedigree = null;
+  let mountedPedigree = null;
   /** 点击家谱节点进入按此人筛选的家庭往事。 */
   function kinNode(id,person,position='',editing=false,framed=false) {
     const focus = id === person;
@@ -178,12 +180,45 @@
       : compactPedigree(person, groups, partners, editing);
     // 地图用关系树占位计算卡片高度，编辑期间停用已保存成员的往事入口。
     const viewportLabel = editing ? `${name}的家谱编辑` : `${name}的已知亲缘关系`;
-    const canvas = framed ? ' data-pedigree-preview' : '';
+    const canvas = framed ? ' data-pedigree-preview tabindex="0" aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Home"' : '';
     const viewport = `<div class="heritage-pedigree-viewport${framed ? ' is-framed' : ''}${single ? ' is-single' : ''}"${canvas}${map ? ' inert' : ''} role="group" aria-label="${viewportLabel}">${diagram}</div>`;
-    const hint = framed ? '<p class="heritage-pedigree-pan-hint" id="home-pedigree-pan-hint" hidden>拖动查看更多家人</p>' : '';
     return `<div class="heritage-kinship home-kinship-preview">
-      ${familyViewPanel(viewSwitch, viewport + hint, { map, editing })}
+      ${familyViewPanel(viewSwitch, viewport, { map, editing })}
     </div>`;
+  }
+  /** 隔代虚线绕开中间的人物卡，避免看起来像连到了未经确认的父母。 */
+  function createGrandparentLines(canvas) {
+    const nodes = new Map([...canvas.querySelectorAll('[data-pedigree-person]')].map(node => [node.dataset.pedigreePerson, node]));
+    const links = P.FamilyHome.grandparentLinks([...nodes.keys()]);
+    if (!links.length) return null;
+    const layer = document.createElementNS(SVG_NAMESPACE, 'svg');
+    layer.classList.add('heritage-pedigree-indirect');
+    layer.dataset.pedigreeLinks = 'grandchildren';
+    layer.setAttribute('aria-hidden', 'true');
+    const paths = links.map(([ancestor, descendant]) => {
+      const path = document.createElementNS(SVG_NAMESPACE, 'path');
+      path.dataset.ancestor = ancestor;
+      path.dataset.descendant = descendant;
+      layer.append(path);
+      return path;
+    });
+    canvas.prepend(layer);
+    return () => {
+      const origin = canvas.getBoundingClientRect();
+      const bounds = new Map([...nodes].map(([id, node]) => [id, node.getBoundingClientRect()]));
+      const cards = [...bounds.values()];
+      const left = Math.min(...cards.map(rect => rect.left)) - origin.left;
+      const right = Math.max(...cards.map(rect => rect.right)) - origin.left;
+      links.forEach(([ancestor, descendant], index) => {
+        const from = bounds.get(ancestor);
+        const to = bounds.get(descendant);
+        const edge = (from.left + from.right) / 2 < origin.left + origin.width / 2 ? 'left' : 'right';
+        const rail = edge === 'left' ? left - 8 : right + 8;
+        const fromY = from.top + from.height / 2 - origin.top;
+        const toY = to.top + to.height / 2 - origin.top;
+        paths[index].setAttribute('d', `M${from[edge] - origin.left} ${fromY}H${rail}V${toY}H${to[edge] - origin.left}`);
+      });
+    };
   }
   /** 保留完整图谱，按前三行的实际高度裁出首页视窗，避免大字号遮住人物卡。 */
   function mountPedigree(content) {
@@ -191,40 +226,46 @@
     if (!viewport) return;
     const canvas = viewport.querySelector('.heritage-pedigree-canvas');
     const rows = canvas.querySelectorAll(':scope > .heritage-pedigree-row');
-    const hint = content.querySelector('#home-pedigree-pan-hint');
+    const updateGrandparentLines = createGrandparentLines(canvas);
     const controller = new AbortController();
     const { signal } = controller;
     let gesture = null;
     let dragged = false;
+    let pan = { x: 0, y: 0 };
 
     function updateViewport() {
       if (rows.length > PEDIGREE_PREVIEW_ROWS) {
         const last = rows[PEDIGREE_PREVIEW_ROWS - 1];
         const padding = parseFloat(getComputedStyle(viewport).paddingBlockStart);
-        const height = Math.ceil(last.getBoundingClientRect().bottom - canvas.getBoundingClientRect().top + padding);
+        const bottom = last.getBoundingClientRect().bottom;
+        const nextTop = rows[PEDIGREE_PREVIEW_ROWS].getBoundingClientRect().top;
+        const gap = Math.max(0, Math.min(padding, nextTop - bottom - 1));
+        const height = Math.ceil(bottom - canvas.getBoundingClientRect().top + padding + gap);
         const limit = `${height}px`;
         if (viewport.style.getPropertyValue('--pedigree-preview-height') !== limit) {
           viewport.style.setProperty('--pedigree-preview-height', limit);
         }
       }
-      const pannable = viewport.scrollHeight > viewport.clientHeight || viewport.scrollWidth > viewport.clientWidth;
-      viewport.toggleAttribute('data-pannable', pannable);
-      hint.hidden = !pannable;
-      if (pannable) {
-        viewport.tabIndex = 0;
-        viewport.setAttribute('aria-describedby', hint.id);
-      } else {
-        viewport.removeAttribute('tabindex');
-        viewport.removeAttribute('aria-describedby');
-      }
+      updateGrandparentLines?.();
     }
 
-    // 触屏和触控板沿用原生滚动。鼠标移动超过阈值后才从人物卡接管拖动。
+    function setPan(x, y) {
+      pan = { x, y };
+      canvas.style.translate = `${x}px ${y}px`;
+    }
+    function reveal(node) {
+      const area = viewport.getBoundingClientRect();
+      const card = node.getBoundingClientRect();
+      const dx = Math.max(0, area.left + 6 - card.left) - Math.max(0, card.right - area.right + 6);
+      const dy = Math.max(0, area.top + 6 - card.top) - Math.max(0, card.bottom - area.bottom + 6);
+      if (dx || dy) setPan(pan.x + dx, pan.y + dy);
+    }
+
+    // 鼠标和手指统一平移整张画布，轻点人物仍走原有入口。
     viewport.addEventListener('pointerdown', event => {
-      if (event.button !== 0 || !viewport.hasAttribute('data-pannable')) return;
+      if (!event.isPrimary || event.button !== 0 || gesture) return;
       dragged = false;
-      if (event.pointerType !== 'mouse') return;
-      gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, left: viewport.scrollLeft, top: viewport.scrollTop };
+      gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, origin: pan };
     }, { signal });
     viewport.addEventListener('pointermove', event => {
       if (gesture?.id !== event.pointerId) return;
@@ -236,8 +277,7 @@
         viewport.classList.add('is-dragging');
         dragged = true;
       }
-      viewport.scrollLeft = gesture.left - dx;
-      viewport.scrollTop = gesture.top - dy;
+      setPan(gesture.origin.x + dx, gesture.origin.y + dy);
       event.preventDefault();
     }, { signal });
     function finish(event) {
@@ -247,7 +287,9 @@
     }
     viewport.addEventListener('pointerup', finish, { signal });
     viewport.addEventListener('pointercancel', finish, { signal });
-    viewport.addEventListener('lostpointercapture', finish, { signal });
+    viewport.addEventListener('lostpointercapture', event => {
+      if (event.target === viewport) finish(event);
+    }, { signal });
     viewport.addEventListener('pointerleave', event => {
       if (!viewport.hasPointerCapture(event.pointerId)) finish(event);
     }, { signal });
@@ -260,19 +302,43 @@
       event.preventDefault();
       event.stopPropagation();
     }, { capture: true, signal });
+    viewport.addEventListener('keydown', event => {
+      if (event.target !== viewport) return;
+      const steps = { ArrowLeft: [1, 0], ArrowRight: [-1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] };
+      if (event.key === 'Home') setPan(0, 0);
+      else if (Object.hasOwn(steps, event.key)) {
+        const [x, y] = steps[event.key];
+        setPan(pan.x + x * PEDIGREE_KEY_STEP, pan.y + y * PEDIGREE_KEY_STEP);
+      } else return;
+      event.preventDefault();
+    }, { signal });
+    viewport.addEventListener('focusin', event => {
+      if (event.target !== viewport && event.target.matches(':focus-visible')) reveal(event.target);
+    }, { signal });
 
     updateViewport();
     const observer = new ResizeObserver(updateViewport);
     observer.observe(viewport);
     observer.observe(canvas);
-    stopPedigree = () => {
+    mountedPedigree = { viewport, reveal, dispose() {
       controller.abort();
       observer.disconnect();
-    };
+    } };
+  }
+  function revealPedigreeMember(node) {
+    if (!node) return;
+    const options = { block: 'nearest', inline: 'nearest' };
+    const preview = mountedPedigree;
+    if (preview?.viewport.contains(node)) {
+      preview.reveal(node);
+      preview.viewport.scrollIntoView(options);
+    } else {
+      node.scrollIntoView(options);
+    }
   }
   function unmountPedigree() {
-    stopPedigree?.();
-    stopPedigree = null;
+    mountedPedigree?.dispose();
+    mountedPedigree = null;
   }
   function editLink(kind, person, label) {
     return P.FamilyHome.editable(kind, person)
@@ -821,5 +887,5 @@
       ${P.FamilyJournal.diaryPreview()}
     </div></div>`;
   }
-  P.FamilyHomeViews={render,kinship,mountPedigree,unmountPedigree,albumTrack,mountAlbum,unmountAlbum,restoreAlbum,mountCover,unmountCover,mottoRoute,focusMotto};
+  P.FamilyHomeViews={render,kinship,mountPedigree,unmountPedigree,revealPedigreeMember,albumTrack,mountAlbum,unmountAlbum,restoreAlbum,mountCover,unmountCover,mottoRoute,focusMotto};
 }
