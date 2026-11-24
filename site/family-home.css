@@ -191,6 +191,22 @@
   white-space: nowrap;
 }
 
+.heritage-pedigree-viewport.is-framed .heritage-pedigree-node.is-self strong {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 2px;
+}
+
+.heritage-pedigree-viewport.is-framed .heritage-pedigree-name {
+  overflow-wrap: anywhere;
+}
+
+.heritage-pedigree-viewport.is-framed .heritage-pedigree-self {
+  flex-shrink: 0;
+  font-family: var(--home-xuan-sans);
+}
+
 .heritage-pedigree-canvas:not(.heritage-pedigree-readable) .heritage-pedigree-node.is-self {
   flex-direction: column;
   justify-content: center;

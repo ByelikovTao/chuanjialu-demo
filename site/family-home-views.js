@@ -23,10 +23,14 @@
     const self = id === P.state.actor;
     const name = e(P.PEOPLE[id].name);
     const label = focus ? (P.state.familyWorkspace ? '当前人物' : '档案人') : P.relation(id, person);
-    const caption = self && !framed
-      ? `<strong><span class="heritage-pedigree-name">${name}</span><span class="heritage-pedigree-self">（我）</span></strong>`
-      : `<strong>${name}</strong><small>${e(label)}</small>`;
-    const accessibleName = self ? `${name}（我）` : `${name}，${e(label)}`;
+    const selfLabel = framed ? '(我)' : '（我）';
+    const heading = self
+      ? `<strong><span class="heritage-pedigree-name">${name}</span><span class="heritage-pedigree-self">${selfLabel}</span></strong>`
+      : `<strong>${name}</strong>`;
+    // 首页家谱同时显示我的账号标记和相对档案人的亲属称谓。
+    const showRelation = framed || !self;
+    const caption = showRelation ? `${heading}<small>${e(label)}</small>` : heading;
+    const accessibleName = `${name}${self ? selfLabel : ''}${showRelation ? `，${e(label)}` : ''}`;
     return b(`${P.avatar(id, '', { originalPortrait: true })}<span>${caption}</span>`, 'house-story-person',
       `heritage-pedigree-node${focus ? ' is-focus' : ''}${self ? ' is-self' : ''}`,
       `data-id="${e(id)}" data-pedigree-person="${e(id)}" aria-label="${accessibleName}，查看相关往事" ${position}${editing ? ' inert' : ''}`);
