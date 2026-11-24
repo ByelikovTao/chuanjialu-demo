@@ -221,17 +221,20 @@
     };
   }
   /** 保留完整图谱，按前三行的实际高度裁出首页视窗，避免大字号遮住人物卡。 */
-  function mountPedigree(content) {
+  function mountPedigree(content, centerActor) {
     const viewport = content.querySelector('[data-pedigree-preview]');
     if (!viewport) return;
     const canvas = viewport.querySelector('.heritage-pedigree-canvas');
     const rows = canvas.querySelectorAll(':scope > .heritage-pedigree-row');
+    const actorCard = centerActor && !canvas.classList.contains('is-editing')
+      ? canvas.querySelector('.heritage-pedigree-node.is-self') : null;
     const updateGrandparentLines = createGrandparentLines(canvas);
     const controller = new AbortController();
     const { signal } = controller;
     let gesture = null;
     let dragged = false;
     let pan = { x: 0, y: 0 };
+    let followActor = Boolean(actorCard);
 
     function updateViewport() {
       if (rows.length > PEDIGREE_PREVIEW_ROWS) {
@@ -247,18 +250,36 @@
         }
       }
       updateGrandparentLines?.();
+      if (followActor) resetPan();
     }
 
     function setPan(x, y) {
       pan = { x, y };
       canvas.style.translate = `${x}px ${y}px`;
     }
+    function movePan(x, y) {
+      followActor = false;
+      setPan(x, y);
+    }
+    /** 切换身份后平移整张谱图，使本人卡片与可视画布的中心重合。 */
+    function resetPan() {
+      followActor = Boolean(actorCard);
+      if (!actorCard) {
+        setPan(0, 0);
+        return;
+      }
+      const area = viewport.getBoundingClientRect();
+      const card = actorCard.getBoundingClientRect();
+      const dx = area.left + (area.width - card.width) / 2 - card.left;
+      const dy = area.top + (area.height - card.height) / 2 - card.top;
+      setPan(pan.x + dx, pan.y + dy);
+    }
     function reveal(node) {
       const area = viewport.getBoundingClientRect();
       const card = node.getBoundingClientRect();
       const dx = Math.max(0, area.left + 6 - card.left) - Math.max(0, card.right - area.right + 6);
       const dy = Math.max(0, area.top + 6 - card.top) - Math.max(0, card.bottom - area.bottom + 6);
-      if (dx || dy) setPan(pan.x + dx, pan.y + dy);
+      if (dx || dy) movePan(pan.x + dx, pan.y + dy);
     }
 
     // 鼠标和手指统一平移整张画布，轻点人物仍走原有入口。
@@ -277,7 +298,7 @@
         viewport.classList.add('is-dragging');
         dragged = true;
       }
-      setPan(gesture.origin.x + dx, gesture.origin.y + dy);
+      movePan(gesture.origin.x + dx, gesture.origin.y + dy);
       event.preventDefault();
     }, { signal });
     function finish(event) {
@@ -305,10 +326,10 @@
     viewport.addEventListener('keydown', event => {
       if (event.target !== viewport) return;
       const steps = { ArrowLeft: [1, 0], ArrowRight: [-1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] };
-      if (event.key === 'Home') setPan(0, 0);
+      if (event.key === 'Home') resetPan();
       else if (Object.hasOwn(steps, event.key)) {
         const [x, y] = steps[event.key];
-        setPan(pan.x + x * PEDIGREE_KEY_STEP, pan.y + y * PEDIGREE_KEY_STEP);
+        movePan(pan.x + x * PEDIGREE_KEY_STEP, pan.y + y * PEDIGREE_KEY_STEP);
       } else return;
       event.preventDefault();
     }, { signal });

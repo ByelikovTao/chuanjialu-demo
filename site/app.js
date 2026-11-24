@@ -114,6 +114,8 @@
   const navigationSession = crypto.getRandomValues(new Uint32Array(2)).join('-');
   let navigationId = 0;
   let currentEntry = null;
+  // 按家庭工作区记住切换后的身份，切回家谱时仍使用所选成员定位。
+  const pedigreeSelections = new WeakMap();
 
   function ownedEntry(entry) {
     return entry?.workspace === P.state && entry.actor === P.state.actor ? entry : null;
@@ -532,7 +534,7 @@
     content.scrollTop=previousTop;
     P.FamilyHomeViews.mountCover(content);
     P.FamilyHomeViews.mountAlbum(content);
-    P.FamilyHomeViews.mountPedigree(content);
+    P.FamilyHomeViews.mountPedigree(content, pedigreeSelections.get(s) === s.actor);
     if (s.route === 'home') P.FamilyMap.mount(content);
     renderHeader();renderNavigation();refreshControls();
     P.FamilyJournal.mount(content);
@@ -580,6 +582,7 @@
     }
     // 草稿按账号保留，核对和档案详情的来源只由原来打开它们的账号使用。
     if (s.actor !== id) {
+      pedigreeSelections.set(s, id);
       if (s.familyHome) s.familyHome.review = null;
       s.archiveReturn = null;
       s.history = [];
