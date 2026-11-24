@@ -4,8 +4,7 @@
   const P=window.App;
   const EXAMPLE_MEMBERS = new Set(P.state.members);
   const EXAMPLE_PEDIGREE_MEMBERS = new Set(['father', 'grandpa', 'mother', 'xia']);
-  const PARENT_RELATIONS = new Set(['父亲', '母亲', '爸爸', '妈妈', '父母']);
-  const CHILD_RELATIONS = new Set(['儿子', '女儿', '子女']);
+  const PARENT_RELATIONS = new Set(['父亲', '母亲', '爸爸', '妈妈']);
   const EXAMPLE_SURNAME_ACCOUNT = {
     text: '爷爷说，他小时候住在老街东头。那时家门口有棵枣树，过年回来，远远就能认出来。',
     source: '陈远山口述'
@@ -138,7 +137,7 @@
       const relation=P.relation(id,person);
       if(PARENT_RELATIONS.has(relation))groups.parents.push(id);
       else if(id===person||['妻子','丈夫'].includes(relation))groups.couple.push(id);
-      else if(CHILD_RELATIONS.has(relation))groups.children.push(id);
+      else if(['儿子','女儿'].includes(relation))groups.children.push(id);
       else groups.others.push(id);
     }
     return groups;

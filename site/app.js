@@ -534,7 +534,6 @@
     content.querySelectorAll('[data-feature-form],[data-feature-action]').forEach(element=>{element.featureState=s;});
     content.querySelectorAll('#chat-form,[data-story-question],[data-question-answer]').forEach(form=>{form.draftState=s;form.draftActor=s.actor;});
     content.scrollTop=previousTop;
-    P.FamilyHomeViews.centerPedigree(content);
     P.FamilyHomeViews.mountCover(content);
     P.FamilyHomeViews.mountAlbum(content);
     if (s.route === 'home') P.FamilyMap.mount(content);

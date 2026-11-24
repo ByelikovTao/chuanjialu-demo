@@ -234,26 +234,6 @@
 /* 大字号头像与姓名上下排列，各代共用列中线，连线直接接到卡片。 */
 .heritage-pedigree-readable{--pedigree-cell-padding:8px;width:100%;min-width:calc(112px * var(--pedigree-columns));max-width:calc(152px * var(--pedigree-columns));height:auto;white-space:normal}
 .heritage-pedigree-readable .heritage-pedigree-row{display:grid;grid-template-columns:repeat(var(--pedigree-columns),minmax(0,1fr))}
-.phone[data-route="home"] .heritage-pedigree-viewport.is-framed .heritage-pedigree-readable {
-  --pedigree-track: calc(100% / var(--pedigree-columns));
-  margin-inline: auto;
-}
-.heritage-pedigree-viewport.is-framed .heritage-pedigree-row[data-pedigree-branch] {
-  width: calc(var(--pedigree-track) * var(--pedigree-band-count));
-  margin-inline-start: calc(var(--pedigree-track) * var(--pedigree-band-start));
-  grid-template-columns: repeat(var(--pedigree-band-count), minmax(0, 1fr));
-}
-.heritage-pedigree-viewport.is-framed .heritage-pedigree-focus-row > .heritage-pedigree-main {
-  grid-area: 1 / 1 / 2 / -1;
-  width: var(--pedigree-track);
-  justify-self: center;
-}
-.heritage-pedigree-viewport.is-framed .heritage-pedigree-focus-row > .heritage-pedigree-side {
-  grid-area: 1 / 1 / 2 / -1;
-  width: clamp(108px, calc((100% - var(--pedigree-track)) / 2), var(--pedigree-track));
-  margin-inline-start: calc((100% + var(--pedigree-track)) / 2);
-  justify-self: start;
-}
 .heritage-pedigree-readable>.heritage-pedigree-branches{position:static;display:block;height:24px}
 .heritage-pedigree-readable .heritage-pedigree-branches path{stroke:#946542;stroke-width:2}
 .heritage-pedigree-readable .heritage-pedigree-node{position:relative;translate:none;width:auto;min-width:0;height:auto;min-height:104px;margin:0 var(--pedigree-cell-padding);padding:8px;gap:4px;flex-direction:column;justify-content:center;text-align:center}
