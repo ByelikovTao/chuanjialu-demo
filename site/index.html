@@ -29,6 +29,7 @@
   <link rel="stylesheet" href="family-picks.css">
   <link rel="stylesheet" href="family-paper.css">
   <link rel="stylesheet" href="family-journal.css">
+  <link rel="stylesheet" href="house-screen-intro.css">
 </head>
 <body>
   <!-- 静态原型：业务资料只在内存中变化；数字人为无声形象演示，不连接真实 AI 或支付。 -->
@@ -43,16 +44,16 @@
     <main class="stage">
       <div class="review-toolbar" aria-label="原型预览设置">
         <span class="review-label">预览设置</span>
-        <label>身份 <select id="actor-select"><option value="xia">女儿 · 陈知夏</option><option value="father">本人 · 陈远山</option></select></label>
+        <label>身份 <select id="actor-select"><option value="father">本人 · 陈远山</option><option value="xia">女儿 · 陈知夏</option></select></label>
         <label>宽度 <select id="width-select"><option value="390">390</option><option value="360">360</option><option value="430">430</option></select></label>
         <button id="font-toggle" type="button" aria-pressed="false">大字号</button>
         <button id="reset-demo" type="button">重置演示</button>
         <button id="restart-entry" type="button">重新体验下载登录</button>
         <!-- 汇报使用单独的陈家示例，打开新页时保留正在操作的原型。 -->
-        <a class="review-report-link gift-plan-link" href="briefing.html#gift" target="_blank" rel="noopener">父母相框商业方案 ↗</a>
+        <a class="review-report-link gift-plan-link" href="briefing.html#gift" target="_blank" rel="noopener">传家相框商业方案 ↗</a>
         <a class="review-report-link" href="briefing.html" target="_blank" rel="noopener">汇报专栏 ↗</a>
       </div>
-      <section id="house-screen-demo" class="house-screen-demo" aria-label="爸妈的相框演示" hidden></section>
+      <section id="house-screen-demo" class="house-screen-demo" aria-label="传家相框演示" hidden></section>
       <div class="phone" id="phone">
         <div class="statusbar" aria-hidden="true"><b>9:41</b><div><span class="signal">▂▄▆</span><span class="wifi">◔</span><span class="battery"></span></div></div>
         <header id="app-header" class="app-header"></header>
@@ -74,7 +75,7 @@
       <div class="palette"><i style="background:var(--family-paper)"></i><i style="background:var(--family-brand)"></i><i style="background:var(--family-sage)"></i></div>
       <div class="review-rule"><strong>传家录</strong><p>人物与故事做主角。原声、整理和推演各有清楚的标记。</p></div>
       <details><summary>查看当前演示状态</summary><pre id="state-preview"></pre></details>
-      <div class="state-examples"><label for="scenario-select">查看边界状态</label><select id="scenario-select"><option value="normal">正常内容</option><option value="home-empty">首页待完善</option><option value="private">未获授权的故事</option><option value="empty">空收藏</option><option value="quota">共享答复额度用尽</option><option value="failure">下一次整理失败</option></select><p>用于评审交互反馈，属于原型工具。</p></div>
+      <div class="state-examples"><label for="scenario-select">查看边界状态</label><select id="scenario-select"><option value="normal">正常内容</option><option value="home-empty">首页待完善</option><option value="private">未获授权的故事</option><option value="quota">共享答复额度用尽</option><option value="failure">下一次整理失败</option></select><p>用于评审交互反馈，属于原型工具。</p></div>
       <a class="overview-link" href="overview.html">查看三屏总览 ↗</a>
       <button id="open-demo-mindmap" class="review-report-link overview-link" type="button">陈家示例导图</button>
     </aside>
@@ -93,6 +94,7 @@
   <script src="family-context.js" defer></script>
   <script src="family-home.js" defer></script>
   <script src="family-home-views.js" defer></script>
+  <script src="family-history-writing.js" defer></script>
   <script src="family-home-editor.js" defer></script>
   <script src="billing.js" defer></script>
   <script src="billing-views.js" defer></script>
@@ -106,7 +108,6 @@
   <script src="questions.js" defer></script>
   <script src="material-library.js" defer></script>
   <script src="answer-feedback.js" defer></script>
-  <script src="relationship-chapters.js" defer></script>
   <script src="keepsake-books.js" defer></script>
   <script src="keepsake-book-views.js" defer></script>
   <script src="memory-space.js" defer></script>
@@ -131,6 +132,9 @@
   <script src="house-screen-gift.js" defer></script>
   <script src="house-screen-reminders.js" defer></script>
   <script src="house-screen-demo.js" defer></script>
+  <script src="house-screen-intro.js" defer></script>
+  <script src="history-book-samples.js" defer></script>
+  <script src="history-service-intro.js" defer></script>
   <script src="family-assistant.js" defer></script>
   <script src="family-picks.js" defer></script>
   <script src="family-journal.js" defer></script>

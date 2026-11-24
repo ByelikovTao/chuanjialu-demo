@@ -42,7 +42,7 @@
   min-width: 0;
 }
 
-:is(.screen-preview-label, .screen-family-book h2) {
+.screen-preview-label {
   position: relative;
   padding-inline-start: 11px;
   color: #433124;
@@ -52,7 +52,7 @@
   overflow-wrap: anywhere;
 }
 
-:is(.screen-preview-label, .screen-family-book h2)::before {
+.screen-preview-label::before {
   position: absolute;
   inset-block: .16em;
   inset-inline-start: 0;
@@ -86,30 +86,6 @@
   color: var(--brand);
   font-size: calc(14px * var(--unit));
   text-underline-offset: 3px;
-}
-
-.screen-family-book {
-  border: 1px solid var(--family-line);
-  border-radius: 16px;
-  background: var(--family-texture) center top / 540px auto var(--family-surface);
-  background-blend-mode: soft-light;
-  box-shadow: var(--family-shadow);
-}
-
-  display: grid;
-  gap: 12px;
-  margin-top: 24px;
-  padding: 20px;
-}
-
-.screen-family-book h2 {
-  font-size: calc(22px * var(--unit));
-  line-height: 1.4;
-}
-
-.screen-family-book p {
-  max-width: 44em;
-  line-height: 1.6;
 }
 
 .screen-demo-grid {
@@ -601,14 +577,14 @@
   background: var(--pressed);
 }
 
-:is(.screen-demo-heading, .screen-phone, .screen-family-book) .screen-button.secondary {
+:is(.screen-demo-heading, .screen-phone) .screen-button.secondary {
   border-color: var(--family-line);
   border-radius: 12px;
   background: color-mix(in srgb, var(--family-surface) 72%, transparent);
   color: var(--family-ink);
 }
 
-:is(.screen-demo-heading, .screen-phone, .screen-family-book) .screen-button.secondary:hover:not(:disabled) {
+:is(.screen-demo-heading, .screen-phone) .screen-button.secondary:hover:not(:disabled) {
   background: var(--family-soft);
   color: var(--family-brand);
 }
@@ -934,6 +910,10 @@
   gap: 2px;
   margin: 0 16px;
   border-block-end: 1px solid var(--family-line);
+}
+
+.screen-tabs.has-gift {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .screen-tabs .screen-button {

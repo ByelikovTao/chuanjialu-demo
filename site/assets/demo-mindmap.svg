@@ -38,7 +38,7 @@
 <path d="M106,989 L116,989" stroke="#37665B" stroke-width="1" fill="none"/>
 <text x="126" y="995.0" font-family="SimHei,Microsoft YaHei,sans-serif" font-size="20" fill="#202E29">选材、报价、校样、样书、印制</text>
 <path d="M106,1022 L116,1022" stroke="#37665B" stroke-width="1" fill="none"/>
-<text x="126" y="1028.0" font-family="SimHei,Microsoft YaHei,sans-serif" font-size="20" fill="#202E29">纪念与收藏包含纪念书与收藏</text>
+<text x="126" y="1028.0" font-family="SimHei,Microsoft YaHei,sans-serif" font-size="20" fill="#202E29">在服务与订单查看人工纪念书</text>
 <path d="M106,1055 L116,1055" stroke="#37665B" stroke-width="1" fill="none"/>
 <text x="126" y="1061.0" font-family="SimHei,Microsoft YaHei,sans-serif" font-size="20" fill="#202E29">资料与核对管理草稿、提交与审核</text>
 <path d="M900,228 L880,280" stroke="#9A6C45" stroke-width="2" fill="none"/>
@@ -68,7 +68,7 @@
 <path d="M676,825 L686,825" stroke="#9A6C45" stroke-width="1" fill="none"/>
 <text x="696" y="831.0" font-family="SimHei,Microsoft YaHei,sans-serif" font-size="20" fill="#202E29">家人在消息中查看回复和处理结果</text>
 <path d="M645,908 L665,908" stroke="#9A6C45" stroke-width="1.5" fill="none"/>
-<text x="675" y="914.8" font-family="SimHei,Microsoft YaHei,sans-serif" font-size="26" fill="#9A6C45">共同回忆与收藏</text>
+<text x="675" y="914.8" font-family="SimHei,Microsoft YaHei,sans-serif" font-size="26" fill="#9A6C45">共同回忆</text>
 <path d="M676,956 L686,956" stroke="#9A6C45" stroke-width="1" fill="none"/>
 <text x="696" y="962.0" font-family="SimHei,Microsoft YaHei,sans-serif" font-size="20" fill="#202E29">首页记录共同经历，先保留原稿</text>
 <path d="M676,989 L686,989" stroke="#9A6C45" stroke-width="1" fill="none"/>
@@ -76,7 +76,7 @@
 <path d="M676,1022 L686,1022" stroke="#9A6C45" stroke-width="1" fill="none"/>
 <text x="696" y="1028.0" font-family="SimHei,Microsoft YaHei,sans-serif" font-size="20" fill="#202E29">照片、视频、作品也可分类补充</text>
 <path d="M676,1055 L686,1055" stroke="#9A6C45" stroke-width="1" fill="none"/>
-<text x="696" y="1061.0" font-family="SimHei,Microsoft YaHei,sans-serif" font-size="20" fill="#202E29">我的收藏直达；可整理两人故事集</text>
+<text x="696" y="1061.0" font-family="SimHei,Microsoft YaHei,sans-serif" font-size="20" fill="#202E29">从原往事回看家人的留言</text>
 <path d="M900,228 L1450,280" stroke="#63788D" stroke-width="2" fill="none"/>
 <path d="M1450,280 L1450,300" stroke="#63788D" stroke-width="2" fill="none"/>
 <text x="1205" y="334.6" font-family="SimHei,Microsoft YaHei,sans-serif" font-size="27" fill="#63788D">03  回本人 完成回应与确认</text>

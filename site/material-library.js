@@ -57,7 +57,7 @@
     if(!Object.hasOwn(KINDS,r.kind)||!P.state.members.includes(r.subject))return '请选择有效的资料类型和归档人物。';
     if(r.fromFamily&&r.subject!==P.state.actor)return '请从当前家庭的往事重新添加这份资料。';
     if(r.babyMember&&!P.FamilyEditions.validDate(r.date))return '请填写有效的拍摄日期。';
-    if(P.state.actor!=='father'&&!P.FamilyContext.invited(r.subject))return '请只向邀请你的人物提交资料，已有内容和草稿可在“我提交的资料”查看。';
+    if(P.state.actor!=='father'&&!P.FamilyContext.invited(r.subject))return '请只向邀请你的人物提交资料，已有内容和草稿可在「记录 → 我上传的」查看。';
     if(r.id&&!archiveItems().some(item=>item.id===r.id&&item.author===P.state.actor&&item.subject===r.subject))return '这份资料不能由当前账号更改归属，请返回核对。';
     if(!P.Billing.uploadAllowed(r.subject,contentBytes(r),r.id))return '当前人物已超容量或保管到期，请先整理、导出或续费；原资料不会被删除。';
     if(!r.title.trim())return '请给资料起一个名字。';
@@ -81,7 +81,7 @@
     const body=r.body||(!image?r.description:'');
     return image+(body?`<p class="feature-prose">${e(body)}</p>`:'');
   }
-  const STAGES={drafts:'草稿',pending:'待核对',archived:'已归档'};
+  const STAGES={drafts:'草稿与退回',pending:'待核对',archived:'已收录'};
   /** 未提交表单包含文字、文件读取和时间说明，不因只填了部分字段而丢失。 */
   function hasDraft(r){return Boolean(r&&(r.title||r.body||r.file||r.description||r.loading||
     (r.date&&r.date!==r.defaultDate)));}
@@ -95,14 +95,14 @@
   /** 已归档资料只读取档案唯一实例，已完成的提交快照不再重复列出。 */
   function archivedCard(item) {
     const editButton=item.relatedFilmId?'':b('更正资料','material-edit-existing','text-link',`data-id="${item.id}"`);
-    return `<article class="card">${item.kind==='photo'&&item.poster?`<img class="material-card-photo" src="${e(item.poster)}" alt="${e(item.title)}资料缩略图">`:''}<h3>${e(item.title)}</h3><p class="caption">${e(P.PEOPLE[item.subject].name)} · ${item.inArchive===false?'原稿保留，已移出档案':'已归档'}</p>${b('查看资料','archive-open','text-link',`data-id="${item.id}" data-person="${item.subject}"`)} ${editButton} ${b('撤回分享','material-withdraw','text-link',`data-id="${item.id}"`)}</article>`;
+    return `<article class="card">${item.kind==='photo'&&item.poster?`<img class="material-card-photo" src="${e(item.poster)}" alt="${e(item.title)}资料缩略图">`:''}<h3>${e(item.title)}</h3><p class="caption">${e(P.PEOPLE[item.subject].name)} · ${item.inArchive===false?'原稿保留，已移出档案':'已收录'}</p>${b('查看资料','archive-open','text-link',`data-id="${item.id}" data-person="${item.subject}"`)} ${editButton} ${b('撤回分享','material-withdraw','text-link',`data-id="${item.id}"`)}</article>`;
   }
   /** 三组互斥分类，退回任务正在编辑时只展示当前草稿，已归档快照不与资料重复。 */
   function collections() {
     const s=P.state,r=draft(),groups={drafts:[],pending:[],archived:[]};
-    if(hasDraft(r))groups.drafts.push(`<article class="card"><h3>${e(r.title||r.file?.name||'未命名资料')}</h3><p class="caption">${r.submissionId?'已退回，正在更正':'资料草稿 · 尚未提交'}</p>${l('继续整理','material-edit')}</article>`);
+    if(hasDraft(r))groups.drafts.push(`<article class="card"><h3>${e(r.title||r.file?.name||'未命名资料')}</h3><p class="caption">${r.submissionId?'退回修改 · 正在更正':'资料草稿 · 尚未提交'}</p>${l('继续整理','material-edit')}</article>`);
     const record=s.record,recordDraft=Boolean(record.title||record.text||record.recording||s.draftSaved);
-    if(recordDraft)groups.drafts.push(`<article class="card"><h3>${e(record.title||'未命名的记录草稿')}</h3><p class="caption">${record.pendingId?'已退回，正在更正':'记录草稿 · 尚未提交'}</p>${l('继续填写','record')}</article>`);
+    if(recordDraft)groups.drafts.push(`<article class="card"><h3>${e(record.title||'未命名的记录草稿')}</h3><p class="caption">${record.pendingId?'退回修改 · 正在更正':'记录草稿 · 尚未提交'}</p>${l('继续填写','record')}</article>`);
     for(const item of s.materialSubmissions.filter(item=>item.author===s.actor)){
       if(item.status==='pending')groups.pending.push(submissionCard(item));
       if(item.status==='returned'&&!(hasDraft(r)&&r.submissionId===item.id))groups.drafts.push(submissionCard(item));
@@ -117,9 +117,9 @@
     const s=P.state,groups=collections(),stage=s.materialTabs[s.actor]||(groups.drafts.length?'drafts':groups.pending.length?'pending':'archived');
     s.materialTabs[s.actor]=stage;
     const descriptions={drafts:'尚未提交的内容和退回更正的原稿，可以继续完善。',pending:'已提交给本人，确认后会进入对应档案。',archived:'已确认保存的资料与人生经历，沿用原分享范围。'};
-    const empty={drafts:'没有未完成的草稿。',pending:'没有等待本人核对的资料。',archived:'还没有已归档的内容。'};
+    const empty={drafts:'暂无草稿或退回的资料。',pending:'没有等待本人核对的资料。',archived:'还没有已收录的内容。'};
     const tabs=Object.entries(STAGES).map(([key,label])=>b(`<span>${label}</span><small>${groups[key].length}</small>`,'material-stage',key===stage?'active':'',`data-stage="${key}" role="tab" id="material-tab-${key}" aria-controls="material-stage-panel" aria-selected="${key===stage}"`)).join('');
-    return `<div class="page feature-page"><p class="page-subtitle">草稿、核对进度和归档结果，分开查看。</p><div class="material-stage-tabs" role="tablist" aria-label="提交进度">${tabs}</div><section id="material-stage-panel" class="material-stage-panel" role="tabpanel" aria-labelledby="material-tab-${stage}"><p class="caption">${descriptions[stage]}</p><div class="section stack">${groups[stage].join('')||`<div class="empty"><p>${empty[stage]}</p></div>`}</div></section>${l('去人生印记添加资料','life','text-link full section')}<p class="caption section">演示内容只保存在当前页面，刷新或重置会还原。</p></div>`;
+    return `<div class="page feature-page"><div class="material-stage-tabs" role="tablist" aria-label="提交进度">${tabs}</div><section id="material-stage-panel" class="material-stage-panel" role="tabpanel" aria-labelledby="material-tab-${stage}"><p class="caption">${descriptions[stage]}</p><div class="section stack">${groups[stage].join('')||`<div class="empty"><p>${empty[stage]}</p></div>`}</div></section>${l('去人生印记添加资料','life','text-link full section')}<p class="caption section">演示内容只保存在当前页面，刷新或重置会还原。</p></div>`;
   }
   /** 保存或提交后直接显示对应阶段；切换选择只属于当前账号。 */
   function open(stage){if(!Object.hasOwn(STAGES,stage))return;P.state.materialTabs[P.state.actor]=stage;P.navigate('materials');}
@@ -127,14 +127,14 @@
   function inbox() {
     const s=P.state,materials=s.materialSubmissions.filter(item=>item.subject===s.actor&&item.status==='pending');
     const experiences=s.pending.filter(item=>item.subject===s.actor&&item.status==='pending');
-    return `<div class="page feature-page"><h1 class="page-title">待我核对</h1><p class="page-subtitle">家人提交给你的资料和人生经历，确认后才进入你的档案。</p><div class="section stack">${materials.map(submissionCard).join('')+experiences.map(item=>experienceCard(item,true)).join('')||'<p class="caption">暂时没有需要你核对的资料。</p>'}</div>${l('返回我的','profile','text-link full')}</div>`;
+    return `<div class="page feature-page profile-section-page"><p class="page-subtitle">家人提交给你的资料和人生经历，确认后才进入你的档案。</p><div class="section stack">${materials.map(submissionCard).join('')+experiences.map(item=>experienceCard(item,true)).join('')||'<p class="caption">暂时没有需要你核对的资料。</p>'}</div>${l(i('back') + '返回我的', 'profile', 'paper-link paper-outline profile-section-back section')}</div>`;
   }
   /** 引用原记录并区分共同回忆是否已纳入，退回更正仍走原补充流程。 */
   function experienceCard(item,reviewing) {
     const target=item.commonWith||item.subject;
-    let status='已归档';
-    if(item.status==='pending')status='等待本人核对';
-    else if(item.status==='returned')status='已退回更正';
+    let status='已收录';
+    if(item.status==='pending')status='待核对';
+    else if(item.status==='returned')status='退回修改';
     else if(item.commonWith&&!P.FamilyContext.inArchive(item,target))status=item.scope==='private'?'仅自己保存':item.inclusions?.[target]?.reviewed?'未纳入对方传记':'等待对方确认';
     const actions=reviewing?b('确认并归档','approve-pending','btn secondary',`data-id="${item.id}"`)+b('退回更正','return-pending','text-link',`data-id="${item.id}"`):item.status==='returned'?b('按意见更正','edit-pending','text-link',`data-id="${item.id}"`):!item.status?l('查看这段经历','story/'+item.id,'text-link'):'';
     return `<article class="card"><h3>${e(item.title)}</h3><p class="caption">${item.commonWith?'共同回忆':'经历'} · ${e(P.PEOPLE[target].name)} · ${status} · ${item.scope==='private'?'仅自己':item.scope==='selected'?'指定家人':'家庭可见'}</p><p class="feature-prose">${e(item.text.join('\n\n'))}</p>${item.feedback?`<p>${e(item.feedback)}</p>`:''}${actions}</article>`;
@@ -162,7 +162,7 @@
     const canReview=item.subject===P.state.actor&&item.status==='pending';
     // 缩略图只来自本次待核对快照，不能借展示卡把它发布到人物正式档案。
     const photo=['photo','work'].includes(item.asset?.kind)?item.asset.src:'';
-    return `<article class="card">${photo?`<img class="material-card-photo" src="${e(photo)}" alt="待核对资料缩略图">`:''}<h3>${e(item.title)}</h3><p>${t(item.status==='pending'?'等待本人核对':item.status==='returned'?'已退回更正':'已归档',item.status==='pending'?'warm':'gray')}</p><p class="caption">${e(P.PEOPLE[item.author].name)}提供 → ${e(P.PEOPLE[item.subject].name)}</p>${item.feedback?`<p>${e(item.feedback)}</p>`:''}${canReview?b('核对这份资料','material-inspect','btn secondary compact',`data-id="${item.id}"`):item.status==='returned'&&item.author===P.state.actor?b('按意见更正','material-revise','text-link',`data-id="${item.id}"`):''}</article>`;
+    return `<article class="card">${photo?`<img class="material-card-photo" src="${e(photo)}" alt="待核对资料缩略图">`:''}<h3>${e(item.title)}</h3><p>${t(item.status==='pending'?'待核对':item.status==='returned'?'退回修改':'已收录',item.status==='pending'?'warm':'gray')}</p><p class="caption">${e(P.PEOPLE[item.author].name)}提供 → ${e(P.PEOPLE[item.subject].name)}</p>${item.feedback?`<p>${e(item.feedback)}</p>`:''}${canReview?b('核对这份资料','material-inspect','btn secondary compact',`data-id="${item.id}"`):item.status==='returned'&&item.author===P.state.actor?b('按意见更正','material-revise','text-link',`data-id="${item.id}"`):''}</article>`;
   }
   /** 家庭成员新上传的资料直接入档，原有资料更正与替家人提交继续走核对。 */
   function isFamilyUpload(r){

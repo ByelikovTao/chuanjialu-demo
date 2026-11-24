@@ -52,10 +52,10 @@
     }
     return roomRuntime;
   }
-  /** 空间与数字人共用当前账号的亲属称呼，本人查看时使用中性操作文案。 */
+  /** 场景导览使用当前账号的亲属称呼，本人查看时使用中性文案。 */
   function familyLabels() {
     const role=P.relation('father'),name=role==='家人'?P.PEOPLE.father.name:role;
-    return P.state.actor==='father'?{guide:'跟着回忆逛一逛',ask:'围绕这段经历提问'}:{guide:`跟着${name}逛一逛`,ask:`问问${name}`};
+    return P.state.actor==='father'?{guide:'跟着回忆逛一逛'}:{guide:`跟着${name}逛一逛`};
   }
   /** 全景素材失败时仍可读故事，旋转和定位需等该观察方式恢复。 */
   function cameraReady(host=active?.host) {return Boolean(active&&active.host===host&&!(settings().mode==='tour'&&host.dataset.panoramaState==='error'));}
@@ -73,7 +73,7 @@
     if(!P.state.spaceStoryOpen)return `<div class="memory-welcome"><div><span class="memory-kicker">${P.state.year} · 同一个家的不同年代</span><h2>${era?.title || '老家的客厅'}</h2>${detail ? `<p>${detail}</p>` : ''}</div>${b(i('play')+' '+e(labels.guide),'scene-guide','btn full')}<span class="memory-demo-note">AI 全景与三维模型示例 · 依据回忆复原</span></div>`;
     const id=ITEMS[P.state.hotspot]?P.state.hotspot:'desk',item=ITEMS[id],readable=P.visibleStories().some(story=>story.id===item.source);
     const source=readable?b(i('source')+' '+e(item.sourceLabel || '查看原始记录'),'listen','btn secondary compact',`data-id="${item.source}"`):P.link('申请查看相关故事','story/'+item.source,'btn secondary compact');
-    return `<div class="scene-sheet"><div class="memory-sheet-heading"><div><p class="memory-kicker">${P.state.year} · ${P.state.guide?'跟随讲述':'物件里的故事'}</p><h2>${readable?item.title:item.label}</h2></div>${b(i('close'),'space-close-story','icon-button','aria-label="收起故事面板"')}</div><p>${readable?item.text:'关联故事暂未向当前账号开放。可以向记录本人申请查看。'}</p><div class="memory-story-actions">${source}${b('查看物件','space-focus','btn outline compact',`data-value="${id}" ${cameraReady()?'':'disabled'}`)}${P.state.guide?b('下一处 '+i('arrow'),'space-next','text-link'):''}</div>${b(i('chat')+' '+e(labels.ask),'ask-space','btn full',`data-id="${id}"`)}<span class="memory-demo-note">AI 全景与三维模型示例，不代表真实老宅扫描</span></div>`;
+    return `<div class="scene-sheet"><div class="memory-sheet-heading"><div><p class="memory-kicker">${P.state.year} · ${P.state.guide?'跟随讲述':'物件里的故事'}</p><h2>${readable?item.title:item.label}</h2></div>${b(i('close'),'space-close-story','icon-button','aria-label="收起故事面板"')}</div><p>${readable?item.text:'关联故事暂未向当前账号开放。可以向记录本人申请查看。'}</p><div class="memory-story-actions">${source}${b('查看物件','space-focus','btn outline compact',`data-value="${id}" ${cameraReady()?'':'disabled'}`)}${P.state.guide?b('下一处 '+i('arrow'),'space-next','text-link'):''}</div>${b(i('chat')+' 去 AI问家提问','ask-space','btn full',`data-id="${id}"`)}<span class="memory-demo-note">AI 全景与三维模型示例，不代表真实老宅扫描</span></div>`;
   }
   /** 说明可收成单行入口，为全景与模型留出画面，故事内容按原权限在展开时生成。 */
   function storyDock() {

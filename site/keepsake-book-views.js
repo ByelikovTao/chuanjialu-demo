@@ -3,15 +3,23 @@
 {
   const P=window.App,K=P.KeepsakeBooks,{escape:e,button:b,link:l,badge:t,icon:i}=P;
   /** 未授权的直达地址展示空态，不输出其他人的书名或材料。 */
-  function empty() {return `<div class="page"><div class="empty">${i('book')}<h2>暂无可查看的纪念书</h2><p>仅可查看自己制作或授权查看的纪念书。</p></div>${l('返回我的纪念书','books','btn secondary full')}</div>`;}
+  function empty() {return `<div class="page"><div class="empty">${i('book')}<h2>暂无可查看的纪念书</h2><p>仅可查看自己制作或授权查看的纪念书。</p></div>${l('返回纪念书稿','books','btn secondary full')}</div>`;}
   /** 两种状态分开展示，完成定稿不等于已经付款或发货。 */
   function statuses(book) {const labels=K.PHASES[book.phase];return `<div class="tags">${t('书稿 · '+labels[0])}${t('订单 · '+labels[1],'warm')}</div>`;}
   /** 封面书名和人物始终取当前书稿，右侧照片仅用于对应的陈远山示例。 */
   function bookDisplay(book) {return `<div class="book-display" data-book-person="${P.state.familyWorkspace?'family':e(book.subject)}"><h2>${e(book.title)}</h2><p>${e(P.PEOPLE[book.subject].name)} · 家庭私藏</p></div><p class="caption">档案主人：${e(P.PEOPLE[book.subject].name)}（本人）</p>`;}
   /** 我的页面保留已有书稿；新制作只引导已完成视频建档的本人进入自己的档案。 */
   function list() {
-    const books=P.state.keepsakeBooks.filter(K.readable),canStart=K.canStart(P.state.actor);
-    return `<div class="page keepsake-page"><p class="eyebrow">留给家人的一本书</p><h1 class="page-title">我的纪念书</h1><p class="page-subtitle">把走过的岁月，留给最爱的人。</p><div class="section stack">${books.length?books.map(book=>`<article class="book-list-item">${bookDisplay(book)}<div class="card section">${statuses(book)}${l('查看书稿与制作进度','book-order/'+book.id,'btn outline full section')}</div></article>`).join(''):`<div class="empty">${i('book')}<h2>第一本纪念书，从已有故事开始</h2><p>${canStart?'进入自己的人物档案，选择想留给家人的内容。':'先添加自己有权使用的故事、照片或作品，再开始选材。'}</p></div>`}</div>${canStart?l('去我的人生印记制作','life/'+P.state.actor,'btn full section'):''}<p class="caption section">专业编辑、样书和印制单独报价，已有的档案整理不重复收费。</p></div>`;
+    const books = P.state.keepsakeBooks.filter(K.readable);
+    const canStart = K.canStart(P.state.actor);
+    const entries = books.map(book => {
+      const editable = book.phase === 'draft' && K.pendingActor(book) === P.state.actor;
+      const target = (editable ? 'book-edit/' : 'book-order/') + e(book.id);
+      const label = editable ? '继续编辑书稿' : '查看书稿与制作进度';
+      return `<article class="book-list-item">${bookDisplay(book)}<div class="card section">${statuses(book)}${l(label, target, 'btn outline full section')}</div></article>`;
+    });
+    const emptyCopy = canStart ? '进入自己的人物档案，选择想留给家人的内容。' : '先添加自己有权使用的故事、照片或作品，再开始选材。';
+    return `<div class="page keepsake-page"><div class="stack">${entries.length ? entries.join('') : `<div class="empty">${i('book')}<h2>暂无纪念书稿</h2><p>${emptyCopy}</p></div>`}</div>${canStart ? l('去我的人生印记制作', 'life/' + P.state.actor, 'btn full section') : ''}<p class="caption section">专业编辑、样书和印制单独报价，已有的档案整理不重复收费。</p></div>`;
   }
   /** 选材展示已授权资料缩略图并保留提供者；未经入书授权的他人素材明确禁选。 */
   function sourceRow(item,book) {
@@ -42,12 +50,12 @@
   }
   /** 当前阶段只显示客户能够执行的下一步，本人定稿与发起人付款分别处理。 */
   function next(book) {
-    const owner=book.subject===P.state.actor,payer=book.creator===P.state.actor;
-    const map={draft:[payer,'继续选材','edit'],quote:[payer,'确认示例报价，模拟支付编辑费','edit-payment'],proof:[owner,'已看完整校样，确认定稿','finalize'],sample:[payer&&!book.paid.sample,'模拟支付样书费','sample-payment'],sampleReview:[owner,'样书已核对，确认印制','sample-approve'],printPayment:[payer,'模拟支付印制费','print-payment'],shipped:[payer,'确认收到纪念书','received'],delivered:[true,'查看交付清单','files']};
+    const map={draft:['继续选材','edit'],quote:['确认示例报价，模拟支付编辑费','edit-payment'],proof:['已看完整校样，确认定稿','finalize'],sample:['模拟支付样书费','sample-payment'],sampleReview:['样书已核对，确认印制','sample-approve'],printPayment:['模拟支付印制费','print-payment'],shipped:['确认收到纪念书','received'],delivered:['查看交付清单','files']};
+    const pendingActor = K.pendingActor(book);
     const item=map[book.phase];
-    if(!item||!item[0])return `<p class="caption section">${book.phase==='editing'?'编辑正在整理校样，完成后交本人核对。':book.phase==='sample'?'等待样书制作与寄送。':book.phase==='printing'?'印厂按已确认版本制作。':book.phase==='cancelRequested'?'后续制作已暂停，顾问核算已完成项目与未发生费用后联系你。':book.phase==='aftercare'?'顾问会核对问题、交付版本和处理方案。':book.phase==='cancelled'?'此项制作已取消。':'等待'+e(P.PEOPLE[book.phase==='proof'||book.phase==='sampleReview'?book.subject:book.creator].name)+'处理当前确认事项。'}</p>`;
-    if(item[2]==='edit')return l(item[1],'book-edit/'+book.id,'btn full section');
-    return b(item[1],'book-'+item[2],'btn full section');
+    if(!item||(book.phase!=='delivered'&&pendingActor!==P.state.actor))return `<p class="caption section">${book.phase==='editing'?'编辑正在整理校样，完成后交本人核对。':book.phase==='sample'?'等待样书制作与寄送。':book.phase==='printing'?'印厂按已确认版本制作。':book.phase==='cancelRequested'?'后续制作已暂停，顾问核算已完成项目与未发生费用后联系你。':book.phase==='aftercare'?'顾问会核对问题、交付版本和处理方案。':book.phase==='cancelled'?'此项制作已取消。':'等待'+e(P.PEOPLE[pendingActor || book.creator].name)+'处理当前确认事项。'}</p>`;
+    if(item[1]==='edit')return l(item[0],'book-edit/'+book.id,'btn full section');
+    return b(item[0],'book-'+item[1],'btn full section');
   }
   /** 进度不冒充真实印厂回传，演示发货单号明确标示为示例。 */
   function progress(book) {
@@ -67,7 +75,7 @@
     const book=K.current();if(!book)return empty();
     const blocked=!['draft','cancelled','cancelRequested'].includes(book.phase)&&!K.ready(book);
     const showcase=K.ready(book)&&['proof','sampleReview','shipped','delivered','aftercare'].includes(book.phase)?`<section class="card section order-book-preview">${bookDisplay(book)}${l('查看完整书稿 · V'+book.version,'book-preview/'+book.id,'btn outline full section')}</section>`:'';
-    return `<div class="page keepsake-page"><p class="eyebrow">${e(P.PEOPLE[book.subject].name)} · 家庭私藏纪念书</p><h1 class="page-title">${e(book.title)}</h1>${statuses(book)}${customizationLink(book)}${progress(book)}${showcase}<section class="card section"><h2>这一步，慢慢确认</h2><p class="caption">内容由${e(P.PEOPLE[book.subject].name)}本人定稿，费用由发起人${e(P.PEOPLE[book.creator].name)}确认。付费不代替内容授权。</p>${blocked?'<p class="notice section">资料权限有变化，已暂停后续操作，请联系本人和提供者重新核对。</p>':next(book)}${K.ready(book)?l('查看完整书稿 · V'+book.version,'book-preview/'+book.id,'btn outline full section'):''}</section><section class="section"><div class="section-heading"><h2>本书选材</h2><span class="caption">${book.keys.length} 项</span></div>${K.selected(book).map(item=>`<p class="book-source-summary">${i(item.asset?.kind==='photo'?'photo':'book')}${e(item.title)}</p>`).join('')}${K.selected(book).length!==book.keys.length?'<p class="caption">部分资料当前不可查看，不能继续定稿与送印。</p>':''}</section>${fees(book)}${['shipped','delivered','aftercare'].includes(book.phase)?'<div class="note section"><strong>交付与寄送</strong><p>电子阅读 PDF、印刷文件及实体书 3 册。</p><p>示例物流：纪念书寄送 · DEMO-001</p><p class="caption">演示地址：由服务顾问在寄送前与你核对。</p></div>':''}${book.notes.length?`<section class="note section"><strong>最近的修改意见</strong><p>V${book.notes.at(-1).version} · ${e(book.notes.at(-1).text)}</p></section>`:''}${book.serviceNote?`<div class="note section"><strong>服务申请</strong><p>${e(book.serviceNote)}</p></div>`:''}${support(book)}${l('返回我的纪念书','books','text-link full section')}</div>`;
+    return `<div class="page keepsake-page"><p class="eyebrow">${e(P.PEOPLE[book.subject].name)} · 家庭私藏纪念书</p><h1 class="page-title">${e(book.title)}</h1>${statuses(book)}${customizationLink(book)}${progress(book)}${showcase}<section class="card section"><h2>这一步，慢慢确认</h2><p class="caption">内容由${e(P.PEOPLE[book.subject].name)}本人定稿，费用由发起人${e(P.PEOPLE[book.creator].name)}确认。付费不代替内容授权。</p>${blocked?'<p class="notice section">资料权限有变化，已暂停后续操作，请联系本人和提供者重新核对。</p>':next(book)}${K.ready(book)?l('查看完整书稿 · V'+book.version,'book-preview/'+book.id,'btn outline full section'):''}</section><section class="section"><div class="section-heading"><h2>本书选材</h2><span class="caption">${book.keys.length} 项</span></div>${K.selected(book).map(item=>`<p class="book-source-summary">${i(item.asset?.kind==='photo'?'photo':'book')}${e(item.title)}</p>`).join('')}${K.selected(book).length!==book.keys.length?'<p class="caption">部分资料当前不可查看，不能继续定稿与送印。</p>':''}</section>${fees(book)}${['shipped','delivered','aftercare'].includes(book.phase)?'<div class="note section"><strong>交付与寄送</strong><p>电子阅读 PDF、印刷文件及实体书 3 册。</p><p>示例物流：纪念书寄送 · DEMO-001</p><p class="caption">演示地址：由服务顾问在寄送前与你核对。</p></div>':''}${book.notes.length?`<section class="note section"><strong>最近的修改意见</strong><p>V${book.notes.at(-1).version} · ${e(book.notes.at(-1).text)}</p></section>`:''}${book.serviceNote?`<div class="note section"><strong>服务申请</strong><p>${e(book.serviceNote)}</p></div>`:''}${support(book)}${l('返回纪念书稿','books','text-link full section')}</div>`;
   }
   Object.assign(P.views,{books:list,'book-edit':edit,'book-preview':preview,'book-order':order});
 }

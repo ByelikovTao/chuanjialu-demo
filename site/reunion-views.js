@@ -18,7 +18,7 @@
   /** 列表只包含本账号发出的邀请，不把家庭关系当作查看权限。 */
   function albums() {
     const rows=P.Reunion.state().invitations.filter(row=>row.owner===P.state.actor);
-    return `<div class="page memory-page">${heading('我的共忆相册')}<p>同一段往事，珍藏不同人的记忆。</p>${rows.length?rows.map(row=>`<article class="memory-share-card"><h2>${e(row.title)}</h2><p>${e(row.caption)}</p>${button('翻开这本共忆','open',`data-id="${e(row.ref)}"`)}</article>`).join(''):'<p class="memory-empty section">还没有发出的共忆邀请，先选一张老朋友也记得的照片吧。</p>'}<button type="button" class="btn secondary" data-memory="open">挑一段往事</button>${l('返回我家','home','text-link section')}</div>`;
+    return `<div class="page memory-page">${heading('我的共忆相册')}<p>同一段往事，留下各自的记忆。</p>${rows.length?rows.map(row=>`<article class="memory-share-card"><h2>${e(row.title)}</h2><p>${e(row.caption)}</p>${button('翻开这本共忆','open',`data-id="${e(row.ref)}"`)}</article>`).join(''):'<p class="memory-empty section">还没有发出的共忆邀请，先选一张老朋友也记得的照片吧。</p>'}<button type="button" class="btn secondary" data-memory="open">挑一段往事</button>${l('返回我家','home','text-link section')}</div>`;
   }
   Object.assign(P.views,{'reunion-album':album,'reunion-albums':albums});
 }

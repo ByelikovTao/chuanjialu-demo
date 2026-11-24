@@ -14,7 +14,7 @@
   }
   /** 对话页用共享答复次数说明额度，不能再用未接入的语音分钟数收费。 */
   function chatQuota(id) {
-    if(P.state.familyWorkspace||P.state.accounts[id]?.standaloneDigital)return `<div class="notice billing-chat-quota"><span>独立数字人服务 · 按本人授权使用</span>${l('服务与订单','service-orders')}</div>`;
+    if(P.state.familyWorkspace||P.state.accounts[id]?.standaloneDigital)return `<div class="notice billing-chat-quota"><span>独立数字人服务 · 按本人授权使用</span>${l('订单与进度','service-orders')}</div>`;
     const p=B.period(id);return `<div class="notice billing-chat-quota"><span>${p?'全家剩余 '+Math.max(0,R.qa-p.qaUsed)+' 次有效答复／本年度':'年度AI服务已到期，可看历史资料并留问本人'}${p&&p.qaUsed/R.qa>=.8?' · 已使用 '+Math.floor(p.qaUsed/R.qa*100)+'%':''}</span>${l('共享权益','membership')}</div>`;}
   /** 公共权益说明不展示其他家庭成员的私聊内容。 */
   function quota(person) {
@@ -38,12 +38,11 @@
       ${b('导出我的资料迁出清单','billing-export','text-link',`data-person="${person}"`)}
     </section>`;
   }
-  /** 年度服务由本人或获授权家属开通，互动数字人建档在结算时按需选。 */
+  /** 年度服务由本人或获授权家属开通。 */
   function membership() {
     const id=person(),ids=people();
     if(!id)return `<div class="page"><h1 class="page-title">家人免费参与</h1><p>年度服务仅向已完成人生故事片交付建档的人物开放。受邀查看、手动补充、留言、回答纠正和共同章节均免费。建立自己的完整人生空间，可选 ¥15,000 人生故事片试点服务。</p>${l('查看完整收费方案','billing-plan','btn full section')}${b('了解人生故事片','video-service','text-link')}</div>`;
-    const p=B.period(id),ac=P.state.accounts[id];
-    const setupNote=ac.setupIncluded?'本次人生故事片已含互动数字人建档。':ac.hasDigital||ac.setupOrdered?'该人物的互动数字人已建档或已预约制作。':'如需单独制作互动数字人，可另选建档 ¥'+R.setup+'。';
+    const p=B.period(id);
     return `<div class="page membership-page ${p?'':'membership-expired'}">
       <h1 class="page-title">${p?'一家人，一起留下故事':'年度服务已到期或未开通'}</h1>
       <label for="billing-person" class="caption">选择已建档人物</label>
@@ -60,12 +59,10 @@
           <li>AI 能力以功能开通和本人授权为准。</li>
         </ul>
         ${p?quota(id):''}
-        <p class="caption">${setupNote}</p>
         ${b(p?'续费下一年':'开通年度服务','billing-checkout','btn full section',`data-person="${id}" data-kind="annual"`)}
       </div>
       ${p?expiry(id):''}
-      ${l('收到的心意','share-gifts','btn secondary full section')}
-      ${l('服务订单','service-orders','text-link full section')}
+      ${l('订单与进度','service-orders','text-link full section')}
       ${l('查看完整收费方案','billing-plan','text-link full section')}
       <p class="caption section">当前仅演示收费、容量和扣次规则，刷新还原。</p>
       ${demoTools(id)}
@@ -78,33 +75,24 @@
     const items=P.state.billingOrders.filter(item=>item.actor===P.state.actor);
     return `<div class="page"><h1 class="page-title">服务订单</h1><p class="caption">内存演示，无真实扣款。代付不改变被记录人物的授权。</p><div class="stack section">${items.length?[...items].reverse().map(item=>`<article class="card"><h2>${e(P.PEOPLE[item.person].name)} · ${item.kind==='annual'?ANNUAL_TITLE:item.kind==='custody'?'历史保管订单':'纪念书编辑'}</h2><p>实付 ¥${item.cash}${item.setup?'（含建档 ¥'+item.setup+'）':''}</p><p>${item.start||item.date} ${item.end?'至 '+item.end:''}${item.refunded?' · 已取消':''}</p>${B.refundable(item)?b('撤销未开始的续费（演示）','billing-refund','text-link',`data-id="${item.id}"`):''}</article>`).join(''):'<p>暂无订单。</p>'}</div>${l('返回会员服务','membership','btn full')}</div>`;
   }
-  /** 另选建档时重新报价，年费默认只包含 AI 与档案保管。 */
+  /** 年费统一进入家庭会员页；编辑费按当前书稿单独确认，只绑定本次核定的报价和支付人。 */
   function checkout(person,kind,bookId='',includeSetup=false) {
     if(kind==='annual'){P.navigate('membership');return;}
     const q=B.quote(person,kind,bookId,includeSetup);
     if(!q)return P.toast('当前不能购买这项服务，请核对交付、授权和服务状态。');
     const request={state:P.state,actor:P.state.actor,person,kind,bookId,includeSetup,fingerprint:JSON.stringify(q),paid:false};
-    const setupOption=kind==='annual'&&B.canOrderSetup(person)?`<label class="check-row section"><input id="billing-include-setup" type="checkbox" ${includeSetup?'checked':''}>另选互动数字人建档（¥${R.setup.toLocaleString('zh-CN')}）</label>`:'';
-    const details=kind==='annual'
-      ? `${ANNUAL_TITLE} · ${q.start} 至 ${q.end}。本次为这位已建档人物开通或续费一年。`
-      : '纪念书编辑服务。';
-    P.modal('确认这次服务',`
-      <div class="checkout-people">
-        <div>${P.avatar(person)}<span>${kind==='annual'?'已建档人物':'服务人物'}：${e(P.PEOPLE[person].name)}</span></div>
-        <div>${P.avatar(P.state.actor)}<span>付款账号：${e(P.PEOPLE[P.state.actor].name)}</span></div>
-      </div>
-      <p>服务 ¥${q.price}${q.setup?' ＋ 建档 ¥'+q.setup:''}</p>
-      <h2 class="section">本次实付 ¥${q.cash}</h2>
-      <p class="caption">${details}</p>
-      ${setupOption}
-      <form id="billing-pay-form" class="section">
-        <label class="check-row section"><input name="agree" type="checkbox" required><span>我确认服务范围及演示实付金额。付款不扩大资料权限。</span></label>
-        <button type="submit" class="btn full section">确认演示支付</button>
-      </form>`,'sheet');
-    for(const id of ['billing-pay-form','billing-include-setup']){
-      const element=document.getElementById(id);
-      if(element)element.billingRequest=request;
-    }
+    const subject = e(P.PEOPLE[person].name);
+    const payer = person === P.state.actor ? `由${subject}本人付款` : `为${subject}制作，由${e(P.PEOPLE[P.state.actor].name)}付款`;
+    P.modal('确认编辑与排版费', `
+      <p class="family-sheet-summary">${payer}。样书和印制费用分阶段确认。</p>
+      <form id="billing-pay-form">
+        <label class="check-row"><input name="agree" type="checkbox" required><span>我确认服务范围及演示金额。付款不扩大资料权限。</span></label>
+        <div class="family-sheet-footer">
+          <div class="family-sheet-price"><span>本次模拟支付</span><strong>¥${q.cash.toLocaleString('zh-CN')}</strong></div>
+          <button type="submit" class="btn">确认演示支付</button>
+        </div>
+      </form>`, 'sheet', undefined, {eyebrow: '纸质纪念书', closeLabel: '返回纪念书订单', familySheet: true});
+    document.getElementById('billing-pay-form').billingRequest = request;
   }
   /** 主套餐先列交付和付款节点，再列统一年费及可选制作费用。 */
   function plan() {
@@ -136,9 +124,8 @@
           <p>AI 能力以功能开通和本人授权为准。每次文字整理最多 ${R.textLimit.toLocaleString('zh-CN')} 字。</p>
         </section>
         <section class="note">
-          <h2>互动数字人建档与首年合计</h2>
-          <p>确需单独制作互动数字人时，可另选建档 ¥${R.setup.toLocaleString('zh-CN')}／次。片内 AI 制作包含在主套餐里。</p>
-          <p>影片和基础档案 ¥${filmPrice.toLocaleString('zh-CN')}。加一年年度服务共 ¥${firstYear.toLocaleString('zh-CN')}。同时选购独立建档时，首年共 ¥${(firstYear+R.setup).toLocaleString('zh-CN')}。</p>
+          <h2>影片与首年服务合计</h2>
+          <p>影片和基础档案 ¥${filmPrice.toLocaleString('zh-CN')}。加一年年度服务共 ¥${firstYear.toLocaleString('zh-CN')}。</p>
         </section>
         <section class="note">
           <h2>档案保管与到期</h2>
@@ -181,16 +168,9 @@
     P.closeModal();P.render();P.toast('演示服务已确认，未发生真实扣款。');return true;
   }
   document.addEventListener('change',event=>{
-    const option=event.target;
-    if(option.id==='billing-person'){
-      P.state.billingPeople[P.state.actor]=option.value;
-      P.render();
-      return;
-    }
-    if(option.id!=='billing-include-setup')return;
-    const r=option.billingRequest;
-    if(r?.state!==P.state||r.actor!==P.state.actor||r.paid)return;
-    checkout(r.person,r.kind,r.bookId,option.checked);
+    if(event.target.id!=='billing-person')return;
+    P.state.billingPeople[P.state.actor]=event.target.value;
+    P.render();
   });
   P.BillingViews={membership,profileSummary,chatQuota,quota,checkout,handleAction,submit};
   Object.assign(P.views,{'billing-plan':plan,'service-orders':orders});

@@ -199,7 +199,7 @@
     const recordAction=person===s.actor?b('记录一刻','material-new','btn full',`data-person="${e(person)}" data-kind="biography"`):l('记录一刻','record','btn full');
     let body=tab==='overview'?overview(person):tab==='video'?videoView(person):tab==='biography'?biographyView(person):tab==='place'?placeView(person):listing(person,tab);
     // 人物主页与人物志共用交付和授权判断，进入资料分类后专注于浏览该类内容。
-    if (tab === 'overview') body = P.Households.storyPersonServices(person, '返回人物档案') + body;
+    if (tab === 'overview') body = P.Households.storyPersonServices(person) + body;
     // 仅陈远山使用其已有二维示例封面，其余人物保留各自头像，避免错配人物。
     return `<div class="page person-archive-page" data-archive-person="${e(person)}"><div class="archive-cover-heading">${s.actor==='father'?`<div class="form-field archive-person-picker"><label for="archive-person-select">当前查看的人物档案</label><select id="archive-person-select">${s.members.map(id=>`<option value="${id}" ${person===id?'selected':''}>${e(P.PEOPLE[id].name)} · ${e(P.relation(id))}</option>`).join('')}</select></div>`:person!==s.actor?P.FamilyContext.picker():''}<div class="person-heading">${a(person,'large')}<div><h1 class="page-title">${e(P.PEOPLE[person].name)}</h1><p class="caption">${e(P.PEOPLE[person].name)}的人物档案</p><p class="caption">${e(P.relation(person))}${P.PEOPLE[person].born?' · '+e(P.PEOPLE[person].born)+' 年生':''}</p></div></div><p class="page-subtitle">${e(profile?.tagline || '在这里保存影片、相片、传记与创作。')}</p></div>${P.KeepsakeBooks.entry(person)}<div class="section ${tab==='overview'?'':'heritage-family-shortcuts'}">${tab==='overview'?'':l('全家共同往事','house-stories/family','btn secondary')}${recordAction}</div>${shortcuts(person)}<nav class="archive-secondary-tabs" aria-label="档案浏览视角">${['overview','place'].map(id=>b(TABS[id],'archive-tab',tab===id?'active':'',`data-value="${id}"`)).join('')}</nav><section class="archive-content" data-archive-tab="${tab}">${addEntry(person,tab)}${body}</section><p class="archive-demo-note">${s.familyWorkspace?'此家庭的资料来自当前演示填写和选择的文件。':'示例人物与示例资料。'}</p></div>`;
   }
@@ -224,8 +224,9 @@
     const fromList=P.Households.fromStoryList();
     const from=s.history?.at(-1)?.split('/')[0];
     const fromHomeAlbum=from==='home'&&s.albumReturn?.route==='archive-item/'+s.archiveItemId;
-    const listLabel=fromHomeAlbum?'返回相册':{'house-baby':'返回成长相册','house-elders':'返回有声相册','house-assistant':'返回'+P.FamilyAssistant.title}[from]||'返回记录';
-    const returnControl=fromList||fromHomeAlbum||from==='house-assistant'?b(listLabel,'back','btn'):l('返回记录','house-stories','btn');
+    const fromFilmIntro = from === 'house-film-intro';
+    const listLabel=fromHomeAlbum?'返回相册':{'house-baby':'返回成长相册','house-elders':'返回有声相册','house-assistant':'返回'+P.FamilyAssistant.title,'house-film-intro':'返回影片介绍'}[from]||'返回记录';
+    const returnControl=fromList||fromHomeAlbum||from==='house-assistant'||fromFilmIntro?b(listLabel,'back','btn'):l('返回记录','house-stories','btn');
     if(!item)return `<div class="page empty"><h2>没有找到这份档案资料</h2>${returnControl}</div>`;
     if(!assetReadable(item))return `<div class="page empty">${i('lock')}<h2>这份资料暂未向你开放</h2>${returnControl}</div>`;
     const context=origin(item),video=['film','clip'].includes(item.kind),label=video?VIDEO_FILTERS[videoType(item,context.person)]:TYPES[item.kind];
@@ -256,7 +257,7 @@
       ['关联家人',P.Households.relatedMemberNames(item)],
       ['分享范围',item.scope==='private'?'仅自己':item.scope==='selected'?'指定家人':'已授权家庭成员']
     ]);
-    const back=fromList||fromHomeAlbum?b(i('back')+' '+listLabel,'back','text-link'):
+    const back=fromList||fromHomeAlbum||fromFilmIntro?b(i('back')+' '+listLabel,'back','text-link'):
       b(i('back')+' '+e(returnLabel(context)),'archive-return','text-link',`data-id="${item.id}"`);
     return `<div class="page archive-detail">${back}<p class="eyebrow section">${label} · ${item.materialManaged?'家庭记录':'示例档案'}</p><h1 class="page-title">${e(item.title)}</h1><p class="caption">${e(item.date)}</p><div class="archive-player section">${media}</div>${download}${video?captionsView(item):''}${item.kind==='film'?P.FamilyMemories?.filmContribution?.(item)||'':''}${meta}${item.kind==='photo'?'':`<p class="story-paragraph">${e(item.description)}</p>`}<div class="note"><strong>资料来源</strong><p>${e(item.sourceLabel)}</p></div>${item.relatedStoryId && item.relatedStoryId!==context.storyId && P.visibleStories().some(story=>story.id===item.relatedStoryId)?l('查看关联人生事件','story/'+item.relatedStoryId,'btn secondary full section'):''}</div>`;
   }

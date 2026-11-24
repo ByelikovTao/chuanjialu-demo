@@ -746,7 +746,7 @@
   margin: 0;
 }
 
-/* 复用优选的三列两行商品图集，右下角是爸妈大屏相框。 */
+/* 复用优选的三列两行商品图集，右下角是传家相框。 */
 .briefing-gift-photo {
   aspect-ratio: 1;
   border-radius: 8px;
@@ -857,7 +857,7 @@
   font-weight: 600;
 }
 
-.briefing-comparison-product p + p {
+.briefing-comparison td p + p:not(.briefing-comparison-sources) {
   margin-top: 4px;
 }
 

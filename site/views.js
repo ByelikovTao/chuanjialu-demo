@@ -19,7 +19,6 @@
       const waiting=(s.accessRequests || []).some(request=>request.actor===s.actor && request.storyId===s.storyId && ['pending','pending-owner'].includes(request.status));
       return `<div class="page"><div class="empty">${i('lock')}<h2>这段内容暂未向你开放</h2><p>${waiting?'查看申请已提交，等待记录本人决定。':'你可以向记录本人申请查看，也可以返回已分享的故事。'}</p>${b(waiting?'等待本人授权':'申请查看','request-access','btn',waiting?'disabled':'')}${l('返回记录','house-stories','text-link full')}</div></div>`;
     }
-    const saved=s.saved.includes(item.id);
     const legacyPhoto=Boolean(item.photoToken&&!item.photoQuestion);
     const title=legacyPhoto?item.quote||item.title:item.title;
     // 老照片未填写拍摄年份时只展示记录时间，避免把上传时间写成拍摄时间。
@@ -35,7 +34,6 @@
       ['确认状态',item.photoToken?'':storyConfirmation(item)]
     ]);
     const read=legacyPhoto||item.moment&&!item.text.length?'':b(i('volume')+' 听示例朗读','read-transcript','btn secondary',`data-id="${e(item.id)}"`);
-    const save=b(i('star')+(saved?' 已收藏':' 收藏'),'save-story','btn outline',`aria-pressed="${saved}"`);
     const source=item.moment&&!item.text.length?'':b('查看原始记录 '+i('arrow'),'source','text-link',`data-id="${e(item.id)}"`);
     const ask=P.PhotoStories.askButton(item);
     const journal = s.homeDiaryStory;
@@ -54,8 +52,7 @@
       ${diaryPage?.navigation || ''}
       <div data-screen-story-tools>${P.HouseScreen.photoButton(item)}${P.HouseScreen.voices(item)}</div>
       ${P.FamilyMoment.playback(item)}${P.PhotoStories.region(item)}
-      <div class="story-tools section">${read}${save}</div>
-      ${read?'<p class="caption">示例朗读由系统声音生成。</p>':''}
+      ${read ? `<div class="story-tools section">${read}</div><p class="caption">示例朗读由系统声音生成。</p>` : ''}
       ${meta}
       <div class="note"><strong>资料来源</strong><p>${e(item.source)}</p>${source}</div>
       ${item.author===s.actor&&!item.photoToken?b(i('share')+' 调整分享范围','share-story','text-link section'):''}

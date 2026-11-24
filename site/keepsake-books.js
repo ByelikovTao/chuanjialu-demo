@@ -15,6 +15,18 @@
   function readable(book) {return Boolean(book&&[book.creator,book.subject].includes(P.state.actor));}
   /** 路由中的编号必须命中当前账号可见的纪念书。 */
   function current() {return P.state.keepsakeBooks.find(book=>book.id===P.state.keepsakeBookId&&readable(book));}
+  /** 选材和付款由发起人处理，校样和样书由档案本人确认。 */
+  function pendingActor(book) {
+    if (['draft', 'quote', 'printPayment', 'shipped'].includes(book.phase)) return book.creator;
+    if (book.phase === 'sample' && !book.paid.sample) return book.creator;
+    if (['proof', 'sampleReview'].includes(book.phase)) return book.subject;
+    return '';
+  }
+  function orderStatus(book) {
+    if (book.phase === 'sample' && !book.paid.sample) return '待付样书费';
+    if (book.phase === 'shipped') return '待确认收件';
+    return PHASES[book.phase][1];
+  }
   /** 选材复用章节和资料，章节内其他提供者的事件也需单独入书授权。 */
   function sources(person) {
     const profile=P.PersonArchive.biography(person);
@@ -76,15 +88,29 @@
     const editing=book.paid.editing?(editingOrder?.cash??FEES.editing):0;
     return editing+(book.paid.sample?FEES.sample:0)+(book.paid.printing?FEES.printing:0);
   }
+  function bookSheet(title, content) {
+    P.modal(title, content, 'sheet', undefined, {eyebrow: '纸质纪念书', closeLabel: '返回纪念书', familySheet: true});
+  }
+
   /** 印制前取消按实际完成项目核算；发货后进入售后，不承诺自动全额退款。 */
   function requestService(book,kind) {
     const cancelling=kind==='cancel';
-    P.modal(cancelling?'申请取消制作':'申请更正或售后',`<p>${cancelling?'后续制作将暂停。未发生的服务费用退还，已完成项目由顾问列明后与你核对。':'请说明错字、漏页、装订或其他问题。已印成的纸书不会被在线修改覆盖，按问题安排更正、补发或协商退款。'}</p><form id="book-service-form" data-id="${book.id}" data-kind="${kind}"><label>具体说明<textarea name="reason" required maxlength="500" placeholder="写下希望调整或处理的内容"></textarea></label><button class="btn full section" type="submit">提交申请</button></form>`);
+    bookSheet(cancelling ? '申请取消制作' : '申请更正或售后', `
+      <p class="family-sheet-summary">${cancelling ? '后续制作将暂停。未发生的服务费用退还，已完成项目由顾问列明后与你核对。' : '请说明错字、漏页、装订或其他问题。已印成的纸书不会被在线修改覆盖，按问题安排更正、补发或协商退款。'}</p>
+      <form id="book-service-form" class="book-sheet-form" data-id="${book.id}" data-kind="${kind}">
+        <label>具体说明<textarea name="reason" rows="2" required maxlength="500" placeholder="写下希望调整或处理的内容"></textarea></label>
+        <button class="btn full" type="submit">提交申请</button>
+      </form>`);
     const form=document.getElementById('book-service-form');form.bookState=P.state;form.dataset.actor=P.state.actor;
   }
   /** 退回意见绑定这一版校样或样书；修改后必须再次由本人确认。 */
   function revise(book) {
-    P.modal('提出修改意见',`<p>编辑会依据本次意见修改为下一版，重新交你确认；超出原报价的新增内容先另行沟通。</p><form id="book-revision-form" data-id="${book.id}"><label>哪里需要修改？<textarea name="reason" required maxlength="500" placeholder="例如：第二章年份需要核对，封面照片换一张"></textarea></label><button class="btn full section" type="submit">交给编辑修改</button></form>`,'sheet');
+    bookSheet('提出修改意见', `
+      <p class="family-sheet-summary">编辑会按意见修改，下一版交你确认。超出原报价的新增内容将另行沟通。</p>
+      <form id="book-revision-form" class="book-sheet-form" data-id="${book.id}">
+        <label>哪里需要修改？<textarea name="reason" rows="2" required maxlength="500" placeholder="例如：核对第二章年份，更换封面照片"></textarea></label>
+        <button class="btn full" type="submit">交给编辑修改</button>
+      </form>`);
     const form=document.getElementById('book-revision-form');form.bookState=P.state;form.dataset.actor=P.state.actor;
   }
   /** 制作卡片仅展示在已建档本人的档案中，家人查看他人档案时不显示。 */
@@ -112,7 +138,8 @@
     const owner=book.subject===P.state.actor,payer=book.creator===P.state.actor;
     if(action==='book-edit-payment'&&payer&&book.phase==='quote'&&ready(book)){P.BillingViews.checkout(book.subject,'book',book.id);return true;}
     if(action==='book-finalize'&&owner&&book.phase==='proof'&&ready(book)){
-      P.modal('确认这一版可以制作样书',`<p>确认《${P.escape(book.title)}》V${book.version} 的封面、全文、图片与署名。确认后固定这一版，原档案后续更新不会自动改书。</p>${P.button('我已核对完整校样，确认定稿','book-lock','btn full section')}`);return true;
+      bookSheet('确认这一版可以制作样书', `<p class="family-sheet-summary">确认《${P.escape(book.title)}》V${book.version} 的封面、全文、图片与署名。确认后固定这一版，原档案后续更新不会自动改书。</p>
+        <div class="family-sheet-footer">${P.button('我已核对完整校样，确认定稿','book-lock','btn full')}</div>`);return true;
     }
     if(action==='book-lock'&&owner&&book.phase==='proof'&&ready(book)){freeze(book);P.closeModal();}
     if(action==='book-sample-payment'&&payer&&book.phase==='sample'&&ready(book))book.paid.sample=true;
@@ -124,7 +151,10 @@
       if(paidTotal(book)){requestService(book,'cancel');return true;}book.phase='cancelled';
     }
     if(action==='book-aftercare'&&payer&&['printing','shipped','delivered','aftercare'].includes(book.phase)){requestService(book,'aftercare');return true;}
-    if(action==='book-files'&&book.phase==='delivered'){P.modal('纪念书交付清单','<div class="stack"><p>电子阅读 PDF · V'+book.version+'</p><p>印刷定稿文件 · V'+book.version+'</p><p>实体纪念书 · 3 册</p></div><p class="caption section">原型展示交付项目；正式文件由编辑完成后提供下载。</p>');return true;}
+    if(action==='book-files'&&book.phase==='delivered'){
+      bookSheet('纪念书交付清单', `<ul class="book-sheet-files"><li>电子阅读 PDF · V${book.version}</li><li>印刷定稿文件 · V${book.version}</li><li>实体纪念书 · 3 册</li></ul>
+        <p class="family-sheet-note">原型展示交付项目，正式文件由编辑完成后提供下载。</p>`);return true;
+    }
     if(action==='book-demo-next'&&ready(book)){
       const transitions={editing:'proof',sample:book.paid.sample?'sampleReview':null,printing:'shipped'};
       if(transitions[book.phase]===el.dataset.phase)book.phase=el.dataset.phase;
@@ -152,5 +182,5 @@
     }
     P.closeModal();P.render();return true;
   }
-  P.KeepsakeBooks={FEES,PHASES,canStart,start,readable,current,sources,selected,ready,capture,preview,paidTotal,entry,demo,handleAction,submit};
+  P.KeepsakeBooks={FEES,PHASES,canStart,start,readable,current,pendingActor,orderStatus,sources,selected,ready,capture,preview,paidTotal,entry,demo,handleAction,submit};
 }

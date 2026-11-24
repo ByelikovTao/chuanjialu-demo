@@ -17,9 +17,30 @@
   }
   /** 家人可了解服务，但不能替档案本人发布公开片段。 */
   function compose() {
-    const rows=P.MemoryShare.candidates(),value=P.MemoryShare.draft();
-    if(!rows.length)return `<div class="page memory-page">${top('故人共忆')}<p class="note section">请由档案本人选择并确认分享内容。你仍可阅读已获授权的家庭资料。</p>${P.state.familyWorkspace?l('去添加可分享的家庭影像','life','btn'):button('以陈远山本人身份体验','owner-demo')}</div>`;
-    return `<div class="page memory-page">${top('故人共忆')}<p>选一份已有的回忆，写一句想说的话。朋友可以只看看，也可以补一段自己的回忆。</p><div id="memory-compose"><fieldset class="memory-options section"><legend>选照片或影片</legend>${rows.map(item=>`<label class="memory-option"><input type="radio" name="asset" value="${e(item.id)}" ${value.assetId===item.id?'checked':''}><img src="${e(item.poster)}" alt="${e(item.title)}"><span><strong>${e(item.title)}</strong><small>${e(item.year)} · ${item.kind==='photo'?'照片':'影片'}</small></span></label>`).join('')}</fieldset><label class="form-field" for="memory-caption">想对朋友说的话（选填）<textarea id="memory-caption" name="caption" maxlength="180" placeholder="例如：还记得那年咱们一起走过的路吗？">${e(value.caption)}</textarea></label></div>${button('先看看效果','preview')}<p class="caption section">只分享选中的这一份，其他家庭资料不会出现在链接里。链接可被转发，请在预览后确认。</p>${l('返回我家','home','text-link')}</div>`;
+    const rows = P.MemoryShare.candidates();
+    const value = P.MemoryShare.draft();
+    const gifts = l('收到的心意', 'share-gifts', 'paper-link');
+    if (!rows.length) {
+      const start = P.state.familyWorkspace ? l('去添加可分享的家庭影像', 'life', 'btn') : button('以陈远山本人身份体验', 'owner-demo');
+      return `<div class="page memory-page">${top('故人共忆')}<p class="note section">请由档案本人选择并确认分享内容。你仍可阅读已获授权的家庭资料。</p><div class="memory-actions section">${start}${gifts}</div></div>`;
+    }
+    const options = rows.map(item => `
+      <label class="memory-option">
+        <input type="radio" name="asset" value="${e(item.id)}" ${value.assetId === item.id ? 'checked' : ''}>
+        <img src="${e(item.poster)}" alt="${e(item.title)}">
+        <span><strong>${e(item.title)}</strong><small>${e(item.year)} · ${item.kind === 'photo' ? '照片' : '影片'}</small></span>
+      </label>`);
+    return `<div class="page memory-page">
+      ${top('故人共忆')}
+      <p>选一份已有的回忆，写一句想说的话。朋友可以只看看，也可以补一段自己的回忆。</p>
+      <div id="memory-compose">
+        <fieldset class="memory-options section"><legend>选照片或影片</legend>${options.join('')}</fieldset>
+        <label class="form-field" for="memory-caption">想对朋友说的话（选填）<textarea id="memory-caption" name="caption" maxlength="180" placeholder="例如：还记得那年咱们一起走过的路吗？">${e(value.caption)}</textarea></label>
+      </div>
+      ${button('先看看效果', 'preview')}
+      <p class="caption section">只分享选中的这一份，其他家庭资料不会出现在链接里。链接可被转发，请在预览后确认。</p>
+      <div class="memory-actions section">${l('返回我家', 'home', 'paper-link')}${gifts}</div>
+    </div>`;
   }
   /** 两种AI体验均可选，示例来源在进入对照前说明，不自动替换分享图片。 */
   function effectsEntry() {

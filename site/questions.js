@@ -72,7 +72,7 @@
       <textarea name="question" maxlength="${QUESTION_LIMIT}" required>${e(drafts().stories[story.id]||'')}</textarea></label>
       <button class="btn" type="submit">留下问题</button></form></details>`:'';
     const cards=items.length?`<div class="stack section">${items.slice().reverse().map(card).join('')}</div>`:'';
-    return `<section class="house-page section"><h2>真人留言</h2>${cards}${form}</section>`;
+    return `<section class="house-page section"><h2>家人留言</h2>${cards}${form}</section>`;
   }
   function view(){
     const visible=new Map(P.visibleStories().map(story=>[story.id,story]));
@@ -120,5 +120,5 @@
     P.render();P.toast('本人回复已保存，提问家人可以查看。');return true;
   }
   P.QuestionInbox={view,storyPanel,storyNotice,submit,captureDrafts,hasNotice};
-  P.views.questions=view;
+  Object.assign(P.views, {questions: view, 'question-history': view});
 }

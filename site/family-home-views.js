@@ -9,96 +9,129 @@
   const COVER_SWIPE_DISTANCE = 42;
   const ALBUM_SCROLL_SPEED = 18;
   const ALBUM_RESUME_MS = 1200;
-  const PEDIGREE_ADD_WIDTH = 44;
-  const PEDIGREE_ADD_GAP = 8;
-  const PEDIGREE_ADD_GUTTER = PEDIGREE_ADD_WIDTH + PEDIGREE_ADD_GAP;
+  const PEDIGREE_MEMBER_WIDTH = 112;
+  const PEDIGREE_MEMBER_HEIGHT = 64;
+  const PEDIGREE_MEMBER_STEP = 120;
+  const PEDIGREE_SLOT_WIDTH = 44;
+  const PEDIGREE_SLOT_GUTTER = 52;
   let stopAlbum = null;
   let stopCover = null;
   /** 点击家谱节点进入按此人筛选的家庭往事。 */
   function kinNode(id,person,position='',editing=false) {
-    const focus=id===person,label=focus?(P.state.familyWorkspace?'当前人物':'档案人'):P.relation(id,person);
-    return b(`${P.avatar(id, '', { originalPortrait: true })}<span><strong>${e(P.PEOPLE[id].name)}</strong><small>${e(label)}</small></span>`,'house-story-person',`heritage-pedigree-node ${focus?'is-focus':''}`,`data-id="${e(id)}" data-pedigree-person="${e(id)}" aria-label="${e(P.PEOPLE[id].name)}，${e(label)}，查看相关往事" ${position}${editing?' inert':''}`);
+    const focus = id === person;
+    const self = id === P.state.actor;
+    const name = e(P.PEOPLE[id].name);
+    const label = focus ? (P.state.familyWorkspace ? '当前人物' : '档案人') : P.relation(id, person);
+    const caption = self
+      ? `<strong><span class="heritage-pedigree-name">${name}</span><span class="heritage-pedigree-self">（我）</span></strong>`
+      : `<strong>${name}</strong><small>${e(label)}</small>`;
+    const accessibleName = self ? `${name}（我）` : `${name}，${e(label)}`;
+    return b(`${P.avatar(id, '', { originalPortrait: true })}<span>${caption}</span>`, 'house-story-person',
+      `heritage-pedigree-node${focus ? ' is-focus' : ''}${self ? ' is-self' : ''}`,
+      `data-id="${e(id)}" data-pedigree-person="${e(id)}" aria-label="${accessibleName}，查看相关往事" ${position}${editing ? ' inert' : ''}`);
   }
-  /** 编辑时为各分支预留一个新节点，配偶的添加线直接从档案人引出。 */
+  /** 编辑时按空框的较窄尺寸扩展图谱，虚线与已保存的亲缘线分开。 */
   function compactPedigree(person,groups,partners,editing) {
-    const partnerSpacing = editing ? 120 : 136;
-    const gutter = editing ? PEDIGREE_ADD_GUTTER : 0;
-    const parentCount = groups.parents.length + Number(editing);
-    const childCount = groups.children.length + Number(editing);
-    const width = Math.max(280, Math.max(parentCount, childCount) * 120,
-      112 + partners.length * partnerSpacing + gutter + (editing ? 8 : 24));
+    const partnerSpacing = editing ? PEDIGREE_MEMBER_STEP : 136;
+    const gutter = editing ? PEDIGREE_SLOT_GUTTER : 0;
+    const parentCount = groups.parents.length;
+    const childCount = groups.children.length;
+    const minimumWidth = editing || parentCount || childCount || partners.length ? 280 : PEDIGREE_MEMBER_WIDTH;
+    const width = Math.max(minimumWidth, Math.max(parentCount, childCount) * PEDIGREE_MEMBER_STEP + gutter,
+      (partners.length + 1) * partnerSpacing + gutter);
+    const halfMember = PEDIGREE_MEMBER_WIDTH / 2;
+    const halfSlot = PEDIGREE_SLOT_WIDTH / 2;
+    const slotInset = (PEDIGREE_MEMBER_HEIGHT - PEDIGREE_SLOT_WIDTH) / 2;
     const focusX = (width + gutter - partners.length * partnerSpacing) / 2;
-    const focusY = parentCount ? 100 : 4;
+    const focusY = parentCount || editing ? 100 : 4;
     const childY = focusY + 96;
-    const height = (childCount ? childY : focusY) + 68;
-    const positions=count=>count===1?[focusX]:Array.from({length:count},(_,index)=>56+index*(width-112)/(count-1));
-    const parentX=positions(parentCount),childX=positions(childCount),mateX=partners.map((_,index)=>focusX+(index+1)*partnerSpacing);
+    const height = (childCount || editing ? childY : focusY) + 68;
+    const positions = count => {
+      if (!count) return {nodes: [], slot: focusX};
+      if (editing) {
+        const start = (width - count * PEDIGREE_MEMBER_STEP - PEDIGREE_SLOT_WIDTH) / 2;
+        return {
+          nodes: Array.from({length: count}, (_, index) => start + halfMember + index * PEDIGREE_MEMBER_STEP),
+          slot: width - start - halfSlot
+        };
+      }
+      return {nodes: count === 1 ? [focusX] :
+        Array.from({length: count}, (_, index) => halfMember + index * (width - PEDIGREE_MEMBER_WIDTH) / (count - 1))};
+    };
+    const parents = positions(parentCount);
+    const children = positions(childCount);
+    const mateX = partners.map((_,index)=>focusX+(index+1)*partnerSpacing);
     const position=(x,y)=>`style="left:${x/width*100}%;top:${y}px"`;
     const node=(id,x,y)=>kinNode(id,person,position(x,y),editing);
-    const parentPath=x=>`M${x} 68V84H${focusX}V${focusY}`;
-    const childPath=x=>`M${focusX} ${focusY+64}V${focusY+80}H${x}V${childY}`;
-    const nodes=groups.parents.map((id,index)=>node(id,parentX[index],4)).join('')+node(person,focusX,focusY)+partners.map((id,index)=>node(id,mateX[index],focusY)).join('')+groups.children.map((id,index)=>node(id,childX[index],childY)).join('');
-    const parentLines=groups.parents.map((_,index)=>`<path d="${parentPath(parentX[index])}"/>`).join('');
-    const childLines=groups.children.map((_,index)=>`<path d="${childPath(childX[index])}"/>`).join('');
-    const coupleLines=mateX.map(x=>`<path class="is-couple" d="M${focusX+56} ${focusY+30}H${x-56}M${focusX+56} ${focusY+34}H${x-56}"/>`).join('');
-    const partnerAddX = focusX - 56 - PEDIGREE_ADD_GAP - PEDIGREE_ADD_WIDTH / 2;
-    const additions = editing ? [
-      { group: 'parents', x: parentX.at(-1), y: 4, path: parentPath(parentX.at(-1)) },
-      { group: 'partner', x: partnerAddX, y: focusY, path: `M${partnerAddX + PEDIGREE_ADD_WIDTH / 2} ${focusY + 32}H${focusX - 56}` },
-      { group: 'children', x: childX.at(-1), y: childY, path: childPath(childX.at(-1)) }
+    const parentPath=(x,start=4+PEDIGREE_MEMBER_HEIGHT)=>`M${x} ${start}V84H${focusX}V${focusY}`;
+    const childPath=(x,end=childY)=>`M${focusX} ${focusY+PEDIGREE_MEMBER_HEIGHT}V${focusY+80}H${x}V${end}`;
+    const nodes=groups.parents.map((id,index)=>node(id,parents.nodes[index],4)).join('')+node(person,focusX,focusY)+partners.map((id,index)=>node(id,mateX[index],focusY)).join('')+groups.children.map((id,index)=>node(id,children.nodes[index],childY)).join('');
+    const parentLines=parents.nodes.map(x=>`<path d="${parentPath(x)}"/>`).join('');
+    const childLines=children.nodes.map(x=>`<path d="${childPath(x)}"/>`).join('');
+    const coupleLines=mateX.map(x=>`<path class="is-couple" d="M${focusX+halfMember} ${focusY+30}H${x-halfMember}M${focusX+halfMember} ${focusY+34}H${x-halfMember}"/>`).join('');
+    const partnerSlot = focusX - halfMember - gutter + halfSlot;
+    const parentSlotTop = 4 + slotInset;
+    const parentSlotBottom = parentSlotTop + PEDIGREE_SLOT_WIDTH;
+    const childSlotTop = childY + slotInset;
+    const slots = editing ? [
+      {group: 'parents', x: parents.slot, y: parentSlotTop, path: parentCount
+        ? `M${parents.slot} ${parentSlotBottom}V84H${Math.max(focusX, parents.nodes.at(-1))}` : parentPath(parents.slot, parentSlotBottom)},
+      {group: 'partner', x: partnerSlot, y: focusY + slotInset, path: `M${partnerSlot + halfSlot} ${focusY + 32}H${focusX - halfMember}`},
+      {group: 'children', x: children.slot, y: childSlotTop, path: childCount
+        ? `M${Math.max(focusX, children.nodes.at(-1))} ${focusY + 80}H${children.slot}V${childSlotTop}` : childPath(children.slot, childSlotTop)}
     ] : [];
-    const addNodes = additions.map(({group,x,y})=>P.FamilyTree.homeAddNode(group,position(x,y))).join('');
-    const addLines = additions.map(({path})=>`<path class="is-add-link" d="${path}"/>`).join('');
-    return `<div class="heritage-pedigree-canvas" style="--pedigree-width:${width}px;--pedigree-add-width:${PEDIGREE_ADD_WIDTH}px;height:${height}px">
-      <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true"><g>${parentLines}${childLines}${coupleLines}${addLines}</g></svg>
-      ${nodes}${addNodes}
+    const slotLines = slots.map(slot => `<path class="is-add-link" d="${slot.path}"/>`).join('');
+    return `<div class="heritage-pedigree-canvas" style="--pedigree-width:${width}px;--pedigree-slot-width:${PEDIGREE_SLOT_WIDTH}px;height:${height}px">
+      <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true"><g>${parentLines}${childLines}${coupleLines}${slotLines}</g></svg>
+      ${nodes}${slots.map(slot => P.FamilyTree.homeAddNode(slot.group, position(slot.x, slot.y))).join('')}
     </div>`;
   }
   /** 每列用两单位标注中点。支线只连到首列的档案人，避免把子女连到未确认的另一位家长。 */
   function pedigreeBranches(count,columns,kind,editing) {
     const fromParents=kind==='parents',rootEdge=fromParents?24:0,branchEdge=fromParents?0:24;
     const branches=Array.from({length:count},(_,index)=>`M${index*2+1} 12V${branchEdge}`).join('');
-    const confirmed=count?`<path d="M1 ${rootEdge}V12H${count*2-1}${branches}"/>`:'';
-    const addition=editing?`<path class="is-add-link" d="M1 ${rootEdge}V12H${count*2+1}V${branchEdge}"/>`:'';
-    return `<svg class="heritage-pedigree-branches" data-pedigree-links="${kind}" viewBox="0 0 ${columns*2} 24" preserveAspectRatio="none" aria-hidden="true">${confirmed}${addition}</svg>`;
+    const confirmed = count ? `<path d="M1 ${rootEdge}V12H${count * 2 - 1}${branches}"/>` : '';
+    const extensionPath = count ? `M${count * 2 - 1} 12H${count * 2 + 1}V${branchEdge}` : `M1 ${rootEdge}V${branchEdge}`;
+    const extension = editing ? `<path class="is-add-link" d="${extensionPath}"/>` : '';
+    return `<svg class="heritage-pedigree-branches" data-pedigree-links="${kind}" viewBox="0 0 ${columns*2} 24" preserveAspectRatio="none" aria-hidden="true">${confirmed}${extension}</svg>`;
   }
   /** 大字号人物卡随姓名自然增高。每位配偶单独与档案人相连。 */
   function readablePedigree(person,{parents,children},partners,editing) {
     const columns=Math.max(parents.length+Number(editing),children.length+Number(editing),partners.length?2:1);
     const renderNodes=members=>members.map(id=>kinNode(id,person,'',editing)).join('');
-    const add=group=>editing?P.FamilyTree.homeAddNode(group):'';
-    const row=(members,label,kind)=>`<div class="heritage-pedigree-row" data-pedigree-branch="${kind}" role="group" aria-label="${label}">${renderNodes(members)}${add(kind)}</div>`;
-    return `<div class="heritage-pedigree-canvas heritage-pedigree-readable${editing?' is-editing':''}" style="--pedigree-columns:${columns};--pedigree-add-width:${PEDIGREE_ADD_WIDTH}px;--pedigree-add-gutter:${PEDIGREE_ADD_GUTTER}px">
-      ${parents.length||editing?row(parents,'父母','parents')+pedigreeBranches(parents.length,columns,'parents',editing):''}
-      <div class="heritage-pedigree-row heritage-pedigree-focus-row" role="group" aria-label="${partners.length?'档案人与配偶':'档案人'}">${kinNode(person,person,'',editing)}${partners.length?`<div class="heritage-pedigree-partners" role="group" aria-label="配偶">${renderNodes(partners)}</div>`:''}${add('partner')}</div>
-      ${children.length||editing?pedigreeBranches(children.length,columns,'children',editing)+row(children,'子女','children'):''}
+    const slot = group => editing ? P.FamilyTree.homeAddNode(group) : '';
+    const row=(members,label,kind)=>`<div class="heritage-pedigree-row" data-pedigree-branch="${kind}" role="group" aria-label="${label}">${renderNodes(members)}${slot(kind)}</div>`;
+    return `<div class="heritage-pedigree-canvas heritage-pedigree-readable${editing?' is-editing':''}" style="--pedigree-columns:${columns};--pedigree-slot-width:${PEDIGREE_SLOT_WIDTH}px;--pedigree-slot-gutter:${PEDIGREE_SLOT_GUTTER}px">
+      ${parents.length||editing?row(parents,'上方成员','parents')+pedigreeBranches(parents.length,columns,'parents',editing):''}
+      <div class="heritage-pedigree-row heritage-pedigree-focus-row" role="group" aria-label="${partners.length?'家谱中心人物与配偶':'家谱中心人物'}">${kinNode(person,person,'',editing)}${partners.length?`<div class="heritage-pedigree-partners" role="group" aria-label="配偶">${renderNodes(partners)}</div>`:''}${slot('partner')}</div>
+      ${children.length||editing?pedigreeBranches(children.length,columns,'children',editing)+row(children,'下方成员','children'):''}
     </div>`;
   }
   function familyViewPanel(control, content, { map, editing }) {
     const editControl = map ? '' : P.FamilyTree.homeEditControl();
-    const tools = editing
-      ? `<span class="home-family-edit-title">${i('edit')}编辑家谱</span>${editControl}`
-      : editControl + control;
+    const tools = editing ? '<p class="home-family-edit-hint">点「＋」添加成员</p>' + editControl : editControl + control;
     return `<div class="home-family-panel${map ? ' is-map' : editing ? ' is-editing' : ''}">
-      <div class="home-family-panel-tools">${tools}</div>
+      ${tools ? `<div class="home-family-panel-tools">${tools}</div>` : ''}
       <div id="home-family-view">
         ${content}${map ? P.FamilyMap.view() : ''}
       </div>
     </div>`;
   }
   /** 直系与配偶按已知关系连线，隔代与旁系单列，避免画出未经确认的关系。 */
-  function kinship(person, viewSwitch, map) {
-    const groups=P.FamilyHome.relatives(person),partners=groups.couple.filter(id=>id!==person);
+  function kinship(owner, viewSwitch = '', map = false) {
+    const { person, groups } = map ? { person: owner, groups: P.FamilyHome.relatives(owner) } : P.FamilyHome.pedigree(owner);
+    const partners = groups.couple.filter(id => id !== person);
     const editing = !map && P.FamilyTree.homeEditing();
+    const single = !map && !editing && !groups.parents.length && !partners.length && !groups.children.length && !groups.others.length;
     const name=e(P.PEOPLE[person]?.name||'家人');
     const diagram=P.state.fontLarge?readablePedigree(person,groups,partners,editing):compactPedigree(person,groups,partners,editing);
-    const others = !map && (groups.others.length || editing)
-      ? `<div class="home-kinship-other">${groups.others.length ? '<h3>其他家人</h3>' : ''}
-        <div>${groups.others.map(id => kinNode(id, person, '', editing)).join('')}${editing ? P.FamilyTree.homeAddNode('others') : ''}</div></div>`
+    const others = !map && groups.others.length
+      ? `<div class="home-kinship-other"><h3>其他家人</h3>
+        <div>${groups.others.map(id => kinNode(id, person, '', editing)).join('')}</div></div>`
       : '';
-    // 地图用关系树占位计算卡片高度，编辑时仅让新节点响应添加操作。
+    // 地图用关系树占位计算卡片高度，编辑期间停用已保存成员的往事入口。
     const viewportLabel = editing ? `${name}的家谱编辑` : `${name}的已知亲缘关系`;
-    const viewport = `<div class="heritage-pedigree-viewport"${map ? ' inert' : ''} role="group" aria-label="${viewportLabel}">${diagram}</div>`;
+    const viewport = `<div class="heritage-pedigree-viewport${single ? ' is-single' : ''}"${map ? ' inert' : ''} role="group" aria-label="${viewportLabel}">${diagram}</div>`;
     return `<div class="heritage-kinship home-kinship-preview">
       ${familyViewPanel(viewSwitch, editing ? viewport + others : viewport, { map, editing })}
       ${editing ? '' : others}
@@ -109,13 +142,6 @@
       ? b(i('edit') + '编辑', 'heritage-edit', 'heritage-text-button home-edit-button',
         `data-kind="${kind}" data-person="${e(person)}" aria-label="编辑${label}"`)
       : '';
-  }
-  /** 示例家庭使用示例全家福，新建家庭在上传前沿用中性的老屋封面。 */
-  function mottoArtwork(cover = '') {
-    const example = P.Households.isExample();
-    const src = cover || (example ? 'assets/zhumen/entry-preview-family.webp' : 'assets/family-home/motto-room.webp');
-    const alt = cover ? '家训背景图' : example ? '示例全家福' : '';
-    return `<div class="home-motto-art${cover ? ' is-uploaded' : ''}"><img src="${e(src)}" alt="${alt}"></div>`;
   }
   function leafHeading(id, title, edit) {
     return `<div class="home-leaf-heading"><h2 id="${id}">${title}</h2>${edit}</div>`;
@@ -136,75 +162,90 @@
     const photos = coverPhotos();
     const index = Math.min(P.state.homeCoverIndex || 0, Math.max(photos.length - 1, 0));
     const photo = photos[index];
-    const keyboard = photos.length > 1 ? ' tabindex="0" role="group" aria-label="全家福，使用左右方向键切换照片"' : '';
+    const uploadLabel = '上传全家福，可选择多张照片' + (photos.length > 1 ? '。使用左右方向键切换照片' : '');
     const slides = photos.map(({ src, caption }, page) => {
       const active = page === index;
       return `<img class="home-cover-slide${active ? ' is-current' : ''}" ${active ? 'src' : 'data-cover-src'}="${e(src)}"
         alt="${e(caption)}" aria-hidden="${!active}" draggable="false">`;
     }).join('');
     return `<header class="home-cover">
+      ${P.Households.homeSwitcher()}
       <h1>我们${e(P.FamilyJournal.familyName())}</h1>
       <p class="home-cover-brand">${P.FamilyJournal.seal()} 传家录</p>
-      ${photo ? `<figure class="home-cover-photo">
-        <div class="wood-frame"><div class="home-cover-window"${keyboard}>${slides}</div></div>
-        <figcaption>${e(photo.caption)}</figcaption>
-      </figure>` : '<p class="home-cover-empty wood-frame">上传一张全家福</p>'}
-      <div class="home-cover-tools">
-        ${P.HouseScreen.homeEntry()}
-        ${l(i('plus') + ' 传全家福', 'house-record/home-cover', 'heritage-text-button paper-outline')}
-      </div>
+      <p class="home-family-role">我的身份 · <strong>${e(P.Households.familyRole())}</strong></p>
+      <figure class="home-cover-photo">
+        <div class="wood-frame">
+          <button type="button" class="home-cover-window" aria-label="${uploadLabel}" title="点击照片上传，可选择多张">
+            ${photo ? slides : '<span class="home-cover-empty">点击上传全家福</span>'}
+          </button>
+        </div>
+        <figcaption class="home-cover-caption">
+          ${photo ? `<span class="home-cover-caption-text">${e(photo.caption)}</span>` : ''}
+          ${P.HouseScreen.homeEntry()}
+        </figcaption>
+      </figure>
+      <input type="file" class="home-cover-files" accept="${P.Households.sharedPhotoAccept}" multiple hidden>
     </header>`;
   }
-  function motto(owner) {
-    const doc = P.FamilyHome.document('motto');
-    const signature = doc?.kind === 'new' ? '手书' : '整理确认';
+  /** 首页与内容管理共用已保存的正文和作者落款。 */
+  function mottoBoard(doc) {
+    const byline = P.FamilyHome.mottoByline(doc);
     const copy = doc
       ? `<div class="home-motto-text">
           <blockquote class="home-motto-quote">${e(doc.text)}</blockquote>
-          <p class="heritage-caption home-motto-signature">${e(P.PEOPLE[owner].name)} ${signature}</p>
+          ${byline ? `<p class="heritage-caption home-motto-signature">${e(byline)}</p>` : ''}
         </div>`
       : '<p class="heritage-empty">家训待整理。</p>';
+    return `<div class="home-motto-board wood-frame">
+      ${doc?.cover ? `<div class="home-motto-art is-uploaded"><img src="${e(doc.cover)}" alt="家训背景图"></div>` : ''}
+      ${copy}
+    </div>`;
+  }
+  function motto(owner) {
+    const canEdit = P.FamilyHome.editable('motto', owner);
+    const family = P.FamilyHome.ensure().family;
+    const pending = canEdit ? family.suggestions.filter(item => item.status === 'pending').length : 0;
+    const action = canEdit
+      ? b(`<span class="heritage-text-button home-edit-button">${i('edit')}编辑</span>`,
+        'heritage-edit', 'home-motto-action', `data-kind="motto" data-person="${e(owner)}" aria-label="编辑家训"`)
+      : P.FamilyHome.member() ? b('提交家训建议', 'heritage-suggest', 'heritage-text-button home-edit-button',
+        `data-person="${e(owner)}" aria-haspopup="dialog"`) : '';
     return `<section class="home-motto-sheet" data-home-section="motto" aria-labelledby="home-motto-title">
-      ${leafHeading('home-motto-title', '家训', editLink('motto', owner, '家训'))}
-      <div class="home-motto-board wood-frame">
-        ${doc?.cover ? mottoArtwork(doc.cover) : ''}
-        ${copy}
+      <div class="home-motto-preview">
+        ${leafHeading('home-motto-title', '家训', action)}
+        ${mottoBoard(P.FamilyHome.document('motto'))}
       </div>
+      ${pending ? b(`家训建议 · ${pending} 条待核对 ${i('arrow')}`, 'heritage-suggestions', 'heritage-text-button home-edit-button', 'aria-haspopup="dialog"') : ''}
     </section>`;
   }
   function surname(owner) {
     const details = P.FamilyHome.surnameDetails(owner);
-    const example = P.Households.isExample() && details?.name === '陈' && !P.FamilyHome.document('surname', owner);
-    const introduction = example ? '爷爷说，他小时候住在老街东头。那时家门口有棵枣树，过年回来，远远就能认出来。' :
+    const oralAccount = details?.oralAccount;
+    const introduction = oralAccount ? oralAccount.text :
       details?.summary || details?.text || '姓源待整理。';
     return `<section data-home-section="surname" aria-labelledby="home-surname-title">
       ${leafHeading('home-surname-title', '姓源', editLink('surname', owner, '姓源'))}
       <div class="paper-card home-surname-card">
         <h3>我们${e(details?.name ? details.name + '家' : '家')}从哪里来</h3>
-        <div class="home-surname-content${example ? ' has-photo' : ''}">
-          ${example ? `<figure><span class="photo-mount"><img src="assets/family-home/reference/old-lane.webp" alt="老街的院门与枣树" loading="lazy"></span><figcaption>老街东头</figcaption></figure>` : ''}
-          <div><p>${e(introduction)}</p>${example ? '<p class="home-surname-author">陈远山口述</p>' : ''}</div>
+        <div class="home-surname-content${oralAccount ? ' has-photo' : ''}">
+          ${oralAccount ? `<figure><span class="photo-mount"><img src="assets/family-home/reference/old-lane.webp" alt="老街的院门与枣树" loading="lazy"></span><figcaption>老街东头</figcaption></figure>` : ''}
+          <div><p>${e(introduction)}</p>${oralAccount ? `<p class="home-surname-author">${e(oralAccount.source)}</p>` : ''}</div>
         </div>
-        ${details?.text ? l('看看' + e(details.name || '') + '姓的来历 ' + i('arrow'), 'home-surname/' + e(owner), 'paper-link') : ''}
+        ${details?.text ? l(`看看${e(details.name ? details.name + '姓' : '姓氏')}的来历 ${i('arrow')}`, 'home-surname/' + e(owner), 'paper-link') : ''}
       </div>
     </section>`;
   }
   function origin(owner) {
     const doc = P.FamilyHome.document('origin', owner);
-    const example = P.Households.isExample();
     return `<section data-home-section="origin" aria-labelledby="home-origin-title">
       ${leafHeading('home-origin-title', '家史', editLink('origin', owner, '家史'))}
       ${doc ? `<div class="home-history-cover">
-        ${l(`<span class="bound-paper home-history-book"><strong>${e(P.FamilyJournal.familyName())}家史 ${P.FamilyJournal.seal()}</strong>
-          ${example ? '<span class="home-history-cover-image"><img src="assets/family-home/reference/old-lane.webp" alt="" loading="lazy"></span>' : i('book')}
+        ${l(`<span class="home-history-book" aria-hidden="true">
+          <span class="home-history-binding"><span></span><span></span><span></span><span></span></span>
+          <strong class="home-history-title">${e(P.FamilyHome.originTitle())}</strong>
+          ${P.FamilyJournal.seal()}
         </span><span>翻开家史 ${i('arrow')}</span>`, 'home-origin/' + e(owner), 'home-history-open')}
-        <div class="home-history-actions">
-          ${b(i('book') + '制作纸质书', 'house-addon-open', 'paper-link paper-outline',
-            'data-id="book" data-return="返回我家" data-customization-request aria-haspopup="dialog"')}
-          ${b(i('play') + '制作家庭影片', 'house-addon-open', 'paper-link paper-outline',
-            'data-id="film" data-return="返回我家" data-customization-request aria-haspopup="dialog"')}
-        </div>
-      </div>` : '<p class="paper-card home-section-empty">祖籍和家族记载待整理。</p>'}
+      </div>` : '<p class="paper-card home-section-empty">家史待整理。</p>'}
     </section>`;
   }
   function familyTree(owner) {
@@ -362,12 +403,12 @@
   function mountCover(content) {
     const cover = content.querySelector('.home-cover');
     const viewport = cover?.querySelector('.home-cover-window');
-    if (!viewport) return;
+    const fileInput = cover?.querySelector('.home-cover-files');
+    if (!viewport || !fileInput) return;
     const slides = [...viewport.querySelectorAll('.home-cover-slide')];
-    if (slides.length < 2) return;
 
     const state = P.state;
-    const caption = cover.querySelector('figcaption');
+    const caption = cover.querySelector('.home-cover-caption-text');
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const controller = new AbortController();
     const { signal } = controller;
@@ -379,6 +420,29 @@
     let hovered = false;
     let gesture;
     let slideFinished;
+    let suppressClick = false;
+    let uploading = false;
+
+    viewport.addEventListener('click', event => {
+      // 鼠标拖动后仍可能合成点击，短拖回弹也不打开选图；键盘激活照常处理。
+      if (!uploading && (event.detail === 0 || !suppressClick)) fileInput.click();
+    }, { signal });
+    fileInput.addEventListener('change', async () => {
+      const files = [...fileInput.files];
+      fileInput.value = '';
+      if (uploading || !files.length) return;
+      uploading = true;
+      try {
+        const saved = await P.Households.uploadCoverPhotos(files, signal);
+        if (!saved || signal.aborted) return;
+        const restoreFocus = viewport.matches(':focus-visible');
+        P.render();
+        if (restoreFocus) content.querySelector('.home-cover-window')?.focus({ preventScroll: true });
+        P.toast(`已添加 ${files.length} 张全家福。`);
+      } finally {
+        uploading = false;
+      }
+    }, { signal });
 
     const adjacentPage = direction => {
       for (let offset = 1; offset < slides.length; offset++) {
@@ -471,6 +535,7 @@
     }, { signal });
     viewport.addEventListener('pointerdown', event => {
       if (!event.isPrimary || event.button !== 0) return;
+      suppressClick = false;
       // 接管尚在加载的切换，防止读图完成时覆盖手指位置。
       request++;
       gesture = {
@@ -488,6 +553,8 @@
       if (gesture?.id !== event.pointerId) return;
       const dx = event.clientX - gesture.x;
       const dy = event.clientY - gesture.y;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) >= COVER_DRAG_SLOP) suppressClick = true;
+      if (slides.length < 2) return;
       // 确定横向意图后才移动照片，纵向滚动和缩放继续由浏览器处理。
       if (!gesture.axis && Math.abs(dx) >= COVER_DRAG_SLOP && Math.abs(dx) > Math.abs(dy) * 1.4) gesture.axis = 'x';
       if (!gesture.axis && Math.abs(dy) >= COVER_DRAG_SLOP && Math.abs(dy) > Math.abs(dx)) gesture.axis = 'y';
@@ -516,6 +583,7 @@
       if (gesture?.id !== event.pointerId) return;
       const released = event.type === 'pointerup';
       if (released) dragPhotos(event);
+      else suppressClick = true;
       const drag = gesture;
       gesture = null;
       const dx = event.clientX - drag.x;
@@ -553,19 +621,61 @@
     stopCover?.();
     stopCover = null;
   }
-  /** 管理入口复用既有编辑动作与确认规则，不在首页复制另一套操作。 */
-  function managementRow(kind,person,title,note) {
-    return P.FamilyHome.editable(kind,person)?b(`${i('edit')}<span><strong>${title}</strong><small>${e(note)}</small></span>${i('arrow')}`,'heritage-edit','menu-row',`data-kind="${kind}" data-person="${e(person)}"`):'';
+  /** 正式稿及来源对家人可读，待核对的建议只呈现给维护人。 */
+  function manageMotto() {
+    const family = P.FamilyHome.ensure().family;
+    const doc = P.FamilyHome.document('motto');
+    const canEdit = P.FamilyHome.editable('motto');
+    const personAttr = `data-person="${e(family.mottoOwner)}"`;
+    const ownerName = P.PEOPLE[family.mottoOwner]?.name || '家训维护人';
+    const action = canEdit
+      ? b(i('edit') + (doc ? '编辑' : '建立家训'), 'heritage-edit', 'paper-link manage-motto-action',
+        `${personAttr} data-kind="motto" aria-label="${doc ? '编辑' : '建立'}家训"`)
+      : b(i('edit') + '提交家训建议', 'heritage-suggest', 'paper-link manage-motto-action',
+        `${personAttr} aria-describedby="manage-suggestion-recipient" aria-haspopup="dialog"`);
+    const pending = canEdit ? family.suggestions.filter(item => item.status === 'pending').length : 0;
+    return `<section class="manage-motto" aria-labelledby="manage-motto-title">
+      <div class="manage-motto-preview">
+        <div class="manage-section-heading"><h2 id="manage-motto-title">家训</h2>${action}</div>
+        ${mottoBoard(doc)}
+      </div>
+      ${doc?.source || doc?.date ? `<div class="manage-motto-caption">
+        ${doc.source ? `<p>${e(doc.source)}</p>` : ''}
+        ${doc.date ? `<time datetime="${e(doc.date)}">${e(doc.date)} 确认</time>` : ''}
+      </div>` : ''}
+      ${canEdit ? '' : `<p class="manage-motto-caption" id="manage-suggestion-recipient">建议由${e(ownerName)}核对。</p>`}
+      ${pending ? b(`家人建议 · ${pending} 条待核对 ${i('arrow')}`, 'heritage-suggestions', 'paper-link manage-pending', 'aria-haspopup="dialog"') : ''}
+    </section>`;
   }
-  /** 家族来源由档案本人整理，家人可向家训确认人提交建议。 */
+  function managementRow(kind, person, title, note, art) {
+    const dialog = kind === 'surname' ? ' aria-haspopup="dialog"' : '';
+    return b(`<span class="manage-entry-art" aria-hidden="true">${art}</span>
+      <span class="manage-entry-copy"><strong>${title}</strong><small>${note}</small></span>${i('arrow')}`,
+      'heritage-edit', 'manage-archive-row', `data-kind="${kind}" data-person="${e(person)}"${dialog}`);
+  }
   function manage() {
-    const person=P.FamilyContext.current();if(!person||!P.FamilyHome.member())return '<div class="page empty"><h2>暂无可整理的家庭内容</h2></div>';
-    const home=P.FamilyHome.ensure(),mottoDoc=P.FamilyHome.document('motto',person),pending=home.family.suggestions.filter(item=>item.status==='pending').length;
-    const personal=managementRow('surname',person,'姓源','整理姓氏及相关记载')+
-      managementRow('origin',person,'家史','补充祖籍、迁徙和家庭资料');
-    const family=managementRow('motto',person,mottoDoc?'编辑家训':'建立家训','全家共用，由指定的档案本人确认');
-    const suggestions=P.FamilyHome.editable('motto',person)?(pending?b(`${i('family')}<span>家人建议 ${pending}</span>${i('arrow')}`,'heritage-suggestions','menu-row'):''):b(`${i('family')}<span>协助整理家训</span>${i('arrow')}`,'heritage-suggest','menu-row');
-    return `<div class="page heritage-manage"><h1 class="page-title">首页内容</h1><p class="page-subtitle">${e(P.PEOPLE[person]?.name||'家人')}的家谱</p>${!personal?'<p class="note section">姓源与家史由档案本人整理，你可以协助提交家训建议。</p>':''}<div class="profile-menu section">${personal}${family}${suggestions}</div>${mottoDoc?`<div class="note section"><strong>当前家训</strong><p class="heritage-review-copy">${e(mottoDoc.text)}</p><p>${e(mottoDoc.source)}</p><p class="caption">${e(P.PEOPLE[home.family.mottoOwner]?.name||'指定本人')}确认 · ${e(mottoDoc.date)}</p></div>`:''}${l('返回我们一家','profile-family','text-link full section')}</div>`;
+    const person = P.FamilyContext.current();
+    const back = l(i('back') + '返回我家', 'home', 'paper-link manage-back');
+    if (!person || !P.FamilyHome.member()) {
+      return `<div class="page heritage-manage"><p class="manage-readonly">暂无可整理的家庭内容。</p>${back}</div>`;
+    }
+    const rows = [];
+    if (P.FamilyHome.editable('surname', person)) {
+      const surname = P.FamilyHome.surnameDetails(person)?.name;
+      const art = surname && surname.length <= 2 ? `<span>${e(surname)}</span>` : i('edit');
+      rows.push(managementRow('surname', person, '姓源', '整理姓氏来历与家人口述', art));
+    }
+    if (P.FamilyHome.editable('origin', person)) {
+      rows.push(managementRow('origin', person, '家史', '整理一篇家史正文', i('book')));
+    }
+    return `<div class="page heritage-manage">
+      ${manageMotto()}
+      <section class="manage-archive" aria-labelledby="manage-archive-title">
+        <div class="manage-section-heading"><h2 id="manage-archive-title">${e(P.PEOPLE[person]?.name || '家人')}的家谱</h2></div>
+        ${rows.length ? `<div class="manage-archive-list paper-card">${rows.join('')}</div>` : '<p class="manage-readonly">姓源与家史由档案本人整理。</p>'}
+      </section>
+      ${back}
+    </div>`;
   }
   /** 首页围绕当前家庭的档案人，切换预览账号时沿用同一份家庭传承。 */
   function render() {
@@ -583,5 +693,5 @@
       ${P.FamilyJournal.diaryPreview()}
     </div></div>`;
   }
-  P.FamilyHomeViews={render,mottoArtwork,albumTrack,mountAlbum,unmountAlbum,restoreAlbum,mountCover,unmountCover};P.views['home-manage']=manage;
+  P.FamilyHomeViews={render,kinship,albumTrack,mountAlbum,unmountAlbum,restoreAlbum,mountCover,unmountCover};P.views['home-manage']=manage;
 }

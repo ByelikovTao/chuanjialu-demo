@@ -68,18 +68,6 @@
     return years + ' 岁' + (remainder ? ' ' + remainder + ' 个月' : '');
   }
 
-  function entrances() {
-    const example = P.Households.isExample();
-    const entry = (title, route, icon, cover) => l(`<span class="family-edition-cover">
-      ${example ? `<img src="${e(cover)}" alt="" loading="lazy">` : i(icon)}
-    </span><strong>${title}</strong>`, route, 'family-edition-link');
-    return `<nav class="family-edition-links" aria-label="家庭记录专版">
-      ${entry('成长记', 'house-baby', 'photo', 'assets/zhumen/portrait-nian.webp')}
-      ${entry('长辈岁月', 'house-elders', 'mic', 'assets/family-home/family-tea-banner.webp')}
-      ${P.Couples.hasAlbum() ? entry('相伴记', 'house-couple', 'family', 'assets/zhumen/couple-first-trip-demo.webp') : ''}
-    </nav>`;
-  }
-
   function growthReady(person) {
     return Boolean(person && (P.PEOPLE[person].expecting || dateParts(P.PEOPLE[person].birthDate)));
   }
@@ -420,6 +408,6 @@
     document.querySelectorAll('.edition-album audio').forEach(audio => audio.pause());
   }
 
-  P.FamilyEditions = { entrances, baby, elders, listPhotos, rememberAlbum, positionAlbum, handleAction, submit,
+  P.FamilyEditions = { baby, elders, listPhotos, rememberAlbum, positionAlbum, handleAction, submit,
     today, validDate, calendarTime, voicePlayer, stopAlbumAudio, album, albumDays, albumTile };
 }

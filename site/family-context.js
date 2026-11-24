@@ -50,7 +50,7 @@
   }
   /** 回答纠正也遵守问答授权，不能借已确认的修订答复绕过后续撤回。 */
   function answerable(item) {return Boolean(item&&allowed(item.person,'digital')&&(!item.story||usable(item.story,item.person))&&(!item.asset||item.asset.author===item.person||item.asset.aiAllowed&&item.asset.scope!=='private'&&item.asset.viewers.includes(item.person))&&(item.supportingStories||[]).every(story=>usable(story,item.person)));}
-  /** 人物切换同时重置话题与场景，保留各账号自己的草稿和收藏。 */
+  /** 人物切换同时重置话题与场景，保留各账号自己的草稿。 */
   function select(person) {
     if(!selectable().includes(person))return P.toast('这位家人的档案暂未向你开放。');
     P.captureRecord();P.DigitalHuman.captureDraft();P.DigitalHuman.prepare(false);
@@ -81,16 +81,19 @@
   /** 独立名单配合人物头像核对身份；勾选只修改对应权限，不把付费当作授权。 */
   function permissions() {
     const actor=P.state.actor,access=P.state.familyAccess[actor];
-    const requests=P.state.familyRequests.filter(item=>item.person===actor&&item.status==='pending');
+    const requests=P.state.familyRequests.filter(item=>item.person===actor&&item.kind!=='digital'&&item.status==='pending');
     P.PersonArchive.assets(actor,'photo');
     const shared=[...P.state.stories,...P.state.archiveAssets.filter(item=>item.materialManaged)].filter(item=>item.commonWith===actor&&item.scope!=='private'&&item.viewers.includes(actor)||item.subject===actor&&item.author!==actor);
-    return `<div class="page"><h1 class="page-title">人生空间的授权</h1><p>查看档案、交流和进入场景分别决定；每份资料还遵循原分享范围。</p>${requests.map(item=>`<div class="card section"><p>${e(P.PEOPLE[item.actor].name)}申请开放${{archive:'档案',digital:'交流',space:'场景'}[item.kind]}</p>${b('仅向这位家人开放','family-request-approve','btn',`data-id="${item.id}"`)}${b('暂不开放','family-request-deny','text-link',`data-id="${item.id}"`)}</div>`).join('')}${access?`<form data-feature-form data-actor="${actor}" id="family-permissions-form" class="section">${Object.entries({archive:'人生档案',digital:'数字人交流',space:'回忆场景'}).map(([kind,label])=>`<fieldset><legend>${label}</legend>${P.state.members.filter(id=>id!==actor&&P.state.familyInvitations[id]?.includes(actor)).map(id=>`<label class="check-row"><input type="checkbox" name="${kind}" value="${id}" ${access[kind].includes(id)?'checked':''}>${P.avatar(id)}<span>${e(P.PEOPLE[id].name)}</span></label>`).join('')}</fieldset>`).join('')}<button type="submit" class="btn full">保存授权名单</button></form>`:'<p class="note section">尚未完成拍摄及空间开通。可以免费参与家人分享的内容，开通自己的完整人生空间需先完成视频服务。</p>'}<h2 class="section">家人提供的经历</h2>${shared.map(item=>`<div class="card section"><h3>${e(item.title)}</h3><p>${e(P.PEOPLE[item.author].name)}讲述 · ${inArchive(item,actor)?'已纳入':'尚未纳入／已移出'}</p>${b('核对纳入与问答范围','family-consent','text-link',`data-id="${item.id}"`)}</div>`).join('')||'<p>暂无家人提交的共同经历。</p>'}${l('我的共同回忆与提交进度','common-memories','text-link full')}</div>`;
+    const sent = P.state.familyRequests.filter(item => item.actor === actor && item.kind !== 'digital');
+    const progress = sent.length ? `<section class="section"><h2>我的授权申请</h2>${sent.map(item =>
+      `<p>${e(P.PEOPLE[item.person]?.name || '家人')} · ${item.kind === 'space' ? '回忆场景' : '人物档案'} · ${{pending:'等待开放',accepted:'已同意',declined:'暂未开放'}[item.status]}</p>`).join('')}</section>` : '';
+    return `<div class="page"><h1 class="page-title">空间授权与核对</h1><p>分别设置档案和回忆场景的查看权限。每份资料仍遵循原分享范围。</p>${requests.map(item=>`<div class="card section"><p>${e(P.PEOPLE[item.actor].name)}申请开放${{archive:'档案',digital:'交流',space:'场景'}[item.kind]}</p>${b('仅向这位家人开放','family-request-approve','btn',`data-id="${item.id}"`)}${b('暂不开放','family-request-deny','text-link',`data-id="${item.id}"`)}</div>`).join('')}${access?`<form data-feature-form data-actor="${actor}" id="family-permissions-form" class="section">${Object.entries({archive:'人生档案',space:'回忆场景'}).map(([kind,label])=>`<fieldset><legend>${label}</legend>${P.state.members.filter(id=>id!==actor&&P.state.familyInvitations[id]?.includes(actor)).map(id=>`<label class="check-row"><input type="checkbox" name="${kind}" value="${id}" ${access[kind].includes(id)?'checked':''}>${P.avatar(id)}<span>${e(P.PEOPLE[id].name)}</span></label>`).join('')}</fieldset>`).join('')}<button type="submit" class="btn full">保存授权名单</button></form>`:'<p class="note section">尚未完成拍摄及空间开通。可以免费参与家人分享的内容，开通自己的完整人生空间需先完成视频服务。</p>'}<h2 class="section">家人提供的经历</h2>${shared.map(item=>`<div class="card section"><h3>${e(item.title)}</h3><p>${e(P.PEOPLE[item.author].name)}讲述 · ${inArchive(item,actor)?'已纳入':'尚未纳入／已移出'}</p>${b('核对纳入与分享范围','family-consent','text-link',`data-id="${item.id}"`)}</div>`).join('')||'<p>暂无家人提交的经历。</p>'}${progress}</div>`;
   }
-  /** 双向确认可缩小范围；数字人使用默认为关闭，需要本人明确勾选。 */
+  /** 纳入档案时仅核对原稿提供者允许的分享范围。 */
   function consent(id) {
     const item=[...P.state.stories,...(P.state.archiveAssets||[])].find(value=>value.id===id&&(value.commonWith===P.state.actor&&value.scope!=='private'&&value.viewers.includes(P.state.actor)||value.subject===P.state.actor&&value.author!==P.state.actor));if(!item)return;
-    const old=item.commonWith?item.inclusions?.[P.state.actor]:{active:item.inArchive!==false,viewers:item.approvedViewers||item.viewers,ai:item.aiAllowed};
-    P.modal('核对共同经历',`<h3>${e(item.title)}</h3><p>${e(P.PEOPLE[item.author].name)}讲述：</p><p>${e((item.text||item.body||[item.description||'']).join('\n'))}</p><form data-feature-form data-actor="${P.state.actor}" id="family-consent-form" data-id="${item.id}"><label class="check-row"><input type="checkbox" name="active" ${old?.active?'checked':''}>纳入我的人生档案</label><p class="caption">仅能从提供者允许的名单中选择，后续扩大分享需要重新确认。</p>${item.viewers.map(person=>`<label class="check-row"><input type="checkbox" name="viewers" value="${person}" ${old?.viewers.includes(person)?'checked':''}>${e(P.PEOPLE[person].name)}</label>`).join('')}<label class="check-row"><input type="checkbox" name="ai" ${old?.ai?'checked':''}>允许我的数字人引用这份已确认经历</label><p class="caption">取消纳入会停用其问答引用；提供者仍保留原稿。</p><button type="submit" class="btn full">确认范围</button></form>`);
+    const old=item.commonWith?item.inclusions?.[P.state.actor]:{active:item.inArchive!==false,viewers:item.approvedViewers||item.viewers};
+    P.modal('核对共同经历',`<h3>${e(item.title)}</h3><p>${e(P.PEOPLE[item.author].name)}讲述：</p><p>${e((item.text||item.body||[item.description||'']).join('\n'))}</p><form data-feature-form data-actor="${P.state.actor}" id="family-consent-form" data-id="${item.id}"><label class="check-row"><input type="checkbox" name="active" ${old?.active?'checked':''}>纳入我的人生档案</label><p class="caption">仅能从提供者允许的名单中选择，后续扩大分享需要重新确认。</p>${item.viewers.map(person=>`<label class="check-row"><input type="checkbox" name="viewers" value="${person}" ${old?.viewers.includes(person)?'checked':''}>${e(P.PEOPLE[person].name)}</label>`).join('')}<button type="submit" class="btn full">确认范围</button></form>`);
   }
   /** 授权入口和角色切换共用一份状态，重复申请不会重复累计。 */
   function handleAction(action,el) {
@@ -100,12 +103,12 @@
     if(action==='family-focus'){select(el.dataset.person);return true;}
     if(action==='family-consent'){consent(el.dataset.id);return true;}
     if(action==='family-request'){
-      const {person,kind}=el.dataset;if(!invited(person)||!['archive','digital','space'].includes(kind))return true;
+      const {person,kind}=el.dataset;if(!invited(person)||!['archive','space'].includes(kind))return true;
       if(!s.familyRequests.some(item=>item.person===person&&item.kind===kind&&item.actor===s.actor&&item.status==='pending'))s.familyRequests.push({id:P.nextId('permission'),person,kind,actor:s.actor,status:'pending'});
-      P.toast('申请已提交，可在“我们的共同回忆”查看进度；尚未开放。');return true;
+      P.toast('申请已提交，可在「空间授权与核对」查看进度。');return true;
     }
     if(action==='family-request-approve'||action==='family-request-deny'){
-      const request=s.familyRequests.find(item=>item.id===el.dataset.id&&item.person===s.actor&&item.status==='pending');
+      const request=s.familyRequests.find(item=>item.id===el.dataset.id&&item.person===s.actor&&item.kind!=='digital'&&item.status==='pending');
       if(request){request.status=action.endsWith('approve')?'accepted':'declined';if(request.status==='accepted')s.familyAccess[s.actor][request.kind]=[...new Set([...s.familyAccess[s.actor][request.kind],request.actor])];P.render();}return true;
     }
     return false;
@@ -116,14 +119,14 @@
     if(form.featureState!==P.state||form.dataset.actor!==P.state.actor)return true;
     const s=P.state,data=new FormData(form);
     if(form.id==='family-permissions-form'){
-      const access=s.familyAccess[s.actor];if(access)for(const kind of ['archive','digital','space'])access[kind]=data.getAll(kind).filter(id=>s.familyInvitations[id]?.includes(s.actor));P.render();P.toast('分项授权已保存，私聊不会向家人公开。');return true;
+      const access=s.familyAccess[s.actor];if(access)for(const kind of ['archive','space'])access[kind]=data.getAll(kind).filter(id=>s.familyInvitations[id]?.includes(s.actor));P.render();P.toast('分项授权已保存，私聊不会向家人公开。');return true;
     }
     if(form.id!=='family-consent-form')return false;
     const item=[...s.stories,...(s.archiveAssets||[])].find(value=>value.id===form.dataset.id&&(value.commonWith===s.actor&&value.scope!=='private'&&value.viewers.includes(s.actor)||value.subject===s.actor&&value.author!==s.actor));if(!item)return true;
-    const decision={reviewed:true,active:Boolean(data.get('active')),viewers:data.getAll('viewers').filter(id=>item.viewers.includes(id)),ai:Boolean(data.get('ai'))};
+    const decision={reviewed:true,active:Boolean(data.get('active')),viewers:data.getAll('viewers').filter(id=>item.viewers.includes(id)),ai:Boolean(data.get('active') && (item.commonWith ? item.inclusions?.[s.actor]?.ai : item.aiAllowed))};
     if(item.commonWith){item.inclusions ||= {};item.inclusions[s.actor]=decision;}else {item.inArchive=decision.active;item.approvedViewers=decision.viewers;item.aiAllowed=decision.active&&decision.ai;}
     for(const request of s.accessRequests.filter(value=>value.storyId===item.id&&value.status==='pending-owner'))request.status=decision.active&&decision.viewers.includes(request.actor)?'accepted':'declined';
-    P.closeModal();P.render();P.toast('已更新纳入与问答范围，提供者原稿保留。');return true;
+    P.closeModal();P.render();P.toast('已更新档案纳入和分享范围，提供者原稿保留。');return true;
   }
   P.FamilyContext={current,established,selectable,invited,allowed,authorized,readable,inArchive,usable,answerable,select,picker,locked,permissions,handleAction,submit};
   P.views['family-permissions']=permissions;

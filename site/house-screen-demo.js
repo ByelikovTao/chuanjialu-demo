@@ -1,8 +1,9 @@
-/** 爸妈的相框原型。两个操作端共用当前家庭的往事，设备状态保留在当前页面内存。 */
+/** 传家相框原型。两个操作端共用当前家庭的往事，设备状态保留在当前页面内存。 */
 'use strict';
 {
   const P = window.App;
   const { escape: e, icon: i, button: b, link: l } = P;
+  const frameName = P.Households.addonOffer('frame').title;
   const reminders = P.HouseScreenReminders;
   const root = document.getElementById('house-screen-demo');
   const workspaces = new Map();
@@ -19,7 +20,7 @@
     people: { title: '按人找照片', icon: 'family', empty: '家人投来有关联人物的照片后，就能按人翻看。' },
     stories: { title: '讲讲这张', icon: 'mic', empty: '家人邀请你讲照片里的故事时，照片和问题会出现在这里。' }
   };
-  const entryReturnLabels = { home: '返回我家', 'house-picks': '返回优选', 'home-album': '返回相册' };
+  const entryReturnLabels = { home: '返回我家', profile: '返回我的', 'house-picks': '返回优选', 'home-album': '返回相册' };
   const photoTypes = ['image/jpeg', 'image/png', 'image/webp'];
   const maxPhotoBytes = 8 * 1024 * 1024;
   const calendar = new Intl.DateTimeFormat('zh-CN', { month: 'long', day: 'numeric', weekday: 'long' });
@@ -72,10 +73,19 @@
   }
 
   function workspace() {
-    if (workspaces.has(P.state)) return workspaces.get(P.state);
+    const purchased = P.Customization.hasPurchasedFrame();
+    const existing = workspaces.get(P.state);
+    if (existing) {
+      // 试用演示机的默认配对只服务于试用。首次付款后，家庭需绑定购买的设备。
+      if (purchased && !existing.purchased) {
+        existing.bound = false;
+        existing.purchased = true;
+      }
+      return existing;
+    }
     const example = P.Households.isExample();
     const d = {
-      residents: example ? ['father', 'mother'] : ['father'], bound: example, online: true,
+      residents: example ? ['father', 'mother'] : ['father'], bound: example && !purchased, purchased, online: true,
       paused: false, volume: 75, quietStart: '22:00', quietEnd: '07:00',
       delivered: new Map(), queued: new Map(), replies: new Map(), activeId: '', browse: null,
       gift: null, opening: false, openingUntil: 0, importedUrls: new Set(), reminders: reminders.create(example)
@@ -104,15 +114,22 @@
     return d;
   }
 
-  /** 入口读取已有绑定状态；陈家未打开过相框时沿用演示机的默认配对。 */
-  function isBound() {
-    return workspaces.get(P.state)?.bound ?? P.Households.isExample();
+  function isBound(purchased = P.Customization.hasPurchasedFrame()) {
+    const device = workspaces.get(P.state);
+    return purchased ? Boolean(device?.purchased && device.bound) : (device?.bound ?? P.Households.isExample());
+  }
+
+  /** 按当前家庭的订单和已购设备绑定状态进入管理。 */
+  function managementEntry(source) {
+    const purchased = P.Customization.hasPurchasedFrame();
+    if (!purchased) return null;
+    const bound = isBound(purchased);
+    return { bound, route: `house-screen//${bound ? 'photos' : 'device'}/${source}` };
   }
 
   function homeEntry() {
-    const photos = isBound() ? l(`${i('screen')}<span>给爸妈添照片</span>`, 'house-screen//photos/home', 'paper-link home-screen-entry') : '';
-    const prepare = l(`${i('shoppingBag')}<span>相框礼物</span>`, 'house-screen//gift/home', 'paper-link home-screen-entry');
-    return photos + prepare;
+    const target = managementEntry('home')?.route ?? 'house-screen-intro';
+    return l(`${i('screen')}<span>${frameName}</span>`, target, 'paper-link home-screen-entry');
   }
 
   function quiet(d, now = new Date()) {
@@ -264,9 +281,9 @@
     if (!sendable(story) || (fromAlbum && !isBound())) return '';
     const target = 'house-screen/' + e(story.id);
     if (fromAlbum) {
-      return l(i('screen') + ' 投到爸妈的相框', target + '/photos/home-album', 'paper-link album-print-send');
+      return l(i('screen') + ` 投到${frameName}`, target + '/photos/home-album', 'paper-link album-print-send');
     }
-    return l(i('screen') + ' 投送到爸妈的相框', target, 'text-link section screen-story-cast');
+    return l(i('screen') + ` 投送到${frameName}`, target, 'text-link section screen-story-cast');
   }
 
   function storyReplies(story) {
@@ -284,12 +301,6 @@
   function voiceList(replies) {
     return replies.map(reply => `<div class="screen-voice"><strong>${e(name(reply.person))} · ${reply.sample ? '示例语音' : '大屏原声'}</strong>
       <audio controls preload="none" src="${e(reply.src)}" aria-label="听${e(name(reply.person))}的回话"></audio></div>`).join('');
-  }
-
-  function bookVoices(story) {
-    const replies = storyReplies(story).filter(reply => reply.inBook);
-    if (!replies.length) return '';
-    return `<section class="book-photo-voices section" aria-label="大屏讲述">${voiceList(replies)}</section>`;
   }
 
   function replyControls(d) {
@@ -458,12 +469,9 @@
 
   function photoReplies(replies) {
     if (!replies.length) return '';
-    const inBook = replies.some(reply => reply.inBook);
-    return `<section class="screen-story-replies" aria-label="原照片的回话">${replies.map((reply, index) => `<div>
+    return `<section class="screen-story-replies" aria-label="原照片的回话">${replies.map(reply => `<div>
       ${reply.question ? `<p class="screen-caption">${e(reply.question.text)}</p>` : ''}${voiceList([reply])}
-      ${reply.question && !reply.inBook ? button('选入纪事册', 'archive-reply', 'secondary', `data-id="${index}"`) : ''}
-      ${reply.inBook ? '<p class="screen-caption">已选入纪事册样页</p>' : ''}</div>`).join('')}
-      ${inBook ? l('预览纪事册', 'house-book', 'screen-button secondary') : ''}</section>`;
+    </div>`).join('')}</section>`;
   }
 
   function photoPanel(d) {
@@ -539,19 +547,23 @@
 
   function phoneView(d) {
     const panels = { photos: photoPanel, reminders: reminders.phone, device: settingsPanel };
-    const title = gift ? '准备相框礼物' : '相框管理';
+    const title = gift ? `准备${frameName}礼物` : `管理${frameName}`;
+    const fromHome = route.split('/')[3] === 'home';
+    // 首页统一进入相框管理，备礼完成后回到同一个管理入口。
+    const managementRoute = `house-screen//${d.bound ? 'photos' : 'device'}${fromHome ? '/home' : ''}`;
     return `<div class="screen-phone-wrap">
       <h2 id="screen-phone-title" class="screen-preview-label">${title}</h2>
       <aside class="screen-phone" id="screen-phone" aria-labelledby="screen-phone-title" tabindex="-1">
         ${phoneReturn()}
         <header class="screen-phone-header"><div><h3>爸妈客厅</h3></div><span>${e(name(P.state.actor))}</span>
           ${button('看大屏', 'jump-device', 'plain screen-jump')}</header>
-        ${gift ? gift.render(d.bound ? 'house-screen//photos' : 'house-screen//device') : `
-          <nav class="screen-tabs" aria-label="相框管理功能">${Object.entries(managementTabs).map(([id, label]) =>
-            button(label, 'tab', 'plain', `data-tab="${id}" aria-pressed="${tab === id}"`)).join('')}</nav>
+        ${gift ? gift.render(managementRoute) : `
+          <nav class="screen-tabs${fromHome ? ' has-gift' : ''}" aria-label="${frameName}管理功能">${Object.entries(managementTabs).map(([id, label]) =>
+            button(label, 'tab', 'plain', `data-tab="${id}" aria-pressed="${tab === id}"`)).join('')}
+            ${fromHome ? l('准备礼物', 'house-screen//gift/home', 'screen-button plain') : ''}</nav>
           ${panels[tab](d)}`}
-        <details class="screen-price-note"><summary>相框多少钱？需要开会员吗？</summary>
-          <p>相框演示价 699 元／台。试售总价、是否含预装和配送，以门店报价为准。</p>
+        <details class="screen-price-note"><summary>${frameName}多少钱？需要开会员吗？</summary>
+          <p>${frameName}演示价 699 元／台。试售总价、是否含预装和配送，以门店报价为准。</p>
           <p>新家庭有 1 GB 免费共享空间，可添照片、收回话。需要更大空间时，家人可自选 249 元／家／年的 20 GB 会员。到期后仍可回看已有内容。</p>
         </details>
         <p class="screen-session-note">本页模拟手机和相框。照片和录音仅供本次演示，刷新后清空。</p>
@@ -569,23 +581,15 @@
     const oldScroll = oldViewport?.scrollTop;
     root.innerHTML = `<header class="screen-demo-heading">
       <div class="screen-demo-nav">${b(i('back') + ' 返回', 'back', 'screen-button secondary')}</div>
-      <div class="screen-demo-intro"><h1>爸妈的相框</h1></div>
+      <div class="screen-demo-intro"><h1>${frameName}</h1></div>
     </header>
     <div class="screen-demo-grid"><div class="screen-demo-device-wrap">
-      <div class="screen-preview-bar"><h2 class="screen-preview-label">相框预览</h2>
+      <div class="screen-preview-bar"><h2 class="screen-preview-label">${frameName}预览</h2>
         ${button('去手机端 ' + i('arrow'), 'jump-phone', 'plain screen-jump')}</div>${deviceView(demo)}
       <p class="screen-demo-status" role="status">${e(notice)}</p>
     </div>${phoneView(demo)}</div>
-    <section class="screen-family-book" aria-labelledby="screen-family-book-heading">
-      <h2 id="screen-family-book-heading">给爷爷做一本《爷爷的七十年》</h2>
-      <p>比如，知夏把爸爸第一天上班的老照片装进生日相框。爸爸点「回一句」说：“<strong class="text-emphasis">这件衬衫是你奶奶连夜改的。</strong>”知夏再点开家庭相册里的这张照片，就能听到爸爸的原话。</p>
-      <p>到了春节，她从全家共享的往事里选出爸爸上班、爸妈成家、念念给爷爷拜年的几段，排成一本电子故事册给孩子看。平时添过的照片，<strong class="text-emphasis">做书时不用再向家人讨一遍</strong>。</p>
-      <div class="screen-actions">${l('去家庭相册', 'house-stories', 'screen-button secondary')}
-        ${l('选往事，预览故事册', 'house-book', 'screen-button secondary')}</div>
-      <p class="screen-caption">故事册可免费预览，保存电子册是家庭会员权益。相框录下的回话可在原照片下回听。</p>
-    </section>
     <footer class="screen-demo-footer">
-      <a class="screen-research-link" href="briefing.html#strengths" target="_blank" rel="noopener">看同类相框与传家录的区别 ↗</a>
+      <a class="screen-research-link" href="briefing.html#strengths" target="_blank" rel="noopener">比较${frameName}与同类产品 ↗</a>
     </footer>`;
     const viewport = root.querySelector('.screen-device-grid');
     if (oldViewport?.dataset.screenView === viewport.dataset.screenView) viewport.scrollTop = oldScroll;
@@ -754,14 +758,6 @@
     notice = '回话已留在原照片下。';
   }
 
-  function archiveReply(d, index) {
-    const story = storyById(selected);
-    const reply = d.replies.get(selected)?.[index];
-    if (!sendable(story) || !reply?.question || reply.inBook || !P.Households.selectScreenStory(story)) return;
-    reply.inBook = true;
-    notice = '这段讲述已选入纪事册样页。';
-  }
-
   function likePhoto(d) {
     const id = d.browse?.photo;
     const delivery = d.delivered.get(id);
@@ -866,9 +862,6 @@
         break;
       case 'send-voice':
         sendVoice(d);
-        break;
-      case 'archive-reply':
-        archiveReply(d, Number(id));
         break;
       case 'ack-reminder':
       case 'snooze-reminder':
@@ -1094,5 +1087,5 @@
   }
 
   P.views['house-screen'] = () => '';
-  P.HouseScreen = { mount, reset, homeEntry, photoButton, voices, bookVoices, replyCount: story => storyReplies(story).length };
+  P.HouseScreen = { mount, reset, homeEntry, managementEntry, photoButton, voices, replyCount: story => storyReplies(story).length };
 }

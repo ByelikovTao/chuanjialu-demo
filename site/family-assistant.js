@@ -290,6 +290,14 @@
     return true;
   }
 
+  /** 场景入口仅传问题文字，回答按当前家庭的共享资料重新查找。 */
+  function openQuestion(value) {
+    const question = value.trim();
+    if (!question || question.length > LIMIT) return;
+    session().questions.push(question);
+    P.navigate(ROUTE);
+  }
+
   P.views[ROUTE] = view;
-  P.FamilyAssistant = { title: TITLE, capture, submit, handleAction };
+  P.FamilyAssistant = { title: TITLE, capture, submit, handleAction, openQuestion };
 }

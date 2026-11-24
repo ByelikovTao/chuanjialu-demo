@@ -60,52 +60,21 @@
 .phone .archive-meta{border:1px solid var(--line);border-radius:6px;padding:12px;background:#FFFDFA}
 .phone .archive-meta>div{font-size:calc(14px * var(--unit));line-height:1.5}
 .phone .material-card-photo{display:block;width:100%;height:160px;object-fit:cover;border-radius:6px;margin-bottom:12px}
-.phone .common-memory-photo{display:block;width:100%;height:144px;object-fit:cover;border-radius:6px;margin-bottom:12px}
 .phone .book-source>img{width:80px;height:56px;object-fit:cover;border-radius:4px;flex-shrink:0}
 .phone .book-source>span{flex:1;min-width:0}
-.phone[data-route=common-memories] .card[data-common-memory]{padding:8px;border:0}
-.phone[data-route=common-memories] .card[data-common-memory] h2{font-size:calc(18px * var(--unit));line-height:1.5556}
-.phone[data-route=common-memories] .card[data-common-memory] p{font-size:calc(14px * var(--unit));line-height:1.5}
 .phone.large-type .book-source{flex-wrap:wrap}
 .phone.large-type .book-source>img{width:100%;height:112px}
 
 /* 个人中心的入口文字允许多行显示。 */
 .phone .profile-menu-copy{flex:1;min-width:0}
 .phone .profile-menu-copy small{display:block;margin-top:8px;font-size:calc(14px * var(--unit));line-height:1.5;color:var(--secondary)}
-.phone[data-route=profile] .profile-heading .avatar.father img{object-position:center}
 
 /* 家人列表及关系树共用独立人像；亲缘、未认领与未知父母仍由原业务文字说明。 */
-.phone[data-route=family] .page>.page-title{color:var(--brand);padding-top:8px}
-.phone[data-route=family] .page:after{content:"";position:absolute;z-index:-1;right:0;top:0;width:120px;height:104px;background:url("assets/zhumen/page-roof.webp") right top/contain no-repeat;opacity:.6;pointer-events:none}
-.phone[data-route=family] .member-list{display:flex;flex-direction:column;margin-top:16px}
-.phone[data-route=family] .page{display:flex;flex-direction:column}
-.phone[data-route=family] .page>.tabs{order:1;margin-top:16px}
-.phone[data-route=family] .page>.member-list,.phone[data-route=family] .page>.family-tree{order:2}
-.phone[data-route=family] .page>.family-summary{order:3;margin:16px 0;text-align:center}
-.phone[data-route=family] .page>.family-actions{order:4}
-.phone[data-route=family] .page>.feature-entry{order:5}
-.phone[data-route=family] .page>.notice{order:6;margin-top:24px}
-.phone[data-route=family] .page>.section{order:7}
-.phone[data-route=family] .member-row{padding:4px 8px;border:1px solid var(--line);border-radius:8px;background:#FFFDFA;gap:12px;min-height:72px}
-.phone[data-route=family] .member-row[data-id=grandpa]{order:-1}
-.phone[data-route=family] .member-row .avatar{width:88px;height:64px;border-radius:6px}
-.phone[data-route=family] .member-row strong{font-size:calc(18px * var(--unit));line-height:1.5556}
-.phone[data-route=family] .member-row small{font-size:calc(14px * var(--unit))}
-.phone[data-route=family] .member-row .badge{display:none}
-.phone[data-route=family] .member-row em{font-size:calc(14px * var(--unit));line-height:1.5}
-.phone[data-route=family] .family-summary .avatar-stack{display:none}
-.phone .lineage-focus,.phone .lineage-branch{background:#FFFDFA;border-color:#D99585;border-radius:8px;padding:12px}
-.phone .lineage-members .tree-person{border:0;background:transparent}
-.phone .tree-person .avatar{width:64px;height:64px;border-radius:6px}
-.phone .lineage-focus h3,.phone .lineage-branch h3{font-size:calc(16px * var(--unit));text-align:left;padding-left:24px;background:url("assets/zhumen/chinese-knot-mark.svg") left center/20px no-repeat}
-.phone .lineage-indirect{border-style:dashed}
 .phone[data-route=family-permissions] .card{border-color:#CE7D70;margin-top:16px}
 .phone #family-permissions-form fieldset{border:1px solid #D68E7B;border-radius:8px;padding:12px;margin:16px 0;background:#FFFDFA}
 .phone #family-permissions-form legend{font-size:calc(18px * var(--unit));font-weight:600;padding-left:24px;background:url("assets/zhumen/chinese-knot-mark.svg") left center/20px no-repeat}
 .phone #family-permissions-form .check-row{gap:8px;min-height:40px}
 .phone #family-permissions-form .avatar{width:32px;height:32px}
-.phone[data-route=common-memories] .feature-item{border:0;padding:8px 0;background:transparent}
-.phone[data-route=common-memories] .feature-item h3{font-size:calc(20px * var(--unit))}
 
 /* 记录页还原紧凑横向录音卡，输入区沿用资料整理共用的中国结标题。 */
 .phone[data-route=record] .page:after{content:"";position:absolute;z-index:-1;right:0;top:0;width:52%;height:144px;background:url("assets/zhumen/record-writing-corner.webp") right top/cover no-repeat;mask-image:linear-gradient(90deg,transparent,#000 45%);pointer-events:none}
@@ -184,8 +153,6 @@
 .modal .btn{font-size:calc(16px * var(--unit));line-height:1.5}
 .modal :is(input:not([type=checkbox]):not([type=radio]),textarea,select){padding:12px;border-color:#CBBEB1;background:#FFFDFA}
 .modal .form-field>label{font-size:calc(16px * var(--unit));line-height:1.5}
-.modal .member-row{border:1px solid var(--line);padding:8px;border-radius:6px;margin-bottom:8px}
-.modal .member-row .avatar{width:64px;height:64px;border-radius:6px}
 /* 业务弹层在手机的内沿定位，画框负责圆角裁剪；桌面评审工具保持可操作。 */
 .phone-dialog-layer {
   position: absolute;
@@ -289,8 +256,6 @@
 .phone.large-type .book-cover{padding:24px;min-height:240px;background-size:32% auto}
 .phone.large-type .pricing-item{grid-template-columns:1fr}
 .phone.large-type .book-source input{order:0;margin-left:0}
-.phone.large-type[data-route=family] .member-row{flex-wrap:wrap}
-.phone.large-type[data-route=family] .member-row .grow{flex-basis:60%}
 
 /* 资料语境的回答离开人物画幅，材料、人物与原文按阅读顺序展开。 */
 .phone .avatar-page>.content-chat-context{flex:none}
@@ -315,67 +280,68 @@
 .modal .checkout-people>div{display:flex;align-items:center;gap:8px;min-width:0;font-size:calc(14px * var(--unit));line-height:1.5}
 .modal .checkout-people .avatar{width:48px;height:48px;border-radius:6px;flex-shrink:0}
 
-/* 身份卡沿用首页纸笺，菜单使用浅色纸面保留行间层次。 */
+/* 个人封面沿用首页的相框和题签，册页承载成组的操作入口。 */
 .phone .profile-page {
-  padding-block: 16px 24px;
+  padding-block: 8px 32px;
 }
 
-.profile-page :is(.profile-heading, .profile-shortcut, .profile-main-menu) {
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--surface);
-}
-
-.phone .profile-page .profile-heading {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 16px;
-}
-
-.profile-page .profile-heading .avatar {
-  width: 64px;
-  height: 64px;
-  border: 2px solid var(--surface);
-  outline: 1px solid var(--line);
-}
-
-.phone .profile-page .profile-heading h1 {
-  font-family: var(--family-hand);
-  font-size: calc(24px * var(--unit));
-  line-height: 1.3333;
+.profile-cover h1 {
   overflow-wrap: anywhere;
 }
 
-.profile-page .profile-heading .caption {
-  font-size: calc(14px * var(--unit));
-  line-height: 1.4286;
+.profile-role {
+  margin-block: 4px 8px;
+  color: var(--family-muted);
+  font-size: calc(13px * var(--unit));
+  line-height: 1.5;
 }
 
-.phone .profile-page .profile-settings {
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
-  color: var(--brand);
+.profile-portrait {
+  width: 84px;
+  margin-inline: auto;
+}
+
+.profile-portrait > .avatar {
+  display: flex;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  border: 0;
+  border-radius: 0;
+}
+
+.phone .profile-cover .profile-settings {
+  display: flex;
+  width: fit-content;
+  min-width: 44px;
+  margin-inline-start: auto;
+  color: var(--family-brand);
 }
 
 .profile-shortcuts {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 12px;
+  margin-block-start: 8px;
+  margin-inline: 5px;
+  border-block-end: 1px solid var(--family-line);
 }
 
 .phone .profile-page .profile-shortcut {
   display: grid;
-  grid-template-columns: 20px minmax(0, 1fr) 12px;
+  grid-template-columns: 18px minmax(0, 1fr) 12px;
   align-items: center;
   gap: 8px;
-  min-height: 64px;
-  padding: 8px;
-  color: var(--brand);
+  min-height: 52px;
+  padding: 8px 10px 8px 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--family-brand);
   text-align: left;
+}
+
+.phone .profile-page .profile-shortcut + .profile-shortcut {
+  padding-inline: 10px 4px;
 }
 
 .profile-shortcut strong,
@@ -385,13 +351,14 @@
 }
 
 .phone .profile-page .profile-shortcut strong {
-  color: var(--ink);
+  color: var(--family-ink);
   font-size: calc(14px * var(--unit));
-  line-height: 1.4286;
+  font-weight: 500;
+  line-height: 1.5;
 }
 
 .phone .profile-page .profile-shortcut small {
-  color: var(--secondary);
+  color: var(--family-muted);
   font-size: calc(12px * var(--unit));
   line-height: 1.3333;
 }
@@ -400,39 +367,62 @@
   width: 100%;
 }
 
+.profile-shortcut > .icon:last-child,
+.profile-main-menu > .menu-row > .icon:last-child {
+  color: var(--family-muted);
+}
+
 .profile-menu-group,
 .profile-demo {
-  margin-top: 16px;
+  margin-block-start: 24px;
 }
 
-.phone .profile-menu-group h2 {
-  margin-bottom: 8px;
+.profile-cover + .profile-menu-group {
+  margin-block-start: 24px;
 }
 
-.profile-page .profile-main-menu {
+.profile-page .home-section-heading {
+  margin: 0 0 8px;
+}
+
+.phone .profile-page .profile-main-menu {
   margin: 0;
-  padding: 0 12px;
+  padding: 2px 14px 2px 28px;
+  background-color: var(--family-surface);
 }
 
 .phone .profile-page .profile-main-menu > .menu-row {
   display: grid;
-  grid-template-columns: 32px minmax(0, 1fr) 16px;
-  gap: 12px;
-  min-height: 48px;
-  padding: 8px 0;
+  grid-template-columns: 20px minmax(0, 1fr) 14px;
+  gap: 10px;
+  min-height: 50px;
+  padding: 9px 0;
+  border-color: var(--family-line);
+  color: var(--family-ink);
   overflow-wrap: anywhere;
 }
 
 .profile-main-menu > .menu-row > .icon:first-child {
-  width: 32px;
-  height: 32px;
-  padding: 6px;
-  border-radius: 8px;
-  background: var(--soft);
+  width: 20px;
+  height: 20px;
+  color: var(--family-brand);
 }
 
 .phone .profile-main-menu .profile-menu-copy small {
   display: none;
+}
+
+.phone .profile-main-menu [data-nav="service-orders"] .profile-menu-copy small {
+  display: block;
+  margin-top: 2px;
+  color: var(--family-muted);
+  font-size: calc(12px * var(--unit));
+  line-height: 1.35;
+}
+
+.profile-page :is(.profile-shortcut, .profile-settings, .menu-row):focus-visible {
+  outline: 2px solid var(--family-brand);
+  outline-offset: -2px;
 }
 
 .profile-demo:empty {
@@ -451,17 +441,22 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
+.phone.large-type .profile-page .profile-shortcut + .profile-shortcut {
+  padding-inline: 4px 10px;
+  border-block-start: 1px solid var(--family-line);
+}
+
 .phone.large-type .profile-page .profile-main-menu > .menu-row {
   min-height: 64px;
 }
 
 /* 历史详情页沿用各自的山水纸底与纸笺样式。 */
-.phone:is([data-route=life],[data-route=house-baby],[data-route=house-elders],[data-route=house-couple],[data-route=house-couple-setup],[data-route|=house-book],[data-route=chat],[data-route=space],[data-route=reunion-album],[data-route=reunion-albums],[data-route=share-memory],[data-route=share-preview],[data-route=share-gifts],[data-route=photo-restore]){--surface:#FFF9ED;--canvas:#FBF7EF;--line:#D6BFA3}
-.phone:is([data-route=home-origin],[data-route=life],[data-route=house-baby],[data-route=house-elders],[data-route=house-couple],[data-route=house-couple-setup],[data-route|=house-book],[data-route=chat],[data-route=space],[data-route=reunion-album],[data-route=reunion-albums],[data-route=share-memory],[data-route=share-preview],[data-route=share-gifts],[data-route=photo-restore]) .app-header{background:#FBF7EF;color:#483629;border-bottom:3px double #D6BFA3;padding:8px 16px}
-.phone:is([data-route=home-origin],[data-route=life],[data-route=house-baby],[data-route=house-elders],[data-route=house-couple],[data-route=house-couple-setup],[data-route|=house-book],[data-route=chat],[data-route=space],[data-route=reunion-album],[data-route=reunion-albums],[data-route=share-memory],[data-route=share-preview],[data-route=share-gifts],[data-route=photo-restore]) .app-header h1{font-family:KaiTi,STKaiti,serif;font-size:calc(24px * var(--unit));line-height:1.3333;letter-spacing:4px}
-.phone:is([data-route=home-origin],[data-route=life],[data-route=house-baby],[data-route=house-elders],[data-route=house-couple],[data-route=house-couple-setup],[data-route|=house-book],[data-route=chat],[data-route=space],[data-route=reunion-album],[data-route=reunion-albums],[data-route=share-memory],[data-route=share-preview],[data-route=share-gifts],[data-route=photo-restore]) .app-header:before{content:'';position:absolute;inset:0 0 0 auto;width:120px;z-index:-1;background:url('assets/zhumen/header-roof.webp') right top/cover no-repeat;opacity:.18;mask-image:linear-gradient(90deg,transparent,#000);pointer-events:none}
-.phone:is([data-route=home-origin],[data-route=life],[data-route=house-baby],[data-route=house-elders],[data-route=house-couple],[data-route=house-couple-setup],[data-route|=house-book],[data-route=chat],[data-route=space],[data-route=reunion-album],[data-route=reunion-albums],[data-route=share-memory],[data-route=share-preview],[data-route=share-gifts],[data-route=photo-restore]) .app-header :is(.icon-button,.my-button,.chat-message-trigger){color:#9B3428}
-.phone:is([data-route=home-origin],[data-route=life],[data-route=house-baby],[data-route=house-elders],[data-route=house-couple],[data-route=house-couple-setup],[data-route|=house-book],[data-route=chat],[data-route=reunion-album],[data-route=reunion-albums],[data-route=share-memory],[data-route=share-preview],[data-route=share-gifts],[data-route=photo-restore]) .app-content>.page{position:relative;isolation:isolate;background:#FBF7EF;min-height:100%}
+.phone:is([data-route=life],[data-route=house-baby],[data-route=house-elders],[data-route=house-couple],[data-route=house-couple-setup],[data-route=chat],[data-route=space],[data-route=reunion-album],[data-route=reunion-albums],[data-route=share-memory],[data-route=share-preview],[data-route=share-gifts],[data-route=photo-restore]){--surface:#FFF9ED;--canvas:#FBF7EF;--line:#D6BFA3}
+.phone:is([data-route=home-origin],[data-route=life],[data-route=house-baby],[data-route=house-elders],[data-route=house-couple],[data-route=house-couple-setup],[data-route=chat],[data-route=space],[data-route=reunion-album],[data-route=reunion-albums],[data-route=share-memory],[data-route=share-preview],[data-route=share-gifts],[data-route=photo-restore]) .app-header{background:#FBF7EF;color:#483629;border-bottom:3px double #D6BFA3;padding:8px 16px}
+.phone:is([data-route=home-origin],[data-route=life],[data-route=house-baby],[data-route=house-elders],[data-route=house-couple],[data-route=house-couple-setup],[data-route=chat],[data-route=space],[data-route=reunion-album],[data-route=reunion-albums],[data-route=share-memory],[data-route=share-preview],[data-route=share-gifts],[data-route=photo-restore]) .app-header h1{font-family:KaiTi,STKaiti,serif;font-size:calc(24px * var(--unit));line-height:1.3333;letter-spacing:4px}
+.phone:is([data-route=home-origin],[data-route=life],[data-route=house-baby],[data-route=house-elders],[data-route=house-couple],[data-route=house-couple-setup],[data-route=chat],[data-route=space],[data-route=reunion-album],[data-route=reunion-albums],[data-route=share-memory],[data-route=share-preview],[data-route=share-gifts],[data-route=photo-restore]) .app-header:before{content:'';position:absolute;inset:0 0 0 auto;width:120px;z-index:-1;background:url('assets/zhumen/header-roof.webp') right top/cover no-repeat;opacity:.18;mask-image:linear-gradient(90deg,transparent,#000);pointer-events:none}
+.phone:is([data-route=home-origin],[data-route=life],[data-route=house-baby],[data-route=house-elders],[data-route=house-couple],[data-route=house-couple-setup],[data-route=chat],[data-route=space],[data-route=reunion-album],[data-route=reunion-albums],[data-route=share-memory],[data-route=share-preview],[data-route=share-gifts],[data-route=photo-restore]) .app-header :is(.icon-button,.my-button,.chat-message-trigger){color:#9B3428}
+.phone:is([data-route=home-origin],[data-route=life],[data-route=house-baby],[data-route=house-elders],[data-route=house-couple],[data-route=house-couple-setup],[data-route=chat],[data-route=reunion-album],[data-route=reunion-albums],[data-route=share-memory],[data-route=share-preview],[data-route=share-gifts],[data-route=photo-restore]) .app-content>.page{position:relative;isolation:isolate;background:#FBF7EF;min-height:100%}
 .phone:is([data-route=life],[data-route=house-baby],[data-route=house-elders],[data-route=house-couple],[data-route=house-couple-setup],[data-route=chat],[data-route=reunion-album],[data-route=reunion-albums],[data-route=share-memory],[data-route=share-preview],[data-route=share-gifts],[data-route=photo-restore]) .app-content>.page:before{content:'';position:absolute;inset:0;z-index:-1;background:url('assets/zhumen/home-ink-landscape.webp') center top/100% 1600px repeat-y;opacity:.32;pointer-events:none}
 .phone:is([data-route=life],[data-route=house-baby],[data-route=house-elders],[data-route=house-couple],[data-route=house-couple-setup],[data-route=chat],[data-route=reunion-album],[data-route=reunion-albums],[data-route=share-memory],[data-route=share-preview],[data-route=share-gifts],[data-route=photo-restore]) .page :is(h1,h2,h3){font-family:KaiTi,STKaiti,serif;color:#49372B}
 .phone[data-route=life] :is(.archive-shortcut,.archive-media-card,.archive-place-card,.keepsake-entry){border:1px solid #D4BFA4;border-radius:0;box-shadow:none;background-color:#FFF8E880}
@@ -510,7 +505,7 @@
 .phone[data-route=space] :is(.memory-mode-picker button,.era-picker button){border-radius:0}
 .phone[data-route=space] .memory-mode-picker button.active{background:#A53425;color:#FFF8E8}
 .phone[data-route=space] .era-picker button.active{background:#EEDBC1;color:#913829}
-.phone:is([data-route=life],[data-route=house-baby],[data-route=house-elders],[data-route=house-couple],[data-route=house-couple-setup],[data-route|=house-book],[data-route=chat],[data-route=space],[data-route=reunion-album],[data-route=reunion-albums],[data-route=share-memory],[data-route=share-preview],[data-route=share-gifts],[data-route=photo-restore]) .bottom-nav{background:#FBF7EF;border-top:3px double #D6BFA3}
+.phone:is([data-route=life],[data-route=house-baby],[data-route=house-elders],[data-route=house-couple],[data-route=house-couple-setup],[data-route=chat],[data-route=space],[data-route=reunion-album],[data-route=reunion-albums],[data-route=share-memory],[data-route=share-preview],[data-route=share-gifts],[data-route=photo-restore]) .bottom-nav{background:#FBF7EF;border-top:3px double #D6BFA3}
 
 /* 人物切换作为封面左侧轻量工具，保留原生选择与读屏标签，不横跨人物肖像。 */
 .phone .archive-cover-heading .archive-person-picker{position:relative;width:176px;max-width:54%;margin:0 0 16px}

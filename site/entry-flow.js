@@ -4,10 +4,10 @@
   const P=window.App,e=P.escape;
   const DEMO_PHONE='13800000000',DEMO_CODE='246810';
   const PREVIEWS=[
-    {title:'记录人生印记',tag:'人生印记',icon:'book',image:'assets/zhumen/entry-preview-life.webp',body:'用文字、照片和视频记录重要的时刻，留住值得珍藏的回忆。'},
+    {title:'记录人生印记',tag:'人生印记',icon:'book',image:'assets/zhumen/entry-preview-life.webp',body:'用文字、照片和视频记录重要的时刻，留住重要的回忆。'},
     {title:'整理家庭图谱',tag:'家庭图谱',icon:'family',image:'assets/zhumen/entry-preview-family.webp',body:'清晰梳理家人关系，记录每位家人的人生故事。'},
     {title:'和家人聊聊',tag:'与TA聊聊',icon:'chat',image:'assets/zhumen/entry-preview-chat.webp',body:'围绕人生片段展开交流，听家人的讲述，增进理解与连接。'},
-    {title:'找回回忆里的家',tag:'回忆里的家',icon:'home',image:'assets/zhumen/entry-preview-home.webp',body:'珍藏老照片与家庭故事，重温属于家人的温暖空间。'}
+    {title:'找回回忆里的家',tag:'回忆里的家',icon:'home',image:'assets/zhumen/entry-preview-home.webp',body:'翻看老照片与家庭故事，重温属于家人的温暖空间。'}
   ];
   const DELIVERY_ROUTE='film-delivery';
   /** 三屏总览保留内嵌预览；只有交片链接可以从身份验证开始。 */
@@ -37,7 +37,7 @@
       ${session.installing?'<div class="install-progress" role="status"><span></span><p>正在准备传家录，请稍候</p></div>':''}
       <p class="store-availability">传家录当前尚未上架，敬请期待。</p></section>
       <h2 class="entry-section-title">功能预览</h2><div class="store-previews">${PREVIEWS.map((item,index)=>button(preview(item,index),'preview','preview-button',`data-index="${index}" aria-label="放大预览：${item.tag}"`)).join('')}</div>
-      <section class="store-description"><h2>关于传家录</h2><p>传家录，属于一家人的人生记忆空间。把珍贵的影像、照片和讲述整理成人生档案，让家人看见来时的路，也让故事继续被听见。</p><ul><li>人生印记：收藏影片、照片、传记与个人作品。</li><li>与TA聊聊：围绕已留下的资料，继续聊聊人生故事。</li><li>回忆里的家：走进熟悉的老屋，重温物件背后的记忆。</li><li>家人共建：补充资料、核对讲述，留下彼此的共同回忆。</li></ul><p>可自主建家和邀请亲人。顾问上门采集和 AI 人生故事片作为可选服务。</p></section><p class="entry-caption">原型演示 · 暂定名称 · 未实际上架应用市场</p>`;
+      <section class="store-description"><h2>关于传家录</h2><p>传家录，属于一家人的人生记忆空间。把珍贵的影像、照片和讲述整理成人生档案，让家人看见来时的路，也让故事继续被听见。</p><ul><li>人生印记：整理影片、照片、传记与个人作品。</li><li>与TA聊聊：围绕已留下的资料，继续聊聊人生故事。</li><li>回忆里的家：走进熟悉的老屋，重温物件背后的记忆。</li><li>家人共建：补充资料、核对讲述，留下彼此的共同回忆。</li></ul><p>可自主建家和邀请亲人。顾问上门采集和 AI 人生故事片作为可选服务。</p></section><p class="entry-caption">原型演示 · 暂定名称 · 未实际上架应用市场</p>`;
   }
   /** 登录按原稿还原头像与表单；填号作为字段旁的辅助动作，核验与主动同意沿用原契约。 */
   function login(delivery){

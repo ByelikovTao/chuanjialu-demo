@@ -1,28 +1,8 @@
 /* 家庭、记录和会员的辅助页面，沿用全局字号缩放。 */
-.family-summary{display:flex;align-items:center;gap:12px;margin-top:20px;font-size:calc(13px * var(--unit));color:var(--secondary)}
-.avatar-stack{display:flex;padding-left:5px}
-.avatar-stack .avatar{border:2px solid var(--canvas);margin-left:-5px;width:33px;height:33px}
-.member-list{border-top:1px solid var(--line)}
-.member-row{display:flex;align-items:center;gap:10px;width:100%;padding:16px 0;text-align:left;background:none;border-bottom:1px solid #E8D9C9}
-.member-row strong{display:block;font-size:calc(16px * var(--unit));font-weight:500}
-.member-row strong small{font-size:calc(13px * var(--unit));color:var(--secondary);margin-left:6px;white-space:normal}
-.member-row em{display:block;font-size:calc(13px * var(--unit));font-style:normal;color:var(--subtle);margin-top:4px}
-.member-row>.icon{width:13px;color:var(--subtle)}
-.member-row .badge{font-size:calc(13px * var(--unit));padding:3px 5px}
-.family-actions{margin-top:20px;text-align:center}
-.family-actions .caption{margin-top:10px}
-.family-tree{background:#F7F1E5;padding:20px 10px;border-radius:16px;overflow:auto;min-width:0}
 /* 问题卡的长标题和回复在窄屏、大字号下允许换行，不把状态标记挤出卡片。 */
 .question-card{min-width:0;overflow-wrap:anywhere}
 .question-card>.row{flex-wrap:wrap;gap:8px;align-items:flex-start}
 .question-card .story-paragraph{white-space:pre-wrap}
-.tree-person{background:var(--surface);border:1px solid #E8D9C9;border-radius:13px;padding:12px 10px;min-width:95px;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0}
-.tree-person strong{font-size:calc(14px * var(--unit));font-weight:500}
-.tree-person small{font-size:calc(13px * var(--unit));color:var(--secondary)}
-.couple-line{height:1px;width:30px;background:#C9A99A}
-.invitation-row{display:flex;align-items:center;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--line);padding:12px 0}
-.invitation-row .grow{flex:1 1 100%;min-width:0;overflow-wrap:anywhere}
-.invitation-row strong{font-size:calc(16px * var(--unit));font-weight:500}
 .invite-hero{text-align:center;padding:13px 0}
 .invite-hero .avatar{width:75px;height:75px;margin-bottom:12px}
 .invite-hero .page-title{font-size:calc(27px * var(--unit));margin-top:8px}
@@ -45,11 +25,6 @@
 .review-story h2{font-size:calc(22px * var(--unit));margin-bottom:15px}
 .review-story>p{font-size:calc(17px * var(--unit));line-height:1.9;white-space:pre-wrap}
 .review-story{padding:20px}
-.profile-heading{display:flex;align-items:center;gap:13px;padding:10px 0 20px}
-.profile-heading>div{flex:1;min-width:0}
-.profile-heading h1{font:600 calc(26px * var(--unit))/1.6 SimSun,serif}
-.profile-heading .caption{font-size:calc(13px * var(--unit))}
-.profile-heading .avatar{width:60px;height:60px}
 /* 个人中心用紧凑的整块服务入口，长状态与大字号自然换行，不再占用整张促销卡片。 */
 .profile-service-summary{display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;border-radius:14px;background:var(--soft);color:var(--brand);text-align:left}
 .profile-service-summary>span{flex:1;min-width:0;overflow-wrap:anywhere}
@@ -88,7 +63,6 @@
 .plan-card li .icon{width:16px;height:16px;flex-shrink:0;margin-top:3px;color:var(--brand)}
 .plan-card .btn{font-size:calc(15px * var(--unit))}
 .plan-card .badge{font-size:calc(13px * var(--unit))}
-.saved-entry{padding-bottom:20px;border-bottom:1px solid var(--line);margin-bottom:20px}
 .checkout-price{display:flex;justify-content:space-between;gap:12px;padding:10px 0;font-size:15px;border-bottom:1px solid var(--line)}
 .checkout-price.total{font-weight:700;font-size:20px;color:var(--brand);border:0;margin-bottom:10px}
 .audio-demo{background:var(--soft);padding:16px;border-radius:12px;margin-bottom:15px}
@@ -106,21 +80,14 @@
 .family-selector{display:grid;gap:10px}
 .family-selector button{background:var(--soft);border-radius:12px;padding:15px;text-align:left;display:flex;align-items:center;gap:10px;font-size:16px}
 .family-selector small{display:block;color:var(--secondary);font-size:12px}
-.large-type .member-row{flex-wrap:wrap}
-.large-type .member-row>.badge{margin-left:50px}
-.large-type .family-summary{flex-wrap:wrap}
-.large-type .profile-heading{flex-wrap:wrap}
 .large-type .plan-price strong{font-size:44px}
 .large-type .record-form-buttons{grid-template-columns:minmax(0,1fr)}
 .large-type .record-controls .btn{width:100%}
-.large-type .profile-heading>.icon-button{margin-left:auto}
-.large-type .tree-person{min-width:130px}
 .large-type .quota-grid{grid-template-columns:1fr;gap:15px}
 .large-type .quota-grid>div{padding:0}
 .large-type .quota-grid>div:first-child{padding:0;border-right:0}
 @keyframes recordPulse{to{box-shadow:0 0 0 14px #E8D9C955}}
 .state-examples{display:grid;gap:8px;margin-top:22px;font-size:11px}
-.tree-controls{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
 .state-examples select{padding:7px;border:1px solid #C9A99A;background:#F7F6F0;border-radius:7px;font-size:12px;min-width:0}
 .state-examples p{font-size:11px;color:var(--subtle)}
 .large-text .modal p,.large-text .modal .form-field>label,.large-text .modal .check-row{font-size:calc(15px * var(--unit))}

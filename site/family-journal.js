@@ -1,4 +1,4 @@
-/** 家史、家庭相册和家事共用同一套册页与家庭分享范围。 */
+/** 家庭相册、家事与姓源的阅读视图。相册和日记按页浏览。 */
 'use strict';
 {
   const P = window.App;
@@ -11,7 +11,8 @@
   }
 
   function seal() {
-    return P.Households.isExample() ? '<span class="family-seal" aria-hidden="true">陈</span>' : '';
+    const surname = P.Households.current()?.seal;
+    return surname ? `<span class="family-seal" aria-hidden="true">${e(surname)}</span>` : '';
   }
 
   function paperLink(label, route) {
@@ -101,7 +102,7 @@
     </section>
     <div class="album-other-links">
       ${paperLink('查看家庭全部记录', 'house-stories/family')}
-      ${photos.length ? P.Households.addonEntry('frame', '给爸妈选一台相框', { returnLabel: '返回家庭相册', className: 'paper-link' }) : ''}
+      ${photos.length ? P.Households.addonEntry('frame', `给爸妈选一台${P.Households.addonOffer('frame').title}`, { returnLabel: '返回家庭相册', className: 'paper-link' }) : ''}
     </div>`;
   }
 
@@ -238,77 +239,108 @@
     </section>`);
   }
 
-  function surnameSource({ source, url }) {
-    if (!source) return '';
-    const citation = url ? `<a href="${e(url)}" target="_blank" rel="noopener">${e(source)}</a>` : e(source);
-    return `<p class="surname-reader-source">资料来源 · ${citation}</p>`;
+  function surnameFields(fields = [], extraClass = '') {
+    if (!fields.length) return '';
+    return `<dl class="surname-reader-fields${extraClass ? ' ' + extraClass : ''}">${fields.map(({ label, value, fullWidth }) =>
+      `<div${fullWidth ? ' class="is-full"' : ''}><dt>${e(label)}</dt><dd>${e(value)}</dd></div>`).join('')}</dl>`;
   }
 
-  function surnameFacts(items, className) {
-    return `<dl class="${className}">${items.map(({ label, value, detail }) =>
-      `<div><dt>${e(label)}</dt><dd>${e(value)}${detail ? `<span>${e(detail)}</span>` : ''}</dd></div>`).join('')}</dl>`;
-  }
-
-  /** 家庭摘要引用已确认家史，旧记载缺少线索字段时沿用首段文字。 */
-  function surnameFamily(person, history, record) {
-    if (!history && !record) return '';
-    const trace = history?.trace;
-    const clues = [
-      { label: '最早可追溯记录', value: trace?.earliest },
-      { label: '迁徙线索', value: trace?.migration },
-      { label: '祖籍与支系', value: trace?.ancestralHome }
-    ].filter(({ value }) => value?.trim());
-    if (clues.length && !trace?.ancestralHome?.trim()) {
-      clues.push({ label: '祖籍与支系', value: '待补录' });
-    }
-    const opening = history?.text?.split(/\r?\n/).find(line => line.trim());
-    const summary = clues.length ? surnameFacts(clues, 'surname-reader-clues') :
-      (opening ? `<p class="surname-reader-text">${e(opening)}</p>` : '');
-
-    return `<section class="surname-reader-section" aria-labelledby="surname-family-title">
-      <h2 id="surname-family-title">我们家目前知道什么</h2>
-      ${summary}
-      ${history ? `${surnameSource(history)}${paperLink('阅读家史', 'home-origin/' + e(person))}` : ''}
-      ${record ? `<div class="surname-reader-record">
-        <h3>家人整理的姓源</h3>
-        <p class="surname-reader-text">${e(record.text)}</p>
-        ${surnameSource(record)}
-      </div>` : ''}
+  function surnamePopulation({ total, rank, regions } = {}) {
+    // 合并人口与名次，只展示已有数字，避免缺项时出现空分隔符。
+    const population = [total && `约 ${total}人`, rank && `全国第 ${rank}`].filter(Boolean).join(' · ');
+    const fields = [
+      { label: total ? '当代人口' : '人口排名', value: population, fullWidth: true },
+      { label: '主要分布', value: regions?.join('、'), fullWidth: true }
+    ].filter(field => field.value);
+    if (!fields.length) return '';
+    return `<section class="surname-reader-population" aria-labelledby="surname-population-title">
+      <h2 id="surname-population-title" class="surname-reader-section-title">人口参考</h2>
+      ${surnameFields(fields)}
     </section>`;
   }
 
-  function surnameCulture(name, culture) {
-    if (!culture) return '';
-    const { facts, reading } = culture;
-    return `<section class="surname-reader-section" aria-labelledby="surname-culture-title">
-      <h2 id="surname-culture-title">${e(name)}姓的一支怎样得姓</h2>
-      ${facts?.length ? surnameFacts(facts, 'surname-reader-facts') : ''}
-      <p class="surname-reader-text">${e(culture.text)}</p>
-      ${surnameSource(culture)}
-      ${reading ? `<details class="surname-reader-reading">
-        <summary>${e(reading.title)}</summary>
-        <p class="surname-reader-text">${e(reading.text)}</p>
-        ${surnameSource(reading)}
-      </details>` : ''}
-    </section>`;
+  /** 每条源流独立展示，不用固定步骤或数量推断其他支系。 */
+  function surnameOrigin(origins = []) {
+    if (!origins.length) return '';
+    return `<details class="surname-reader-origin" open>
+      <summary class="surname-reader-section-title">阅读姓氏源流 ${i('down')}</summary>
+      <ul class="surname-reader-entries" role="list">
+        ${origins.map(({ title, tags, text }) => `<li class="surname-reader-entry">
+          <h2>${e(title)}</h2>
+          ${tags?.length ? `<p class="surname-reader-meta surname-reader-entry-context">${e(tags.join(' · '))}</p>` : ''}
+          <p class="surname-reader-text">${e(text)}</p>
+        </li>`).join('')}
+      </ul>
+    </details>`;
+  }
+
+  /** 没有条目的字段不占位，标题仅列出当前姓氏已有的类目。 */
+  function surnameCulture({ regions, hallNames, ancestralHalls } = {}) {
+    const groups = [
+      { label: '郡望', items: regions },
+      { label: '堂号', items: hallNames },
+      { label: '祠堂', items: ancestralHalls }
+    ].filter(group => group.items?.length);
+    if (!groups.length) return '';
+
+    const labels = groups.map(group => group.label);
+    const lastLabel = labels.pop();
+    const title = labels.length ? labels.join('、') + '与' + lastLabel : lastLabel;
+    return `<details class="surname-reader-culture" open>
+      <summary class="surname-reader-section-title">${e(title)} ${i('down')}</summary>
+      <dl class="surname-reader-culture-list">
+        ${groups.map(({ label, items }) => `<div>
+          <dt>${e(label)}</dt>
+          <dd><ul class="surname-reader-culture-items" role="list">
+            ${items.map(({ name, context }) => `<li>
+              <div class="surname-reader-culture-name">
+                <strong>${e(name)}</strong>
+                ${context ? `<span>${e(context)}</span>` : ''}
+              </div>
+            </li>`).join('')}
+          </ul></dd>
+        </div>`).join('')}
+      </dl>
+    </details>`;
   }
 
   function surname() {
     const person = P.state.homeReaderPerson;
     const details = P.FamilyHome.surnameDetails(person);
     if (!details) {
-      return '<div class="paper-card journal-sheet surname-reader"><p class="surname-reader-text">姓源待整理。</p></div>';
+      return '<article class="paper-card journal-sheet surname-reader surname-reader-public"><p class="surname-reader-text">姓源待整理。</p></article>';
     }
-    const { name, record, culture } = details;
-    const history = P.FamilyHome.document('origin', person);
-    // 编辑器会预填公共资料，原样保存时只在公开资料一处显示。
-    const familyRecord = record?.text && (record.text !== culture?.text || record.source !== culture?.source)
-      ? record : null;
-    return `<article class="paper-card journal-sheet surname-reader">
-      <h1>${name ? e(name) + '姓的来历' : '姓源'} ${seal()}</h1>
-      ${surnameFamily(person, history, familyRecord)}
-      ${surnameCulture(name, culture)}
-      ${!history && !familyRecord && !culture ? '<p class="surname-reader-text">姓源待整理。</p>' : ''}
+    const { name, culture, record } = details;
+    const { spelling, facts, population, origins, traditions } = culture || {};
+    const title = name ? `${name}姓的来历` : '姓氏来历';
+    const nameLength = name ? [...name].length : 0;
+    const showGlyph = nameLength > 0 && nameLength <= 2;
+    const intro = culture?.intro || culture?.text;
+    // 没有公共条目时，仍可从现有入口阅读已发布的姓源正文。
+    const familyText = !culture && record?.text;
+    return `<article class="paper-card journal-sheet surname-reader surname-reader-public">
+      <header class="surname-reader-heading">
+        ${showGlyph ? `<span class="surname-reader-glyph${nameLength === 2 ? ' is-compound' : ''}" aria-hidden="true">${e(name)}</span>` : ''}
+        <div>
+          <p class="surname-reader-meta">公开姓氏资料</p>
+          <h1>${e(title)} ${showGlyph
+            ? `<span class="family-seal surname-reader-character${nameLength === 2 ? ' is-compound' : ''}" aria-hidden="true">${e(name)}</span>` : ''}</h1>
+          ${spelling?.pinyin || spelling?.traditional ? `<p class="surname-reader-pronunciation">
+            ${spelling.pinyin ? `<span lang="zh-Latn">${e(spelling.pinyin)}</span>` : ''}
+            ${spelling.traditional ? `<span>繁体「${e(spelling.traditional)}」</span>` : ''}
+          </p>` : ''}
+        </div>
+      </header>
+      ${intro ? `<p class="surname-reader-intro surname-reader-text">${e(intro)}</p>` : ''}
+      ${surnameFields(facts, 'surname-reader-facts')}
+      ${surnamePopulation(population)}
+      ${surnameOrigin(origins)}
+      ${surnameCulture(traditions)}
+      ${culture ? '' : '<p class="surname-reader-empty">公开姓氏资料待整理。</p>'}
+      ${familyText ? `<section class="surname-reader-entry">
+        <h2>家人整理的姓源</h2>
+        <p class="surname-reader-text">${e(familyText)}</p>
+      </section>` : ''}
     </article>`;
   }
 
@@ -383,12 +415,11 @@
     }
   }
 
-  /** 横向手势与翻页按钮共享目标，纵向滑动继续滚动正文。 */
+  /** 只有相册和日记使用横向翻页，纵向滑动继续滚动当页正文。 */
   function mount(content) {
-    const paper = content.querySelector('[data-paper-swipe]');
+    const paper = content.querySelector('.family-album[data-paper-swipe], .diary-book[data-paper-swipe]');
     if (!paper) return;
-    const book = paper.matches('.family-album, .history-book, .diary-book');
-    const currentPage = paper.querySelector('.album-leaf, .history-leaf, .diary-leaf') || paper;
+    const currentPage = paper.querySelector('.album-leaf, .diary-leaf') || paper;
     const editingControl = 'input, textarea, select, audio, video, [contenteditable]';
     function turn(side) {
       const route = currentPage.querySelector('[data-paper-turn="' + side + '"]')?.dataset.nav;
@@ -396,13 +427,11 @@
       return Boolean(route);
     }
 
-    if (book) {
-      paper.addEventListener('keydown', event => {
-        if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.target.closest(editingControl)) return;
-        const side = { ArrowRight: 'next', ArrowLeft: 'previous' }[event.key];
-        if (side && turn(side)) event.preventDefault();
-      });
-    }
+    paper.addEventListener('keydown', event => {
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.target.closest(editingControl)) return;
+      const side = { ArrowRight: 'next', ArrowLeft: 'previous' }[event.key];
+      if (side && turn(side)) event.preventDefault();
+    });
 
     let start;
     paper.addEventListener('touchstart', event => {
@@ -416,13 +445,13 @@
       start = null;
       if (Math.abs(deltaX) < 56 || Math.abs(deltaX) < Math.abs(deltaY) * 1.4) return;
       // 横扫只翻页，触点结束时不再触发页内按钮。
-      if (book && event.cancelable) event.preventDefault();
+      if (event.cancelable) event.preventDefault();
       turn(deltaX < 0 ? 'next' : 'previous');
     }, { passive: false });
     paper.addEventListener('touchcancel', () => { start = null; }, { passive: true });
   }
 
-  P.FamilyJournal = { familyName, seal, albumPreview, diaryPreview, diaryByline, turnPages, openPhoto, mount,
-    albumPage, showAlbumTurn, animatePaperTurn, diaryBook, diaryStoryPage, diaryListFor, diaryPage, showDiaryTurn };
+  P.FamilyJournal = { familyName, seal, albumPreview, diaryPreview, diaryByline, openPhoto, mount,
+    albumPage, showAlbumTurn, diaryBook, diaryStoryPage, diaryListFor, diaryPage, showDiaryTurn };
   Object.assign(P.views, { 'home-album': album, 'home-diary': diary, 'home-surname': surname });
 }

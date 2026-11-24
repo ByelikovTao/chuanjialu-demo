@@ -46,13 +46,6 @@
       .flatMap(family => family.workspace.stories.filter(story => story.coupleId && familyReadable(story)));
   }
 
-  function profileLabel() {
-    const pair = relation();
-    if (pair?.status === 'accepted') return '伴侣关系';
-    if (pair?.invitee === P.state.actor) return '伴侣邀请 · 待确认';
-    return pair ? '伴侣邀请 · 等待确认' : '邀请伴侣';
-  }
-
   function previewAs(person) {
     return P.Households.isExample() ? b('切换到' + e(P.PEOPLE[person].name) + '（演示）', 'house-member', 'text-link',
       `data-id="${e(person)}"`) : '';
@@ -84,7 +77,7 @@
           `<option value="${e(id)}">${e(P.PEOPLE[id].name)}</option>`).join('')}</select></label>
         <button type="submit" class="btn full">发送伴侣邀请</button></form>` :
         `<h2>邀请伴侣</h2><p class="page-subtitle">可以先请伴侣加入家庭，再发出双人记录邀请。</p>
-          ${l('查看家人关系与邀请', 'family', 'btn secondary full section')}`;
+          ${l('查看成员与邀请', 'family', 'btn secondary full section')}`;
     }
     return `<div class="page family-edition-page couple-edition"><section class="card couple-panel">${content}</section></div>`;
   }
@@ -405,5 +398,5 @@
   });
   window.addEventListener('pagehide', closeRecorder);
   Object.assign(P.views, { [setupRoute]: setup, [albumRoute]: album });
-  P.Couples = { profileLabel, hasAlbum: () => Boolean(activePair()), familyReadable, sharedFromOtherFamilies, detail, handleAction, submit, closeRecorder };
+  P.Couples = { hasAlbum: () => Boolean(activePair()), familyReadable, sharedFromOtherFamilies, detail, handleAction, submit, closeRecorder };
 }

@@ -3,7 +3,6 @@
 .house-page .house-actions,.house-page .house-form{display:grid;gap:10px}
 .house-page .house-form .form-field{display:grid;gap:5px;margin:0}
 .house-page .house-form textarea{resize:vertical}
-.saved-media{display:grid;place-items:center;width:56px;height:56px;border-radius:6px;background:var(--soft);color:var(--brand)}
 .house-page .house-card{padding:12px 14px}
 .house-page .house-card h2{font-size:1em;margin:0 0 4px}
 .heritage-family-shortcuts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
@@ -104,68 +103,6 @@
 }
 .moment-options .record-members {
   margin-top: 12px;
-}
-.family-edition-links {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.family-edition-link {
-  display: grid;
-  grid-template-columns: 48px minmax(0, 1fr);
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  padding: 4px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: transparent;
-  color: var(--ink);
-  text-align: left;
-}
-
-.family-edition-cover {
-  display: grid;
-  width: 48px;
-  height: 48px;
-  place-items: center;
-  overflow: hidden;
-  border-radius: 8px;
-  color: var(--brand);
-}
-
-.family-edition-cover img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.family-edition-link strong {
-  font-size: calc(14px * var(--unit));
-  font-weight: 600;
-  line-height: 1.4;
-  text-wrap: balance;
-}
-
-.family-edition-link[data-nav="house-couple"] {
-  grid-column: 1 / -1;
-}
-
-@container (min-width: 288px) {
-  .phone:not(.large-type) .family-edition-links:has(> :nth-child(3)) {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .phone:not(.large-type) .family-edition-links:has(> :nth-child(3)) .family-edition-link {
-    grid-column: auto;
-    grid-template-columns: minmax(0, 1fr);
-    justify-items: center;
-    gap: 4px;
-    padding: 8px 2px;
-    text-align: center;
-  }
 }
 .family-edition-page {
   padding-top: 16px;
@@ -487,191 +424,229 @@
 .house-page .house-card p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
 .house-page .house-copy{white-space:pre-wrap;overflow-wrap:anywhere}
 .house-page .plan-card p{overflow-wrap:anywhere}
-.phone[data-route="house-create"] .app-header,.phone[data-route="house-invitation"] .app-header{background:var(--brand)}
-/* 家庭故事册采用现有布面封纹，书签与书页留出完整的阅读宽度。 */
-.phone[data-route|="house-book"] .app-header::after {
-  content: "";
-  flex: 0 0 48px;
+
+/* 家庭会员在手机画框内滚动，底部保留年付金额与开通入口。 */
+.phone:has(.membership-page) > :is(.statusbar, .app-header) {
+  background: var(--family-blush);
 }
-.phone .family-book-page .family-book-cover {
-  min-height: 176px;
-  align-items: flex-start;
-  padding: 24px 28px;
-  border: 1px solid #91362A;
-  border-radius: 4px 8px 8px 4px;
-  background: #922F26 url("assets/zhumen/book-cover-texture.webp") center / cover no-repeat;
-  box-shadow: 3px 4px 0 #D8C0A3;
-}
-.family-book-label {
-  max-width: 100%;
-  padding: 12px 16px;
-  border: 3px double #C7A77D;
-  background: #FFF5E2;
-}
-.phone .family-book-label .eyebrow {
-  color: var(--copper);
-  letter-spacing: 1px;
-}
-.phone .family-book-label h1 {
-  margin: 4px 0 8px;
-  color: var(--ink);
-  font-size: calc(24px * var(--unit));
-  line-height: 1.4;
-}
-.family-book-controls, .family-book-reading-bar, .family-book-themes, .family-book-pager {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px 12px;
-}
-.family-book-controls, .family-book-reading-bar {
-  justify-content: space-between;
-}
-.family-book-controls {
-  margin-top: 16px;
-}
-.phone .family-book-controls .btn, .phone .family-book-controls .text-link {
-  min-height: 44px;
-  font-size: calc(14px * var(--unit));
-}
-.family-book-editor {
-  min-width: 0;
-}
-.family-book-editor summary {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  color: var(--brand);
-  font-size: calc(14px * var(--unit));
-  list-style: none;
-  cursor: pointer;
-}
-.family-book-editor summary::-webkit-details-marker {
+
+.phone:has(.membership-page) > .bottom-nav {
   display: none;
 }
-.family-book-editor summary .icon {
+
+.phone > .app-content:has(> .membership-page) {
+  scroll-padding-block-end: 84px;
+}
+
+.membership-page {
+  --membership-gutter: 24px;
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100%;
+  background: var(--family-texture) center top / 540px auto var(--family-paper);
+  background-blend-mode: multiply;
+  color: var(--family-ink);
+  font: 400 calc(14px * var(--unit)) / 1.6 var(--family-font);
+}
+
+.membership-content {
+  flex: 1;
+  padding: 16px var(--membership-gutter) 24px;
+}
+
+.membership-price-card {
+  padding: 12px 16px;
+  border: 1px solid var(--family-line);
+  border-radius: 12px;
+  background: var(--family-surface);
+  color: var(--family-muted);
+  text-align: center;
+}
+
+.membership-status {
+  overflow-wrap: anywhere;
+  color: var(--family-ink);
+}
+
+.membership-amount {
+  margin-block: 4px;
+  line-height: 1.1;
+}
+
+.membership-amount strong {
+  color: var(--family-brand);
+  font: 600 calc(48px * var(--unit)) / 1.1 Georgia, serif;
+  white-space: nowrap;
+}
+
+.membership-price-term {
+  color: var(--family-ink);
+  font-weight: 600;
+}
+
+.membership-storage {
+  margin-block-start: 4px;
+  font-size: calc(12px * var(--unit));
+}
+
+.membership-section {
+  margin-block-start: 24px;
+}
+
+.membership-section-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 8px;
+  margin-block-end: 8px;
+}
+
+.membership-section-heading h2 {
+  padding-inline-start: 8px;
+  border-inline-start: 2px solid var(--family-brand);
+  font: 600 calc(20px * var(--unit)) / 1.35 var(--family-hand);
+}
+
+.membership-review-label {
+  padding: 2px 8px;
+  border: 1px solid var(--family-line);
+  border-radius: 4px;
+  background: var(--family-surface);
+  color: var(--family-muted);
+  font-size: calc(12px * var(--unit));
+}
+
+.membership-table-frame {
+  overflow: hidden;
+  border: 1px solid var(--family-line);
+  border-radius: 10px;
+  background: var(--family-surface);
+}
+
+.membership-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: calc(14px * var(--unit));
+  line-height: 1.5;
+}
+
+.membership-table :is(th, td) {
+  padding: 8px;
+  border-block-start: 1px solid var(--family-line);
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+
+.membership-table thead th {
+  border-block-start: 0;
+}
+
+.membership-table thead th:first-child { width: 33%; }
+.membership-table thead th:nth-child(2) { width: 27%; }
+
+.membership-table tbody th { font-weight: 500; }
+
+.membership-table tr > :last-child {
+  border-inline-start: 1px solid var(--family-line);
+  background: var(--family-soft);
+}
+
+.membership-table thead th:last-child {
+  color: var(--family-brand);
+}
+
+.membership-notes {
+  display: grid;
+  gap: 2px;
+  margin-block-start: 8px;
+  color: var(--family-muted);
+  font-size: calc(12px * var(--unit));
+}
+
+.membership-details {
+  margin-block-start: 16px;
+  border-block: 1px solid var(--family-line);
+}
+
+.membership-details summary,
+.membership-orders {
+  min-block-size: 44px;
+  padding-block: 10px;
+  cursor: pointer;
+}
+
+.membership-details details p {
+  padding-block-end: 12px;
+  color: var(--family-muted);
+}
+
+.membership-orders {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding-inline: 0;
+  border-block-start: 1px solid var(--family-line);
+  background: transparent;
+  color: var(--family-ink);
+}
+
+.membership-footer {
+  position: sticky;
+  z-index: 1;
+  inset-block-end: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px var(--membership-gutter) max(8px, env(safe-area-inset-bottom));
+  border-block-start: 1px solid var(--family-line);
+  background: var(--family-surface);
+}
+
+.membership-footer strong {
+  color: var(--family-brand);
+  font: 600 calc(24px * var(--unit)) / 1.2 Georgia, serif;
+}
+
+.membership-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-block-size: 44px;
+  margin-inline-start: auto;
+  padding: 8px 12px;
+  border: 1px solid var(--family-brand);
+  border-radius: 8px;
+  background: var(--family-soft);
+  color: var(--family-brand);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.membership-action:hover,
+.membership-action:active {
+  border-color: var(--family-pressed);
+  background: var(--family-blush);
+  color: var(--family-pressed);
+}
+
+.membership-footer .icon,
+.membership-orders .icon {
   width: 16px;
   height: 16px;
 }
-.family-book-editor[open] {
-  flex-basis: 100%;
-  padding: 0 12px 12px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: var(--surface);
+
+@media (max-width: 380px) {
+  .membership-page { --membership-gutter: 16px; }
+  .membership-table :is(th, td) { padding-inline: 6px; }
 }
-.family-book-editor[open] summary {
-  margin-bottom: 12px;
-  border-bottom: 1px solid var(--line);
-}
-.family-book-editor[open] summary .icon:last-child {
-  transform: rotate(180deg);
-}
-.family-book-editor[open] + [data-action="house-book-save"] {
-  display: none;
-}
-.family-book-themes {
-  margin: 8px 0 16px;
-}
-.family-book-choices {
-  min-width: 0;
-  padding: 0;
-  border: 0;
-}
-.family-book-choices-list {
-  margin-top: 8px;
-  border-block: 1px solid var(--line);
-}
-.family-book-choices-list .family-book-choice {
-  align-items: center;
-  min-height: 44px;
-  margin: 0;
-  padding-block: 8px;
-}
-.family-book-choice + .family-book-choice {
-  border-top: 1px solid var(--line);
-}
-.family-book-choice span, .family-book-choice small {
-  display: block;
-  min-width: 0;
-}
-.family-book-choice small {
-  color: var(--secondary);
-}
-.family-book-reading-bar {
-  margin-bottom: 8px;
-  color: var(--copper);
-  font-size: calc(14px * var(--unit));
-}
-.family-book-pager {
-  flex-wrap: nowrap;
-  gap: 6px;
-}
-.family-book-pager .icon-button {
-  width: 44px;
-  min-height: 44px;
-  border-radius: 6px;
-  color: var(--brand);
-}
-.family-book-pager .icon-button:disabled {
-  opacity: .38;
-}
-.family-book-pager .icon-button .icon {
-  width: 18px;
-  height: 18px;
-}
-.phone .family-book-chapter {
-  padding: 20px;
-  border-radius: 6px;
-  background: var(--surface);
-  box-shadow: none;
-}
-.family-book-chapter header {
-  margin-bottom: 16px;
-}
-.phone .family-book-chapter h2 {
-  margin: 4px 0 6px;
-  padding-left: 0;
-  color: var(--ink);
-  background: none;
-}
-.phone .family-book-chapter > .house-copy {
-  text-align: start;
-}
-.family-book-chapter .family-book-photo:not([hidden]) {
-  display: block;
-  max-height: 320px;
-  object-fit: contain;
-  background: var(--muted);
-}
-.family-book-chapter .family-book-photo[hidden] {
-  display: none;
-}
-.family-book-reply {
-  margin-top: 12px;
-  padding-left: 12px;
-  border-left: 2px solid var(--line);
-}
-.family-book-chapter .book-photo-voices {
-  padding-top: 12px;
-  border-top: 1px solid var(--line);
-}
-.family-book-start h2 {
-  margin-bottom: 8px;
-  font-size: calc(20px * var(--unit));
-}
-.family-book-start > p {
-  color: var(--secondary);
-  line-height: 1.75;
-}
-.family-book-start .family-book-controls {
-  justify-content: flex-start;
-}
-.family-book-chapters {
-  display: grid;
-  gap: 16px;
-}
+.phone[data-route="house-create"] .app-header,.phone[data-route="house-invitation"] .app-header{background:var(--brand)}
 /* 桌面画板给固定底栏留出空间。 */
 @media (min-width:681px) and (min-height:640px){
   .studio .stage .phone{height:min(844px,calc(100dvh - 146px))}
@@ -686,6 +661,13 @@
   font-size: calc(12px * var(--unit));
   font-weight: 400;
   line-height: 1.5;
+}
+
+.story-archive-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 8px;
 }
 
 .story-archive-member {
@@ -880,15 +862,24 @@
       left top / 13px 100% no-repeat;
 }
 
-.family-story-page:has(> .story-person-volume) > .story-archive-member {
+.family-story-page:has(> .story-person-volume) .story-archive-member {
   border-color: transparent;
   border-block-end-color: var(--family-line);
   border-radius: 0;
   background: transparent;
 }
 
-.family-story-page:has(> .story-person-volume) > .story-archive-member > summary {
+.family-story-page:has(> .story-person-volume) .story-archive-member > summary {
   padding-inline: 4px;
+}
+
+/* 名单与人物志共用底色，展开时让册页顺势下移，避免透出的内容和名单重叠。 */
+.family-story-page:has(> .story-person-volume) .story-archive-member > .story-archive-member-popover {
+  position: static;
+  margin-block-start: 4px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .story-person-cover {
@@ -1200,28 +1191,28 @@
   border-radius: 2px;
 }
 
-.modal[data-presentation="sheet"]:has(#story-person-edit-form) {
+.phone-dialog-layer > .modal.family-paper-sheet[data-presentation="sheet"]:has(#story-person-edit-form) {
+  max-height: calc(100% - 24px);
   overflow: hidden;
   padding: 0;
   container-type: inline-size;
+  background: var(--family-canvas);
+  background-blend-mode: normal;
 }
 
+/* 资料正文是唯一滚动区，标题与保存栏保留在手机画框内。 */
 .modal:has(#story-person-edit-form) #modal-content {
   display: flex;
   flex-direction: column;
-  max-height: calc(100cqh - 18px);
+  max-height: calc(100cqh - 26px);
 }
 
-.modal:has(#story-person-edit-form) .modal-header {
+.family-paper-sheet:has(#story-person-edit-form) .modal-header {
+  align-items: center;
   flex: none;
   margin: 0;
   padding: 8px 16px;
   border-bottom: 1px solid var(--line);
-}
-
-.modal:has(#story-person-edit-form) .modal-header h2 {
-  padding: 0;
-  background: none;
 }
 
 .modal:has(#story-person-edit-form) .modal-header .icon-button {
@@ -1240,23 +1231,46 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 16px;
+  scroll-padding-block: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--family-muted) 55%, transparent) transparent;
 }
 
 .story-person-editor-section {
   display: grid;
-  gap: 12px;
+  min-width: 0;
+  gap: 8px;
 }
 
 .story-person-editor-section + .story-person-editor-section {
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid var(--line);
+  margin-block-start: 16px;
 }
 
-.story-person-editor-section h3 {
-  color: var(--ink);
-  font-size: calc(18px * var(--unit));
-  font-weight: 600;
+.story-person-editor-section > h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--family-ink);
+  font: 600 calc(18px * var(--unit)) / 1.4 var(--family-hand);
+  letter-spacing: .08em;
+}
+
+.story-person-editor-section > h3::before {
+  flex: 0 0 2px;
+  block-size: .8em;
+  border-radius: 1px;
+  background: var(--family-brand);
+  content: "";
+}
+
+.story-person-editor-paper {
+  display: grid;
+  min-width: 0;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--family-line);
+  border-radius: 8px;
+  background: var(--family-surface);
 }
 
 .story-person-editor-pair {
@@ -1283,19 +1297,43 @@
 }
 
 #story-person-edit-form .form-field > span {
-  color: var(--secondary);
+  color: var(--family-muted);
   font-size: calc(14px * var(--unit));
-  font-weight: 600;
+  font-weight: 500;
 }
 
 #story-person-edit-form :is(input, textarea) {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   min-height: 44px;
   padding: 8px 12px;
-  font-size: calc(16px * var(--unit));
+  border: 1px solid var(--family-line);
+  border-radius: 6px;
+  background: var(--family-paper);
+  color: var(--family-ink);
+  font: 400 calc(16px * var(--unit)) / 1.55 var(--family-font);
 }
 
 #story-person-edit-form textarea {
-  min-height: 72px;
+  min-height: calc(3lh + 18px);
+}
+
+#story-person-edit-form textarea[name="intro"] {
+  min-height: calc(4lh + 18px);
+  background: var(--family-surface);
+}
+
+#story-person-edit-form :is(input, textarea)::placeholder {
+  color: var(--family-muted);
+  opacity: .8;
+}
+
+@supports (field-sizing: content) {
+  #story-person-edit-form textarea {
+    field-sizing: content;
+    resize: none;
+  }
 }
 
 .story-person-editor-footer {
@@ -1303,8 +1341,9 @@
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
   flex: none;
   gap: 8px;
-  padding: 12px 16px;
+  padding: 10px 16px max(10px, env(safe-area-inset-bottom));
   border-top: 1px solid var(--line);
+  background: var(--family-surface);
 }
 
 .story-person-editor-footer .modal-error {
@@ -1405,8 +1444,7 @@
   white-space: nowrap;
 }
 
-.story-archive-list,
-.story-archive-tools {
+.story-archive-list {
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -1460,37 +1498,6 @@
 .story-archive-empty > p {
   color: var(--secondary);
   font-size: calc(14px * var(--unit));
-}
-
-.story-archive-tools {
-  margin-top: 24px;
-}
-
-.phone .story-archive-tool {
-  display: grid;
-  grid-template-columns: 20px minmax(0, 1fr) 16px;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  min-height: 48px;
-  padding: 8px 12px;
-  background: transparent;
-  color: var(--secondary);
-  font-size: calc(14px * var(--unit));
-  text-align: left;
-}
-
-.story-archive-tool + .story-archive-tool {
-  border-top: 1px solid var(--line);
-}
-
-.story-archive-tool > .icon {
-  width: 100%;
-  color: var(--brand);
-}
-
-.story-archive-tool:focus-visible {
-  outline-offset: -3px;
 }
 
 /* 预览优先呈现封面和标题，完整日期、关联家人及拍摄信息在分类和详情中展示。 */
@@ -1619,18 +1626,16 @@
 
 @media (hover: hover) {
   .family-story-page .home-album-card:hover,
-  .story-archive-list .family-record-row:hover,
-  .phone .story-archive-tool:hover {
+  .story-archive-list .family-record-row:hover {
     background: transparent;
   }
 
   .phone .story-archive-tabs > button:hover,
-  .story-archive-list .family-record-row:hover strong,
-  .phone .story-archive-tool:hover {
+  .story-archive-list .family-record-row:hover strong {
     color: var(--brand);
   }
 
-  .phone .family-story-page :is(.archive-media-card, .family-edition-link):hover {
+  .phone .family-story-page .archive-media-card:hover {
     border-color: #b78973;
   }
 }
@@ -1659,147 +1664,155 @@
 }
 .phone .story-photo-year h3{margin-bottom:8px}
 .phone .story-invite-panel .story-link-status,.phone .story-invite-panel .story-invite-sharing{margin-top:12px}
-.book-photo-voices summary{cursor:pointer;color:var(--brand)}
-/* 题头的月窗单独占一列，正文和金额始终落在干净的纸面上。 */
-.phone-dialog-layer:has(> .addon-modal[open]) {
-  background: rgb(40 32 29 / 30%);
+/* 会员与定制服务借用首页的纸面、楷体题签和朱砂短线，长内容在手机画框内滚动。 */
+.phone-dialog-layer:has(> .family-paper-sheet[open]) {
+  background: rgb(46 34 26 / 30%);
   backdrop-filter: blur(1px);
 }
-.modal.addon-modal {
-  --addon-paper: #fbfaf7;
-  padding: 16px 20px max(16px, env(safe-area-inset-bottom));
+.phone-dialog-layer > .modal.family-paper-sheet[data-presentation="sheet"] {
+  max-height: min(66%, 28rem);
+  padding: 12px 16px max(14px, env(safe-area-inset-bottom));
+  border: 1px solid var(--family-line);
+  border-bottom: 0;
+  border-radius: 16px 16px 0 0;
+  background: var(--family-texture) center top / 540px auto var(--family-paper);
+  background-blend-mode: soft-light;
+  color: var(--family-ink);
+  box-shadow: var(--family-shadow);
+  font-family: var(--family-font);
+  overflow-wrap: anywhere;
+}
+.family-paper-sheet .modal-header {
+  display: flex;
+  align-items: start;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding: 0;
   border: 0;
-  color: var(--ink);
-  background: var(--addon-paper);
-  box-shadow: 0 -4px 22px #28201d1a;
-  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
 }
-.addon-modal .modal-header {
-  display: grid;
-  grid-template-columns: 56px minmax(0, 1fr) 44px;
-  align-items: center;
-  gap: 12px;
-  margin: 0 0 12px;
-  padding: 0;
-}
-.addon-modal .modal-header::before {
-  content: '';
-  width: 56px;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: #ede6db url('assets/zhumen/home-ink-landscape.webp') left top / 225% auto no-repeat;
-}
-.addon-modal .modal-heading p {
+.family-paper-sheet .modal-heading {min-width: 0;}
+.family-paper-sheet .modal-heading p {
   margin: 0 0 3px;
-  color: var(--subtle);
+  padding-inline-start: 11px;
+  color: var(--family-muted);
   font-size: calc(13px * var(--unit));
-  line-height: 1.45;
+  line-height: 1.35;
 }
-.addon-modal .modal-header h2 {
-  padding: 0;
-  color: var(--ink);
+.family-paper-sheet .modal-header h2 {
+  position: relative;
+  margin: 0;
+  padding: 0 0 0 11px;
   background: none;
-  font: 600 calc(24px * var(--unit))/1.25 "Source Han Serif SC", "Songti SC", SimSun, serif;
-  letter-spacing: .025em;
+  color: #433124;
+  font: 600 calc(22px * var(--unit)) / 1.2 var(--family-hand);
+  letter-spacing: .12em;
   text-wrap: pretty;
 }
-.addon-modal .modal-header .icon-button {
+.family-paper-sheet .modal-header h2::before {
+  content: '';
+  position: absolute;
+  inset-block: .12em 0;
+  inset-inline-start: 0;
+  width: 2px;
+  border-radius: 1px;
+  background: #9b4a39;
+}
+.family-paper-sheet .modal-header .icon-button {
+  flex: none;
   width: 44px;
   height: 44px;
   min-height: 44px;
-  margin: -6px -8px 0 0;
-  justify-self: end;
-  align-self: start;
-  color: var(--subtle);
+  margin: -4px -6px 0 auto;
+  color: var(--family-muted);
 }
-.addon-modal .icon-button .icon {
-  width: 26px;
-  height: 26px;
-  padding: 5px;
-  border-radius: 50%;
-  background: var(--muted);
-}
-.addon-guide {overflow-wrap: anywhere;}
-.addon-modal .addon-guide p {
-  margin: 0;
+.family-paper-sheet .modal-header .icon {width: 20px; height: 20px;}
+.family-paper-sheet p {margin: 0;}
+.family-paper-sheet .family-sheet-summary {
+  color: var(--family-ink);
   font-size: calc(15px * var(--unit));
-  line-height: 1.55;
-  color: var(--ink);
+  line-height: 1.5;
 }
-.addon-modal .addon-guide .caption {
-  margin-top: 4px;
+.family-paper-sheet .family-sheet-note,
+.family-paper-sheet .caption {
+  color: var(--family-muted);
   font-size: calc(13px * var(--unit));
-  color: var(--subtle);
+  line-height: 1.45;
 }
-.addon-actions {
+.family-paper-sheet .family-sheet-summary + .family-sheet-note {margin-top: 4px;}
+.family-sheet-footer {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
-  gap: 12px;
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid var(--line);
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--family-line);
 }
-.addon-actions > :only-child {grid-column: 1 / -1;}
-.addon-price {
-  min-width: 0;
-  color: var(--ink);
-  line-height: 1.35;
-}
-.addon-price-label {
-  display: block;
-  color: var(--subtle);
+.family-sheet-footer > :only-child {grid-column: 1 / -1;}
+.family-sheet-price {min-width: 0; line-height: 1.35; color: var(--family-ink);}
+.family-sheet-price > span:first-child,
+.family-sheet-price small {
+  color: var(--family-muted);
   font-size: calc(13px * var(--unit));
 }
-.addon-price strong {font-size: calc(15px * var(--unit)); font-weight: 600;}
-.addon-price .addon-amount {
-  font: 500 calc(26px * var(--unit))/1.1 Georgia, "Songti SC", serif;
-  font-variant-numeric: lining-nums;
-  white-space: nowrap;
+.family-sheet-price > span:first-child {display: block;}
+.family-sheet-price strong {
+  font-size: calc(22px * var(--unit));
+  line-height: 1.15;
+  font-variant-numeric: lining-nums tabular-nums;
 }
-.addon-unit {font-size: calc(13px * var(--unit)); white-space: nowrap;}
-.addon-actions .btn {
-  min-width: 0;
+.family-sheet-price b {font-size: calc(14px * var(--unit));}
+.family-paper-sheet .btn {
   min-height: 44px;
-  padding: 9px 12px;
-  border: 0;
+  min-width: 0;
+  padding: 6px 10px;
   border-radius: 12px;
-  color: #fff;
-  background: var(--action);
-  font-family: inherit;
-  font-weight: 500;
+  font: 600 calc(16px * var(--unit)) / 1.4 var(--family-font);
   text-wrap: balance;
 }
-.large-type .addon-modal .modal-header {grid-template-columns: 44px minmax(0, 1fr) 44px; gap: 8px;}
-.large-type .addon-modal .modal-header::before {width: 44px;}
-.large-type .addon-modal .modal-header h2 {font-size: calc(21px * var(--unit));}
-.large-type .addon-actions {grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);}
-.large-type .addon-actions .btn {padding-inline: 6px;}
+.family-paper-sheet .btn:not(.outline, .secondary, .danger) {
+  border: 1px solid var(--family-brand);
+  background: var(--family-brand);
+  color: var(--family-surface);
+}
+.family-paper-sheet .btn:not(.outline, .secondary, .danger):active {background: var(--family-pressed);}
+.family-paper-sheet :is(.check-row, .text-link) {min-height: 44px;}
+.family-paper-sheet .check-row {align-items: center; padding-block: 4px;}
+.family-paper-sheet .check-row input {margin-top: 0;}
+.book-sheet-form,
+.book-sheet-form label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.book-sheet-form {margin-top: 10px;}
+.family-paper-sheet .book-sheet-form textarea {
+  width: 100%;
+  min-height: 56px;
+  padding: 6px 9px;
+  resize: vertical;
+}
+.book-sheet-files {margin: 0 0 8px; padding-inline-start: 20px;}
+.frame-offer-summary {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+.frame-offer-summary .picks-photo {border-radius: 0;}
+.frame-offer-price .picks-price {color: var(--family-ink);}
+.frame-offer-price small {color: var(--family-muted);}
+.frame-offer-info > summary {
+  min-height: 44px;
+  align-content: center;
+  color: var(--family-muted);
+  cursor: pointer;
+}
+.frame-offer .family-sheet-footer {margin-top: 0;}
 @media (prefers-reduced-motion: no-preference) {
-  .addon-modal[open] {animation: addon-sheet-enter 240ms cubic-bezier(.22, 1, .36, 1);}
-  @keyframes addon-sheet-enter {
-    from {transform: translateY(48px); opacity: 0;}
+  .family-paper-sheet[open] {animation: family-sheet-enter 200ms ease-out;}
+  @keyframes family-sheet-enter {
+    from {transform: translateY(16px); opacity: .4;}
     to {transform: translateY(0); opacity: 1;}
   }
-}
-.book-photo-voices .story-invite-reply{margin-top:10px}
-@media print{
-  .book-photo-voices,.house-book-saved .moment-story-voice{display:none}
-  @page{size:A4;margin:18mm}
-  body:has(.house-book-saved) .studio,
-  body:has(.house-book-saved) .stage,
-  body:has(.house-book-saved) .phone,
-  body:has(.house-book-saved) .app-content{display:block;width:auto!important;height:auto!important;max-width:none;overflow:visible;position:static;padding:0;border:0;border-radius:0;box-shadow:none;background:white}
-  body:has(.house-book-saved) .studio-sidebar,
-  body:has(.house-book-saved) .review-panel,
-  body:has(.house-book-saved) .review-toolbar,
-  body:has(.house-book-saved) .stage-note,
-  body:has(.house-book-saved) .statusbar,
-  body:has(.house-book-saved) .app-header,
-  body:has(.house-book-saved) .bottom-nav,
-  body:has(.house-book-saved) .toast,
-  .house-book-saved>.family-book-controls{display:none!important}
-  .phone .house-book-saved .family-book-cover,.phone .house-book-saved .book-page{min-height:0;break-inside:avoid;box-shadow:none}
-  .phone .house-book-saved .family-book-cover{background:#FFF9ED;border-color:var(--line)}
-  .house-book-saved .book-page img{max-width:110mm;max-height:130mm}
 }

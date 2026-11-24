@@ -1,0 +1,679 @@
+/* 产品介绍共用浅粉青灰铺底，返回沿用应用的公共标题栏。 */
+.phone.product-intro:not(.entry-mode) {
+  background: radial-gradient(ellipse 130% 430px at 100% 0, #dce5db, transparent) #f9ebe6;
+}
+
+.phone.product-intro:not(.entry-mode) > :is(.statusbar, .app-header, .app-content) {
+  background: transparent;
+}
+
+.phone.product-intro:not(.entry-mode) > .app-header {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  gap: 0;
+  min-height: 52px;
+  padding: 0 8px;
+  border-bottom-color: #8b6b4d29;
+  text-align: center;
+}
+
+.phone.product-intro .app-header > .icon-button {
+  width: 44px;
+}
+
+.phone.product-intro .app-book-label {
+  color: var(--family-ink);
+  font: 600 calc(20px * var(--unit)) / 1.4 var(--family-font);
+  letter-spacing: .07em;
+}
+
+.phone.product-intro > .bottom-nav {
+  display: none;
+}
+
+/* 正文与主标题沿用首页宋体，分区题签与印章沿用首页楷体。 */
+#chuanjia-frame-mobile {
+  --fm-ink: #3b2717;
+  --fm-soft-ink: #694d39;
+  --fm-vermillion: #963c2b;
+  --fm-vermillion-active: #7b2e20;
+  --fm-paper: #fcf3e9;
+  container-type: inline-size;
+  color: var(--fm-ink);
+  background: radial-gradient(ellipse 110% 340px at 0 100%, #e2e8dd, transparent);
+  font: calc(16px * var(--unit)) / 1.5 var(--family-font);
+}
+
+#chuanjia-frame-mobile :is(h1, h2, h3, p, figure) {
+  margin: 0;
+}
+
+#chuanjia-frame-mobile img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+#chuanjia-frame-mobile .fm-hero,
+#chuanjia-frame-mobile .fm-section {
+  padding: 26px max(18px, calc((100% - 520px) / 2));
+}
+
+#chuanjia-frame-mobile .fm-hero {
+  padding-bottom: 0;
+}
+
+#chuanjia-frame-mobile .fm-seal {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  margin: 0 auto 11px;
+  border: 3px double #995043;
+  border-radius: 5px 4px 4px 5px;
+  color: #914036;
+  font: 500 19px / 1 var(--family-hand);
+  transform: rotate(-4deg);
+}
+
+#chuanjia-frame-mobile .fm-hero h1 {
+  font: 700 calc(32px * var(--unit)) / 1.13 var(--family-font);
+  letter-spacing: .025em;
+  text-align: center;
+}
+
+#chuanjia-frame-mobile .fm-body {
+  color: var(--fm-soft-ink);
+  text-wrap: pretty;
+}
+
+#chuanjia-frame-mobile .fm-hero .fm-body {
+  max-width: 19em;
+  margin: 12px auto 18px;
+  text-align: center;
+}
+
+#chuanjia-frame-mobile .fm-photo {
+  overflow: hidden;
+  padding: 5px;
+  border: 1px solid #c7a58b;
+  border-radius: 8px;
+  background: #fff8ef;
+  box-shadow: 0 3px 7px #55391f18;
+}
+
+#chuanjia-frame-mobile .fm-photo img {
+  aspect-ratio: 3 / 2;
+  border-radius: 3px;
+  object-fit: cover;
+}
+
+#chuanjia-frame-mobile .fm-film-trigger {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border-radius: 3px;
+  background: transparent;
+}
+
+#chuanjia-frame-mobile .fm-film-play {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: 1px solid #fff8ed;
+  border-radius: 50%;
+  background: #3b2717bf;
+  color: #fff8ed;
+  transform: translate(-50%, -50%);
+}
+
+#chuanjia-frame-mobile .fm-film-play .icon {
+  width: 19px;
+  height: 19px;
+  margin-inline-start: 2px;
+  fill: currentColor;
+}
+
+#chuanjia-frame-mobile .fm-film-trigger[hidden] {
+  display: none;
+}
+
+#chuanjia-frame-mobile [data-frame-intro-preview] {
+  --fm-film-width: min(240px, 36dvh);
+}
+
+#chuanjia-frame-mobile [data-frame-intro-preview]:has(> .fm-film-player:not([hidden])) {
+  width: min(100%, calc(var(--fm-film-width) + 12px));
+  margin-inline: auto;
+}
+
+#chuanjia-frame-mobile .fm-film-player {
+  position: relative;
+  width: min(100%, var(--fm-film-width));
+  margin-inline: auto;
+}
+
+#chuanjia-frame-mobile .fm-film-player video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 3px;
+  background: #241c17;
+}
+
+#chuanjia-frame-mobile .fm-film-close {
+  position: absolute;
+  inset: 6px 6px auto auto;
+  background: #3b2717bf;
+  color: #fff8ed;
+}
+
+#chuanjia-frame-mobile .fm-film-player p {
+  margin-top: 8px;
+  color: var(--fm-soft-ink);
+  font-size: calc(14px * var(--unit));
+  text-align: center;
+}
+
+#chuanjia-frame-mobile .fm-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  min-height: 46px;
+  padding: 8px 14px;
+  border: 1px solid var(--fm-vermillion);
+  border-radius: 8px;
+  background: var(--fm-vermillion);
+  color: #fffbf3;
+  font: 700 calc(16px * var(--unit)) / 1.5 var(--family-font);
+  letter-spacing: .025em;
+  text-align: center;
+  text-decoration: none;
+  transition: background .18s ease-out;
+}
+
+#chuanjia-frame-mobile .fm-button:is(:hover, :active) {
+  background: var(--fm-vermillion-active);
+}
+
+#chuanjia-frame-mobile .fm-hero .fm-button {
+  margin-top: 16px;
+}
+
+#chuanjia-frame-mobile :is(.fm-button, .fm-help summary) > :is(.icon, i) {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+#chuanjia-frame-mobile .fm-section + .fm-section {
+  border-top: 1px solid #90715329;
+}
+
+#chuanjia-frame-mobile .fm-section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #734636;
+  font: 600 calc(14px * var(--unit)) / 1.43 var(--family-hand);
+  letter-spacing: .065em;
+}
+
+#chuanjia-frame-mobile .fm-section-label::before {
+  flex: none;
+  width: 2px;
+  height: 15px;
+  border-radius: 1px;
+  background: #9b4a39;
+  content: "";
+}
+
+#chuanjia-frame-mobile .fm-section h2 {
+  margin-top: 8px;
+  font: 700 calc(28px * var(--unit)) / 1.22 var(--family-font);
+  letter-spacing: .015em;
+  text-wrap: balance;
+}
+
+#chuanjia-frame-mobile .fm-section .fm-body {
+  margin: 8px 0 16px;
+}
+
+#chuanjia-frame-mobile .fm-caption {
+  display: block;
+  margin-top: 7px;
+  color: var(--fm-soft-ink);
+  font-size: calc(12px * var(--unit));
+  line-height: 1.33;
+  text-align: end;
+}
+
+#chuanjia-frame-mobile .fm-device {
+  padding: 6px;
+  border: 1px solid #9f7b5f;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #b1906d, #d8b391 45%, #b58e67);
+  box-shadow: 0 3px 8px #65421f21, inset 0 0 0 1px #f2d5aca1;
+}
+
+#chuanjia-frame-mobile .fm-device img {
+  aspect-ratio: 1050 / 668;
+  border-radius: 4px;
+}
+
+#chuanjia-frame-mobile .fm-device-actions {
+  margin-top: 10px;
+  color: #794836;
+  font: 700 calc(14px * var(--unit)) / 1.43 var(--family-font);
+  text-align: center;
+  word-spacing: .06em;
+}
+
+#chuanjia-frame-mobile .fm-stories {
+  background:
+    linear-gradient(#f7e9df78, #f9efe79c),
+    url("assets/zhumen/ivory-rice-paper.webp") center / 240px repeat;
+}
+
+#chuanjia-frame-mobile .fm-phone-example {
+  max-width: 200px;
+  margin-inline: auto;
+}
+
+#chuanjia-frame-mobile .fm-phone {
+  min-width: 0;
+  overflow: hidden;
+  border: 4px solid #fff8ed;
+  border-radius: 10px;
+  background: var(--fm-paper);
+  box-shadow: 0 0 0 1px #d7b399, 0 3px 6px #6b4a251a;
+}
+
+#chuanjia-frame-mobile .fm-phone img {
+  aspect-ratio: 420 / 732;
+}
+
+#chuanjia-frame-mobile .fm-phone-label {
+  margin-top: 9px;
+  font: 700 calc(14px * var(--unit)) / 1.43 var(--family-font);
+  text-align: center;
+}
+
+#chuanjia-frame-mobile .fm-gift {
+  scroll-margin-top: 8px;
+}
+
+#chuanjia-frame-mobile .fm-gift-offer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin-top: 15px;
+}
+
+#chuanjia-frame-mobile .fm-gift-offer h3 {
+  font: 700 calc(20px * var(--unit)) / 1.4 var(--family-font);
+}
+
+#chuanjia-frame-mobile .fm-terms {
+  color: var(--fm-soft-ink);
+  font-size: calc(12px * var(--unit));
+  line-height: 1.33;
+}
+
+#chuanjia-frame-mobile .fm-price {
+  color: var(--fm-vermillion);
+  font: 700 calc(24px * var(--unit)) / 1.33 var(--family-font);
+  white-space: nowrap;
+}
+
+#chuanjia-frame-mobile .fm-price small {
+  font: 400 calc(12px * var(--unit)) / 1.33 var(--family-font);
+}
+
+#chuanjia-frame-mobile .fm-help {
+  margin-top: 15px;
+  border-top: 1px solid #90715338;
+}
+
+#chuanjia-frame-mobile .fm-help details {
+  border-bottom: 1px solid #90715338;
+}
+
+#chuanjia-frame-mobile .fm-help summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  font: 700 calc(16px * var(--unit)) / 1.5 var(--family-font);
+  list-style: none;
+}
+
+#chuanjia-frame-mobile .fm-help summary::-webkit-details-marker {
+  display: none;
+}
+
+#chuanjia-frame-mobile .fm-help summary:focus-visible {
+  outline: 2px solid var(--fm-vermillion);
+  outline-offset: 2px;
+}
+
+#chuanjia-frame-mobile .fm-help details[open] summary > :is(.icon, i) {
+  transform: rotate(180deg);
+}
+
+#chuanjia-frame-mobile .fm-help details p {
+  padding-bottom: 11px;
+  color: var(--fm-soft-ink);
+  font-size: calc(14px * var(--unit));
+  line-height: 1.43;
+}
+
+#chuanjia-frame-mobile .fm-consult {
+  margin-top: 16px;
+}
+
+/* 家史制作页先展示样例，报价和咨询相邻摆放。 */
+.history-service-intro {
+  container-type: inline-size;
+  color: var(--family-ink);
+  font: calc(16px * var(--unit)) / 1.65 var(--family-font);
+  overflow-wrap: anywhere;
+}
+
+.history-service-intro :is(h1, h2, h3, p, figure) { margin: 0; }
+
+.history-service-hero,
+.history-service-section {
+  padding: 24px max(18px, calc((100% - 520px) / 2));
+}
+
+.history-service-hero { text-align: center; }
+
+.phone .history-service-hero h1 {
+  max-width: 13em;
+  margin-inline: auto;
+  font: 700 calc(clamp(22px, 7.5cqi, 28px) * var(--unit)) / 1.3 var(--family-font);
+  text-wrap: balance;
+}
+
+.history-service-hero h1 > span { display: block; }
+
+.history-service-intro p { color: var(--family-muted); }
+.history-service-hero > p {
+  max-width: 21em;
+  margin: 12px auto 16px;
+}
+
+.history-service-preview {
+  padding: 5px;
+  border: 1px solid var(--family-line);
+  border-radius: 8px;
+  background: var(--family-surface);
+  box-shadow: var(--family-shadow);
+}
+
+.history-service-preview :is(img, video) {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.history-service-preview video {
+  aspect-ratio: 16 / 9;
+  background: var(--family-ink);
+}
+
+.history-service-preview figcaption {
+  padding: 3px 4px 0;
+  color: var(--family-muted);
+  font-size: calc(12px * var(--unit));
+  text-align: end;
+}
+
+.history-film-sample figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 8px;
+}
+
+.history-book-shelf { text-align: start; }
+
+.history-book-shelf h2 {
+  margin-block-end: 10px;
+  padding-inline-start: 8px;
+  border-inline-start: 2px solid #9b4a39;
+  font: 600 calc(20px * var(--unit)) / 1.25 var(--family-hand);
+  letter-spacing: .08em;
+}
+
+.history-book-shelf-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.history-book-shelf-entry {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 4px;
+  min-width: 0;
+  padding: 5px;
+  border: 1px solid var(--family-line);
+  border-radius: 8px;
+  background: var(--family-surface);
+  color: var(--family-ink);
+  text-align: start;
+}
+
+.history-book-shelf-entry:hover { border-color: var(--family-brand); }
+
+.history-book-shelf-cover {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--family-texture) center / 240px auto var(--family-soft);
+}
+
+.history-book-shelf-cover > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+.history-book-shelf-entry > strong {
+  font: 600 calc(14px * var(--unit)) / 1.35 var(--family-hand);
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.history-book-shelf-category {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px;
+  color: var(--family-muted);
+  font-size: calc(11px * var(--unit));
+}
+
+.history-book-shelf-category .icon,
+.history-sample-reader-controls .icon { flex: none; width: 12px; height: 12px; color: var(--family-brand); }
+
+.history-sample-photo-cover {
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  width: 70%;
+  aspect-ratio: 3 / 4;
+  padding: 5px 4px 5px 8px;
+  border: 1px solid #8b6247;
+  border-radius: 2px 4px 4px 2px;
+  background: var(--family-texture) center / 240px auto #a67b5b;
+  background-blend-mode: multiply;
+  box-shadow: inset 4px 0 rgb(85 50 34 / 28%), 1px 2px var(--family-paper), 2px 3px #a48163;
+  color: var(--family-surface);
+  text-align: center;
+}
+
+.history-sample-photo-cover > strong { font: 600 11px / 1.2 var(--family-hand); text-wrap: balance; }
+
+.history-book-shelf-cover .history-sample-photo-cover > img {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--family-paper);
+  border-radius: 2px;
+}
+
+.history-sample-reader { container-type: inline-size; }
+
+.history-sample-reader-page {
+  max-block-size: min(36dvh, 288px);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.history-sample-reader-page > img { max-block-size: min(33dvh, 252px); object-fit: contain; }
+
+.history-sample-reader-page > .history-sample-photo-cover {
+  width: min(168px, 70%);
+  margin: 4px auto;
+  padding: 12px;
+}
+
+.history-sample-reader-page > .history-sample-photo-cover > strong {
+  font-size: calc(18px * var(--unit));
+}
+
+.history-sample-reader-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding-block-start: 8px;
+  color: var(--family-muted);
+  font-size: calc(12px * var(--unit));
+}
+
+.phone .history-sample-reader-controls > .paper-link {
+  padding-inline: 6px;
+  border-radius: 6px;
+}
+
+.phone .history-sample-reader-controls > .paper-link:hover:not(:disabled) {
+  background: var(--family-soft);
+  color: var(--family-brand);
+}
+
+.history-sample-reader-controls > .paper-link:disabled { opacity: .45; }
+
+.history-book-spread {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  border: 1px solid var(--family-line);
+  border-radius: 4px;
+  background: var(--family-texture) center top / 540px auto var(--family-paper);
+  background-blend-mode: soft-light;
+  text-align: start;
+}
+
+.history-book-spread > div { padding: 10px; }
+.history-book-spread-copy { border-inline-start: 1px solid var(--family-line); }
+
+.history-book-spread-photo > img {
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  object-position: right center;
+}
+
+.history-book-spread-photo > p {
+  margin-block-start: 6px;
+  font-size: calc(11px * var(--unit));
+}
+
+.history-book-spread h3 {
+  margin: 0 0 6px;
+  font: 600 calc(16px * var(--unit)) / 1.3 var(--family-hand);
+}
+
+.history-book-spread-copy > p {
+  color: var(--family-ink);
+  font-size: calc(13px * var(--unit));
+  text-indent: 2em;
+}
+
+.history-book-spread-copy > p + p { margin-block-start: 6px; }
+
+.history-film-sample figcaption { padding: 6px 4px 2px; text-align: start; }
+.history-film-sample figcaption > strong { color: var(--family-ink); }
+
+@container (max-width: 292px) {
+  .history-book-spread { grid-template-columns: minmax(0, 1fr); }
+  .history-book-spread-copy { border: 0; border-block-start: 1px solid var(--family-line); }
+  .history-book-spread-photo > img { aspect-ratio: 16 / 9; }
+}
+
+.phone .history-service-button {
+  width: 100%;
+  min-height: 44px;
+  margin-block-start: 16px;
+  border-color: var(--family-line);
+  border-radius: 8px;
+  background: var(--family-paper);
+  color: var(--family-ink);
+  font: 600 calc(15px * var(--unit)) / 1.5 var(--family-font);
+}
+
+.phone .history-service-button:hover { border-color: var(--family-brand); }
+.history-service-button .icon { color: var(--family-brand); }
+
+.history-service-section { border-block-start: 1px solid var(--family-line); }
+.history-service-section h2 {
+  padding-inline-start: 8px;
+  border-inline-start: 2px solid #9b4a39;
+  font: 600 calc(22px * var(--unit)) / 1.2 var(--family-hand);
+  letter-spacing: .12em;
+}
+
+.history-service-steps {
+  margin: 16px 0 0;
+  padding-inline-start: 24px;
+}
+
+.history-service-steps > li + li { margin-block-start: 14px; }
+.history-service-steps > li::marker { color: var(--family-brand); }
+.history-service-steps h3 { font-size: calc(16px * var(--unit)); }
+.history-service-steps p { font-size: calc(14px * var(--unit)); }
+
+.history-service-quote {
+  margin-block-start: 16px;
+  padding: 14px;
+  border: 1px solid var(--family-line);
+  border-radius: 12px;
+  background: var(--family-surface);
+}
+
+.history-service-quote strong {
+  display: block;
+  margin-block-end: 4px;
+  color: var(--family-brand);
+  font-size: calc(17px * var(--unit));
+}
+
+.history-service-quote p { font-size: calc(14px * var(--unit)); }
+.phone .history-service-quote .history-service-button { background: var(--family-soft); }
+
+/* 数字人示例借用人物志的青灰书脊、线脚与叠纸边。 */
+@media (prefers-reduced-motion: reduce) {
+  #chuanjia-frame-mobile .fm-button {
+    transition: none;
+  }
+}

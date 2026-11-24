@@ -625,7 +625,7 @@
     }
     release();
     for (const url of viewMediaUrls.splice(0)) URL.revokeObjectURL(url);
-    for (const image of document.querySelectorAll('[data-book-photo], [data-album-photo]')) void loadViewPhoto(image);
+    for (const image of document.querySelectorAll('[data-album-photo]')) void loadViewPhoto(image);
     const host = document.querySelector('[data-story-invite]');
     panel = host ? { host, state: P.state, revision: '', opening: true, urls: [], audio: new Map() } : null;
     persistWorkspace();
@@ -741,12 +741,12 @@
     return true;
   }
 
-  /** 联网恢复后原图仍从现有授权接口读取。故事册只允许家庭可见的内容。 */
+  /** 联网恢复后原图仍从现有授权接口读取。 */
   async function loadViewPhoto(image) {
     const state = P.state;
-    const { bookPhoto, albumPhoto } = image.dataset;
-    const story = P.visibleStories().find(item => item.id === (albumPhoto || bookPhoto));
-    if (!invites.network || !story?.photoToken || !story.houseBytes || (bookPhoto && story.scope !== 'family')) return;
+    const { albumPhoto } = image.dataset;
+    const story = P.visibleStories().find(item => item.id === albumPhoto);
+    if (!invites.network || !story?.photoToken || !story.houseBytes) return;
     try {
       const blob = await invites.photo(story.photoToken, invites.ownerKey());
       if (blob && P.state === state && image.isConnected) {
@@ -759,34 +759,6 @@
       // 照片暂不可用时保留原有文字和详情入口。
     }
   }
-
-  function bookVoices(story) {
-    return story.photoToken ? `<details class="book-photo-voices section" data-book-voices="${e(story.id)}"><summary>听这页的家人原声</summary><div></div></details>` : '';
-  }
-
-  document.addEventListener('toggle', async event => {
-    const details = event.target;
-    if (!details.matches('[data-book-voices][open]') || details.dataset.loaded) return;
-    const state = P.state;
-    const story = P.visibleStories().find(item => item.id === details.dataset.bookVoices);
-    if (!story?.photoToken || story.scope !== 'family') return;
-    const region = details.lastElementChild;
-    details.dataset.loaded = 'pending';
-    region.textContent = '正在读取家人的原声…';
-    try {
-      const owner = invites.ownerKey();
-      const card = await invites.owned(story.photoToken, owner);
-      if (card && invites.network) await loadVoices(card, owner);
-      if (P.state !== state || !details.isConnected) return;
-      if (!card) throw new Error('无法读取回复');
-      card.replies = card.replies.filter(reply => reply.sample || reply.audio);
-      region.innerHTML = replyList(card, story, viewMediaUrls) || '<p class="caption">这页还没有家人的语音。</p>';
-      details.dataset.loaded = 'true';
-    } catch {
-      if (details.isConnected) region.textContent = '暂时无法读取，收起后可再打开试一次。';
-      delete details.dataset.loaded;
-    }
-  }, true);
 
   document.addEventListener('play', event => {
     const host = panel?.host.contains(event.target) ? panel.host : event.target.closest('[data-album-replies]');
@@ -801,7 +773,7 @@
   invites.subscribe(refreshVisible);
   window.addEventListener('focus', refreshVisible);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshVisible(); });
-  P.PhotoStories = { composer, region, askButton, countLabel, albumReplies, homeReplies, bookVoices, loadViewPhoto, mount, submit, handleAction, revokeStory, endSession };
+  P.PhotoStories = { composer, region, askButton, countLabel, albumReplies, homeReplies, loadViewPhoto, mount, submit, handleAction, revokeStory, endSession };
   if (invites.network) {
     try {
       const snapshot = JSON.parse(localStorage.getItem(workspaceKey) || 'null');

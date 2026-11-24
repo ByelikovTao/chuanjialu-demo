@@ -94,14 +94,14 @@
       id:'father-life-film',subject:'father',kind:'film',title:'陈远山 · 走过的这些年',
       date:'2026年10月 · 示例交付',year:'2026',duration:12,
       description:'展示专业人生影片完成后如何存档与观看。当前演示片由示例图片编排，不是真实客户拍摄成片。',
-      poster:'assets/zhumen/portrait-father.webp',src:'assets/archive-demo/life-film.mp4',
+      poster:'assets/avatar/reference-person.webp',src:'assets/archive-demo/life-film.mp4',
       author:'father',sourceLabel:'人生影片播放演示 · 示例图片编排',scope:'family',viewers:[...FAMILY]
     },
     {
-      id:'father-photo-portrait',subject:'father',kind:'photo',title:'人物肖像（示例）',
+      id:'father-photo-portrait',subject:'father',kind:'photo',title:'人物肖像（参考图）',
       date:'2026年10月 · 示例归档',year:'2026',
-      description:'演示人物肖像，用于展示人物照片归档和大图查看。',
-      poster:'assets/zhumen/portrait-father.webp',author:'father',sourceLabel:'演示人物肖像 · 非客户本人存档',scope:'family',viewers:[...FAMILY]
+      description:'由用户提供的参考肖像，用于展示人物照片归档和大图查看，不认定为陈远山本人的真实照片。',
+      poster:'assets/avatar/reference-person.webp',author:'father',sourceLabel:'用户提供的造型参考图 · 非客户本人存档',scope:'family',viewers:[...FAMILY]
     },
     {
       id:'father-photo-family',subject:'father',kind:'photo',title:'和家人坐在一起',
@@ -223,7 +223,7 @@
     {id:'first-office',subject:'father',title:'第一间办公室',description:'从第一笔订单，了解创业起点的经历。空间漫游暂未开放。',storyIds:['first-order'],hasSpace:false}
   ];
   window.App.ARCHIVE_DATA={
-    notice:'人物与传记为虚构原型资料；视频由示例图片编排，人物肖像为演示素材，不代表真实客户影片或本人实拍。',
+    notice:'人物与传记为虚构原型资料；视频由示例图片编排，参考肖像来自用户提供图片，不代表真实客户影片或本人实拍。',
     people,assets,captions,places
   };
 }

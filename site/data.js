@@ -10,6 +10,7 @@
     family: '<circle cx="9" cy="7" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2ZM16 4a3 3 0 0 1 0 6m2 3a5 5 0 0 1 3 5v2"/>',
     person: '<circle cx="12" cy="7" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2Z"/>',
     arrow: '<path d="m9 5 7 7-7 7"/>',
+    switch: '<path d="M4 7h16m-4-4 4 4-4 4M20 17H4m4-4-4 4 4 4"/>',
     back: '<path d="m15 5-7 7 7 7"/>',
     down: '<path d="m6 9 6 6 6-6"/>',
     plus: '<path d="M12 5v14M5 12h14"/>',
@@ -89,16 +90,6 @@
       ]
     };
   }
-  /** 共同回忆示例直接使用原稿与本人纳入契约，确认不自动授予数字人引用。 */
-  function demoCommonMemories() {
-    const samples=[
-      ['sea','xia','第一次陪爸爸去看海','2025','那天我们沿着海边慢慢走，爸爸说年轻时总忙着工作，很少停下来看看风景。我想把那一刻的轻松留下来。',false],
-      ['dumplings','nian','和爷爷一起包饺子','2026','爷爷教我把饺子边捏紧，还说以前过年一家人都围在桌边帮忙。我包得不好看，爷爷还是笑着夸我。',false],
-      ['photos','xia','一起整理老照片','2024','周末陪爸爸整理旧相册，才知道几张老照片背后的故事。爸爸说，照片里的人和当时的心情，都值得记下来。',true],
-      ['writing','nian','爷爷教我写名字','2023','爷爷握着我的手，一笔一画地教我写名字。他说写字不用急，做事也一样，先把每一笔写认真。',true]
-    ];
-    return samples.map(([key,author,title,year,text,confirmed])=>({id:'demo-common-'+key,author,subject:author,commonWith:'father',inclusions:confirmed?{father:{active:true,reviewed:true,viewers:['father'],ai:false}}:{},title:'【演示】'+title,text:[text],year,date:year+'年 · 演示回忆',recorded:'演示数据',scope:'selected',viewers:['father'],category:'共同回忆',image:'family',source:PEOPLE[author].name+'的共同回忆演示',confirmedBy:author,quote:text.slice(0,52)}));
-  }
   /** 创建隔离初始状态；家庭首页内容由独立模块按需创建。 */
   function initialState(example=true) {
     if(!example){
@@ -107,20 +98,20 @@
         familyWorkspace:true,actor:'father',route:'home',idSequence:0,billingSeedDate:today,billingToday:today,
         members:['father'],accounts:{father:newAccount()},familyFocus:{},familyInvitations:{},
         familyAccess:{father:{archive:[],digital:[],space:[]}},familyRequests:[],
-        stories:[],invitations:[],pending:[],accessRequests:[],saved:[],record:emptyRecord(),fontLarge:false,
+        stories:[],invitations:[],pending:[],accessRequests:[],record:emptyRecord(),fontLarge:false,
         familyHome:{family:{mottoOwner:'father',motto:null,suggestions:[]},profiles:{},drafts:{},review:null},
         archiveAssets:[],archiveProfiles:{},archivePerson:'father',lifeTab:'overview',videoFilter:'all',
         archivePlayback:{},biographyMode:'read',archiveChapterId:'',archiveItemId:'',year:'1986',hotspot:'desk',
         familyTab:'列表',chatTarget:'father',chatMessages:[],chatDrafts:{},questionDrafts:{},questions:[],
         materialDrafts:{},materialTabs:{},materialSubmissions:[],answerFeedback:[],feedbackDrafts:{},
-        feedbackReviewDrafts:{},relationshipChapters:[],chapterDrafts:{},chapterNoteDrafts:{},
+        feedbackReviewDrafts:{},
         personServices:{},billingOrders:[],usageReceipts:[],billingPeople:{},keepsakeBooks:[]
       };
     }
     const members=['father','mother','xia','grandpa','nian','grandma'];
     const tasks=demoTasks();
     const stories=structuredClone(STORIES).map(story=>({...story,subject:'father',confirmedBy:'father',aiAllowed:true,viewers:story.scope==='family'?[...members]:[]}));
-    stories.push(...demoCommonMemories(),{
+    stories.push({
       id:'nian-birth-day',title:'念念出生了',category:'宝宝成长',babyMilestone:true,growthSample:true,fromFamily:true,
       author:'xia',subject:'xia',confirmedBy:'xia',relatedMembers:['nian'],
       scope:'family',viewers:[...members],date:'2016年5月20日',eventDate:'2016-05-20',year:'2016',recorded:'2016年5月20日',
@@ -165,7 +156,7 @@
       text:['一家人围在桌前，有人擀皮，有人拌馅，念念学着把饺子边捏紧。'],
       source:'陈家的家庭记录 · 虚构示例'
     });
-    return {billingSeedDate:new Date().toISOString().slice(0,10),billingToday:new Date().toISOString().slice(0,10),personServices:{},familyHome:null,billingOrders:[],usageReceipts:[],billingPeople:{},familyFocus:{xia:'father',nian:'father'},familyInvitations:{xia:['father','mother'],nian:['father']},familyAccess:{father:{archive:['xia','nian'],digital:['xia','nian'],space:['xia','nian']},mother:{archive:['xia'],digital:[],space:[]}},familyRequests:[],keepsakeBooks:[],keepsakeBookId:'',actor:'xia',route:'home',lifeTab:'overview',videoFilter:'all',archivePerson:'father',archiveAssets:null,archiveProfiles:null,archiveItemId:'',archiveChapterId:'',biographyMode:'read',archiveReturn:null,archivePlayback:{},familyTab:'列表',year:'1986',hotspot:'desk',guide:false,chatTarget:'father',chatContext:null,chatMessages:[],chatDrafts:{},questionDrafts:{},storyId:'first-order',saved:[],stories,members,invitations:[],pending:[],questions:tasks.questions,accessRequests:[],idSequence:0,materialDrafts:{},materialTabs:{},materialSubmissions:[],answerFeedback:tasks.answerFeedback,feedbackDrafts:{},feedbackReviewDrafts:{},feedbackReviewId:null,relationshipChapters:null,chapterDrafts:{},chapterNoteDrafts:{},chapterId:null,accounts:{father:{...newAccount(),videoDelivered:true,hasDigital:true,setupIncluded:true},xia:newAccount(),nian:newAccount()},record:emptyRecord(),fontLarge:false,modal:null,notice:''};
+    return {billingSeedDate:new Date().toISOString().slice(0,10),billingToday:new Date().toISOString().slice(0,10),personServices:{},familyHome:null,billingOrders:[],usageReceipts:[],billingPeople:{},familyFocus:{xia:'father',nian:'father'},familyInvitations:{xia:['father','mother'],nian:['father']},familyAccess:{father:{archive:['xia','nian'],digital:['xia','nian'],space:['xia','nian']},mother:{archive:['xia'],digital:[],space:[]}},familyRequests:[],keepsakeBooks:[],keepsakeBookId:'',actor:'father',route:'home',lifeTab:'overview',videoFilter:'all',archivePerson:'father',archiveAssets:null,archiveProfiles:null,archiveItemId:'',archiveChapterId:'',biographyMode:'read',archiveReturn:null,archivePlayback:{},familyTab:'列表',year:'1986',hotspot:'desk',guide:false,chatTarget:'father',chatContext:null,chatMessages:[],chatDrafts:{},questionDrafts:{},storyId:'first-order',stories,members,invitations:[],pending:[],questions:tasks.questions,accessRequests:[],idSequence:0,materialDrafts:{},materialTabs:{},materialSubmissions:[],answerFeedback:tasks.answerFeedback,feedbackDrafts:{},feedbackReviewDrafts:{},feedbackReviewId:null,accounts:{father:{...newAccount(),videoDelivered:true,hasDigital:true,setupIncluded:true},xia:newAccount(),nian:newAccount()},record:emptyRecord(),fontLarge:false,modal:null,notice:''};
   }
   /** 两个还原入口同时清除动态人物与业务状态，保留头像等消费者持有的对象引用。 */
   function resetDemoState() {

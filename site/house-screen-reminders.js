@@ -3,6 +3,7 @@
 {
   const P = window.App;
   const { escape: e, icon: i } = P;
+  const frameName = P.Households.addonOffer('frame').title;
   const minute = 60 * 1000;
   const snoozeMinutes = 10;
   const advanceMinutes = 15;
@@ -257,7 +258,7 @@
     }
     const title = read('title').slice(0, 28) || kinds[kind];
     add(d.reminders, { person, at, kind, title }, d.online);
-    return { message: d.online ? '提醒已同步到爸妈的相框。' : '提醒待同步，联网后会送到相框。' };
+    return { message: d.online ? `提醒已同步到${frameName}。` : '提醒待同步，联网后会送到相框。' };
   }
 
   function reconnect(d) {

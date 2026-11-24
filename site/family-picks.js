@@ -2,6 +2,7 @@
 'use strict';
 {
   const P = window.App, { escape: e, icon: i, button: b, link: l } = P;
+  const frameName = P.Households.addonOffer('frame').title;
   const ROUTE = 'house-picks';
   const GIFT_LABEL = '准备这份礼物';
   const CATEGORIES = [
@@ -12,12 +13,11 @@
   ];
   const PRODUCTS = [
     {
-      id: 'parents-screen', category: 'parents', name: '爸妈大屏相框', price: 699, photo: [2, 1],
+      id: 'parents-screen', category: 'parents', name: frameName, price: 699, photo: [2, 1],
       screenSize: '10.1 英寸',
       spec: '10.1 英寸 · 送给爸妈的生日礼物',
-      detail: '给爸爸看第一天上班的老照片，问一句「爸，这件衬衫谁给你改的？」爸爸在相框上点「回一句」，自己的声音就留在家庭相册的原照片下。以后做《爷爷的七十年》，还能',
-      detailEmphasis: '从全家共享的往事里挑这一段。',
-      giftPlan: '挑好照片，选一张做开机首图，再写句祝福或录下自己的声音。以后回了外地，也能往爸妈的相框里添新照片。',
+      detail: '给爸爸看第一天上班的老照片，问一句「爸，这件衬衫谁给你改的？」爸爸在相框上点「回一句」，自己的声音就留在家庭相册的原照片下。下次想听，打开这张照片就能找到。',
+      giftPlan: `挑好照片，选一张做开机首图，再写句祝福或录下自己的声音。以后回了外地，也能往${frameName}里添新照片。`,
       giftRoute: 'house-screen//gift/house-picks'
     },
     {
@@ -76,7 +76,7 @@
       ${details}
       <div class="picks-gift-info">
         <h3 class="picks-gift-title">相框礼盒 <span>${e(product.screenSize)}</span></h3>
-        <p class="picks-gift-package">大屏相框 · 预装照片与祝福 · 基础家庭空间</p>
+        <p class="picks-gift-package">预装照片与祝福 · 基础家庭空间</p>
         <p class="picks-gift-description">送到手就能看，家人也能继续往相框里添照片。</p>
       </div>
       <div class="picks-gift-footer">
@@ -128,17 +128,27 @@
     const prepare = product.giftRoute && family
       ? l(GIFT_LABEL + i('arrow'), product.giftRoute, 'btn secondary full')
       : '';
-    const frameEntry = product.id === 'parents-screen' && family
-      ? P.Households.addonEntry('frame', '咨询相框试售价与配送', { returnLabel: '返回相框详情', className: 'btn full' })
-      : '';
+    if (product.id === 'parents-screen') {
+      const actions = family ? `<div class="family-sheet-footer">${prepare}
+        ${P.Households.addonEntry('frame', `咨询${frameName}的试售价与配送`, {returnLabel: `返回${frameName}详情`, className: 'btn'})}</div>` : '';
+      P.modal(product.name, `<div class="picks-detail frame-offer">
+        <div class="frame-offer-summary">${mountedPhoto(product)}
+          <div><p class="family-sheet-note">${e(product.spec)}</p>
+            <p class="frame-offer-price">${price(product)} <small>演示价</small></p></div>
+        </div>
+        <details class="frame-offer-info"><summary>${frameName}功能与备礼说明</summary>
+          <p>${e(product.detail)}</p><p>${e(product.giftPlan)}</p>
+        </details>
+        ${actions}</div>`, 'sheet', undefined, {eyebrow: '实物商品', closeLabel: '返回优选', familySheet: true});
+      return;
+    }
     P.modal(product.name, `<div class="picks-detail">
       ${photo(product)}
       <div class="picks-detail-price">${price(product)}<small>演示价</small></div>
       <p class="picks-detail-spec">${e(product.spec)}</p>
-      <p>${e(product.detail)}${product.detailEmphasis ? `<strong class="text-emphasis">${e(product.detailEmphasis)}</strong>` : ''}</p>
+      <p>${e(product.detail)}${product.detailEmphasis ? `<strong class="text-emphasis"></strong>` : ''}</p>
       ${prepare}
       ${product.giftPlan ? `<section class="note"><h3>送之前能准备什么</h3><p>${e(product.giftPlan)}</p></section>` : ''}
-      ${frameEntry}
     </div>`, 'sheet');
   }
 

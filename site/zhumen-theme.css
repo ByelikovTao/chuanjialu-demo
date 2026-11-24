@@ -57,8 +57,8 @@ body{background:#EAE1D4;font-family:"Source Han Serif SC","Noto Serif SC","Songt
 /* 入口页的独立构图由 entry-flow.css 维护，保留市场与勾选协议的交互。 */
 .entry-mode{background:var(--canvas)}
 /* 列表、档案和制作流程共用细框纸卡，圆形人像与录音控制保留自身形状。 */
-.archive-shortcut,.archive-media-card,.plan-card,.recording-card,.tree-person,.lineage-focus,.lineage-branch,.family-tree,.keepsake-entry,.profile-service-summary,.feature-choices{border-radius:8px}
-.archive-shortcut,.archive-media-card,.tree-person,.plan-card{background:var(--surface);border-color:var(--line)}
+.archive-shortcut,.archive-media-card,.plan-card,.recording-card,.keepsake-entry,.profile-service-summary,.feature-choices{border-radius:8px}
+.archive-shortcut,.archive-media-card,.plan-card{background:var(--surface);border-color:var(--line)}
 .archive-shortcut.active,.plan-card.featured{background:var(--soft);border-color:var(--brand)}
 .profile-service-summary{border:1px solid #D5B6A0;background:#F2E1D2}
 .profile-main-menu{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:0 14px}
@@ -83,7 +83,7 @@ body{background:#EAE1D4;font-family:"Source Han Serif SC","Noto Serif SC","Songt
 .phone .page-title{font-size:calc(30px * var(--unit));line-height:1.2}
 /* 人物切换说明位于浅色纸卡，采用正文辅助色以保持可读性。 */
 .phone .family-focus small{font-size:calc(14px * var(--unit));line-height:1.5;color:var(--secondary)}
-.phone :is(.page-subtitle,.caption,.small,.muted,.member-row em,.archive-card-copy small,.archive-card-copy em,.profile-service-summary small,.profile-service-summary em,.heritage-caption){font-size:calc(14px * var(--unit));line-height:1.5;color:var(--secondary)}
+.phone :is(.page-subtitle,.caption,.small,.muted,.archive-card-copy small,.archive-card-copy em,.profile-service-summary small,.profile-service-summary em,.heritage-caption){font-size:calc(14px * var(--unit));line-height:1.5;color:var(--secondary)}
 .phone :is(.story-paragraph,.message,.source-transcript,.heritage-reader){font-size:calc(18px * var(--unit));line-height:1.5556}
 .phone :is(.menu-row,.btn,.heritage-text-button,.suggestion,.video-type-filters button,.archive-shortcut){font-size:calc(16px * var(--unit));line-height:1.5}
 .phone .bottom-nav button{font-size:calc(14px * var(--unit));line-height:1.5;white-space:normal;overflow-wrap:anywhere}
@@ -197,6 +197,6 @@ input[type=checkbox],input[type=radio]{accent-color:var(--brand)}
 .phone .heritage-body{position:relative;isolation:isolate}
 .phone .heritage-body:before{content:'';position:absolute;inset:0 -16px -32px;z-index:-1;pointer-events:none;background:url('assets/zhumen/home-ink-landscape.webp') center top/100% 1600px repeat-y;opacity:.20;mask-image:linear-gradient(to bottom,transparent,#000 160px)}
 .phone .heritage-body>section+section{margin-top:24px}
-.phone .heritage-home .heritage-pedigree-viewport{background-color:transparent}
-.phone .heritage-home .heritage-pedigree-node{background:#FFF7E9CC}
-.phone .heritage-home .heritage-pedigree-node.is-focus{background:#FFF0D9E6}
+.phone .home-kinship-preview .heritage-pedigree-viewport{background-color:transparent}
+.phone .home-kinship-preview .heritage-pedigree-node{background:#FFF7E9CC}
+.phone .home-kinship-preview .heritage-pedigree-node.is-focus{background:#FFF0D9E6}

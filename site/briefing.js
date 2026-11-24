@@ -11,7 +11,7 @@
     ['invite', '成员与邀请', 'family',
       '查看家人关系，再体验邀请亲人加入。家谱里也可以保留尚未认领账号的家人。'],
     ['permissions', '人生空间授权', 'family-permissions',
-      '分别查看人物档案、数字人和故里的授权。亲属关系和各项服务的开放范围独立管理。'],
+      '分别查看人物档案与故里的授权。亲属关系和各项服务的开放范围独立管理。'],
     ['privacy', '记录权限与大字号', 'settings',
       '选择一条我上传的往事，试试仅自己、指定家人和当前家庭三种分享范围。这里也能切换大字号。'],
     ['stories', '家庭全部记录', 'house-stories',
@@ -19,7 +19,7 @@
     ['assistant', 'AI问家', 'house-assistant',
       '试问家训、照片、语音或成长往事，点回答下方的资料回看原记录。原型根据当前家庭已共享的内容查找。'],
     ['picks', '优选', 'house-picks',
-      '按餐厨、日用和长辈之选浏览，点开保鲜盒、毛巾等商品看规格与演示价。爸妈大屏相框可打开演示机。'],
+      '按餐厨、日用和长辈之选浏览，点开保鲜盒、毛巾等商品看规格与演示价。传家相框可打开演示机。'],
     ['by-person', '切换人物志', 'house-stories/father',
       '现在查看与陈远山相关的往事。上传时可关联多位家人，同一条记录可从这些家人的入口找到。'],
     ['upload', '上传家庭记录', 'house-add',
@@ -28,12 +28,10 @@
       '试试拍一张或说一句。照片和原声可以一起留在同一条往事里。'],
     ['old-photo', '发老照片问长辈', 'house-record/photo/father',
       '用示例结婚照问爸爸一句，保存给当前家庭。打开长辈端回语音，再到原照片点「再问一位家人」，让两段话留在同一张照片下。'],
-    ['review', '资料提交与核对', 'profile-materials',
-      '从「我提交的资料」查看整理进度，或打开「待我核对」处理家人补充的材料。'],
-    ['messages', '家人留话', 'questions',
-      '打开一条留言，沿着入口回到对应的往事查看或回复。'],
-    ['saved', '收藏', 'saved',
-      '先打开一段往事并点收藏，再到这里回看。收藏随原记录的授权范围展示。'],
+    ['review', '资料提交与核对', 'materials',
+      '从「记录 → 我上传的」查看提交进度。「我的」有待核对事项时，可直接打开处理。'],
+    ['messages', '家人留言', 'question-history',
+      '从「记录 → 留言记录」回看对话，打开对应往事查看或回复。新的留言或回复会在「我的」提醒。'],
     ['baby', '成长记', 'house-baby/nian',
       '在「成长记」相册里从孕期翻到出生、各月龄和成长里程碑。照片和视频在时间线上直接展示。'],
     ['elders', '长辈岁月', 'house-elders/father',
@@ -42,42 +40,30 @@
       '用陈远山邀请林慧，切换到林慧接受邀请，即可打开「相伴记」相册。默认仅两人可见，分享到家庭要双方确认。'],
     ['screen-photo', '投照片与回语音', 'house-screen//photos',
       '知夏翻出爸爸第一天上班的照片。用手机把照片送到客厅，切到大屏点「回一句」，再回手机打开原照片听爸爸的讲述。这里演示的是一家人收到相框后怎么用。'],
-    ['screen-gift', '送爸妈一份相框礼物', 'house-screen//gift',
+    ['screen-gift', '送爸妈一台传家相框', 'house-screen//gift',
       '从手机相册挑一组照片，指定爸妈开机先看的那张，写下祝福或录一段自己的声音，再看爸妈打开相框的样子。'],
     ['screen-settings', '绑定与离线同步', 'house-screen//device',
       '在设备设置里体验配对和安静时段。相框离线时能看装好的照片，恢复联网后会收到家人新发来的照片。'],
-    ['shared-memory', '共忆集', 'common-memories',
-      '打开两位家人的共同故事，分别读各自补上的细节。故事集继续引用获授权的原资料。'],
     ['old-friends', '故人共忆', 'share-memory',
       '选择以陈远山本人身份体验，挑照片或影片，核对后生成分享卡。老朋友可以补上自己记得的那一面。'],
     ['reunion', '共忆相册', 'reunion-albums',
       '先在故人共忆生成分享卡，再回来查看相册和收录的内容。'],
     ['restoration', 'AI 影像体验', 'share-memory',
       '以本人身份挑选可修复的示例照片，打开分享预览，查看原片与修复或年轻模拟效果。'],
-    ['storybook', '家庭纪事册', 'house-book',
-      '打开「编辑样册」，选刚发的老照片，更新后在样页回听家人的原声。也可以演示开通会员和保存故事册。'],
     ['keepsake', '人工纪念书', 'books',
       '打开纪念书示例，查看选材、定稿、样书和印制等交付环节。'],
     ['gifts', '收到的心意', 'share-gifts',
       '展开演示服务进度，体验老朋友主动预约、完成拍摄后登记双方的服务礼。'],
     ['person', '人物档案', 'life/father',
       '查看陈远山已开放的视频、照片、传记、作品与足迹。'],
-    ['digital', '互动数字人', 'chat/father',
-      '点击示例问题，看回答引用哪段资料。资料不足时可以留问，也可以提交纠正。'],
-    ['feedback', '数字人反馈', 'chat-messages',
-      '打开一条反馈，查看问答或纠正的处理进度。'],
     ['vr', '故里 VR', 'space',
       '移动视角、切换年代，再点一个老物件回看相关经历。'],
     ['film', '人生故事片样片', 'archive-item/father-life-film',
       '播放示例影片，查看与人物和往事的关联。专业服务交付以确认后的成片为准。'],
     ['membership', '家庭会员与容量', 'membership',
-      '对照免费和会员权益，查看家庭总容量、故事册额度和模拟开通入口。'],
+      '对照免费和会员权益，查看家庭总容量和模拟开通入口。'],
     ['services', '传家定制', 'house-addons',
-      '查看 AI 人生故事片、数字人创建、VR 房间建模和人工纪念书。打开服务详情可看交付内容和报价。'],
-    ['digital-create', '数字人创建', 'house-service/digital',
-      '查看数字人创建的交付内容和收费方式。进入已授权的示例数字人，体验提问和引用来源。'],
-    ['vr-model', 'VR 房间建模', 'house-service/vr',
-      '查看房间建模的交付内容和收费方式。进入已授权的故里示例，漫游房间并打开物件故事。'],
+      '进入影片、纸质书和相框的介绍页，查看样例、办理流程与咨询方式。'],
     ['orders', '服务订单与交付', 'service-orders',
       '可先到独立服务详情模拟咨询，再在这里查看该服务的进度。'],
     ['billing', '收费权益说明', 'billing-plan',
@@ -98,7 +84,7 @@
       id: 'record', title: '记录往事',
       groups: [
         { title: '留下记录', children: ['upload', 'moment'] },
-        { topic: 'stories', children: ['by-person', 'saved'] },
+        { topic: 'stories', children: ['by-person'] },
         { topic: 'assistant' },
         { topic: 'review' }
       ]
@@ -106,7 +92,7 @@
     {
       id: 'together', title: '请家人补一句',
       groups: [
-        { title: '家人共同回忆', children: ['old-photo', 'messages', 'shared-memory'] },
+        { title: '家人留话与补写', children: ['old-photo', 'messages'] },
         { topic: 'old-friends', children: ['reunion', 'restoration', 'gifts'] }
       ]
     },
@@ -116,22 +102,21 @@
         { topic: 'baby', details: ['孕期与出生', '月龄相册', '成长里程碑'] },
         { topic: 'elders', details: ['按年月回看', '原声回听', '家人代记', '人生节点'] },
         { topic: 'couple', details: ['伴侣邀请确认', '私密双人相册', '双方确认后分享'] },
-        { title: '爸妈的相框', children: ['screen-gift', 'screen-photo', 'screen-settings'] }
+        { title: '传家相框', children: ['screen-gift', 'screen-photo', 'screen-settings'] }
       ]
     },
     {
       id: 'legacy', title: '回看与传承',
       groups: [
         { title: '人物与故里', children: ['person', 'vr'] },
-        { topic: 'digital', children: ['feedback'] },
-        { title: '成册与影片', children: ['storybook', 'keepsake', 'film'] }
+        { title: '纸书与影片', children: ['keepsake', 'film'] }
       ]
     },
     {
       id: 'services', title: '会员与服务',
       groups: [
         { title: '会员与收费', children: ['membership', 'billing'] },
-        { topic: 'services', children: ['digital-create', 'vr-model', 'orders', 'picks'] }
+        { topic: 'services', children: ['orders', 'picks'] }
       ]
     }
   ];
