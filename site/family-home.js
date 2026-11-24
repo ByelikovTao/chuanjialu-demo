@@ -2,9 +2,14 @@
 'use strict';
 {
   const P=window.App;
-  const EXAMPLE_MEMBERS = new Set(P.state.members);
-  const EXAMPLE_PEDIGREE_MEMBERS = new Set(['father', 'grandpa', 'mother', 'xia']);
-  const PARENT_RELATIONS = new Set(['父亲', '母亲', '爸爸', '妈妈']);
+  const PARENT_RELATIONS = new Set(['父亲', '母亲', '爸爸', '妈妈', '父母']);
+  const CHILD_RELATIONS = new Set(['儿子', '女儿', '子女']);
+  // 辈分只决定卡片所在的行。亲子连线仍须有两人之间的直接关系。
+  const PEDIGREE_GENERATIONS = new Map([
+    ['曾祖父', -3], ['曾祖母', -3], ['爷爷', -2], ['奶奶', -2], ['外公', -2], ['外婆', -2], ['祖辈', -2],
+    ['公公', -1], ['婆婆', -1], ['姑姑', -1], ['兄弟姐妹', 0],
+    ['侄女', 1], ['孙女', 2], ['孙子', 2], ['曾孙女', 3], ['曾孙子', 3]
+  ]);
   const EXAMPLE_SURNAME_ACCOUNT = {
     text: '爷爷说，他小时候住在老街东头。那时家门口有棵枣树，过年回来，远远就能认出来。',
     source: '陈远山口述'
@@ -137,30 +142,31 @@
       const relation=P.relation(id,person);
       if(PARENT_RELATIONS.has(relation))groups.parents.push(id);
       else if(id===person||['妻子','丈夫'].includes(relation))groups.couple.push(id);
-      else if(['儿子','女儿'].includes(relation))groups.children.push(id);
+      else if(CHILD_RELATIONS.has(relation))groups.children.push(id);
       else groups.others.push(id);
     }
     return groups;
   }
-  /** 只有祖辈到当前人物父母的亲子关系已知，才把该成员连入主家谱。 */
+  function isParent(parent, child) {
+    return PARENT_RELATIONS.has(P.relation(parent, child));
+  }
+  /** 同一家庭的成员全部进入图谱，辈分未知的成员保留独立卡片。 */
   function pedigree(owner) {
-    const example = P.Households.isExample();
-    const person = example ? P.state.actor : owner;
-    const members = example ? P.state.members.filter(id =>
-      id === person || EXAMPLE_PEDIGREE_MEMBERS.has(id) || !EXAMPLE_MEMBERS.has(id)) : P.state.members;
-    const groups = relatives(person, members);
-    const grandparents = groups.others.map(id => ({
-      id,
-      parentIndexes: groups.parents.flatMap((parent, index) =>
-        PARENT_RELATIONS.has(P.relation(id, parent)) ? [index] : [])
-    })).filter(entry => entry.parentIndexes.length > 0);
-    const connected = new Set(grandparents.map(entry => entry.id));
-    return { person, groups: { ...groups, grandparents, others: groups.others.filter(id => !connected.has(id)) } };
+    const person = P.Households.isExample() ? P.state.actor : owner;
+    const groups = relatives(person);
+    const generations = new Map();
+    for (const id of groups.others) {
+      const generation = groups.parents.some(parent => isParent(id, parent))
+        ? -2 : PEDIGREE_GENERATIONS.get(P.relation(id, person)) ?? null;
+      if (!generations.has(generation)) generations.set(generation, []);
+      generations.get(generation).push(id);
+    }
+    return { person, groups: { ...groups, generations } };
   }
   /** 仅原型工具使用：清空新首页资料，保留既有故事、授权和记录草稿。 */
   function empty() {
     const home=ensure();home.family.motto=null;home.family.suggestions=[];home.drafts={};home.review=null;
     Object.values(home.profiles).forEach(value=>{value.origin=null;value.surnameOrigin=null;value.surname='';});
   }
-  P.FamilyHome={ensure,profile,originTitle,member,editable,readable,document,mottoByline,surnameDetails,photo,relatives,pedigree,empty};
+  P.FamilyHome={ensure,profile,originTitle,member,editable,readable,document,mottoByline,surnameDetails,photo,relatives,isParent,pedigree,empty};
 }
