@@ -1,6 +1,7 @@
-/* 下载登录独立还原已确认的入口UI；主导航和授权仍由原入口状态机控制。 */
-.entry-mode #app-header,.entry-mode #bottom-nav{display:none}
+/* 下载和登录沿用原入口状态机，公共顶栏随这一段正文滚动。 */
+.entry-mode #bottom-nav{display:none}
 .entry-mode{background:var(--canvas)}
+.entry-top-nav-status{color:var(--home-xuan-muted);font:600 calc(12px * var(--unit))/1.4 var(--home-xuan-sans);text-align:end}
 .entry-page{position:relative;isolation:isolate;min-height:100%;padding:16px 16px 32px;font-size:calc(14px * var(--unit));line-height:1.5;background:var(--canvas)}
 .entry-page .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
 .entry-page button{min-height:48px}
@@ -12,7 +13,6 @@
 /* 应用市场：门庭梅枝铺在页角，宣传卡为浅色纸面，搜索框直接容纳原生输入。 */
 .market-page{display:flex;flex-direction:column;padding-top:88px}
 .market-page:before{content:"";position:absolute;z-index:-1;right:0;top:0;width:240px;height:184px;background:url("assets/zhumen/entry-market-corner.webp") right top/contain no-repeat;pointer-events:none}
-.market-heading h1{margin:8px 0 24px;font-weight:600}
 .market-search{display:flex;align-items:center;gap:12px;padding:4px 4px 4px 12px;background:#FFFDFA;border:1px solid var(--brand);border-radius:12px}
 .market-search>.icon{width:24px;height:24px}
 .phone.entry-mode .market-search input[type=search]{width:0;flex:1;border:0;background:transparent;padding:8px 0;min-height:40px;min-width:0;border-radius:0;font-size:calc(18px * var(--unit));line-height:1.5556}
@@ -29,11 +29,8 @@
 .market-page>.entry-section-title:before{content:none}
 .market-chip{display:inline-flex;align-items:center;align-self:flex-start;gap:8px;background:var(--soft);border:1px solid #F3D5C8;border-radius:999px;padding:8px 16px;color:var(--ink);font-size:calc(18px * var(--unit))}
 .market-disclaimer{margin-top:auto;padding-top:64px;text-align:center}
-.market-results-page{padding-top:0;background:var(--canvas) url("assets/zhumen/paper-wall.webp") left bottom/100% auto no-repeat}
+.market-results-page{padding-top:24px;background:var(--canvas) url("assets/zhumen/paper-wall.webp") left bottom/100% auto no-repeat}
 .market-results-page:before{content:none}
-.entry-search-header{display:grid;grid-template-columns:40px 1fr 40px;align-items:center;margin:0 -16px 24px;padding:8px;background:var(--brand) url("assets/zhumen/header-roof.webp") right center/128px auto no-repeat;color:white;min-height:56px}
-.entry-search-header h1{font-size:calc(20px * var(--unit));line-height:1.4;text-align:center}
-.entry-search-header .entry-back{margin:0;color:white}
 .market-results-page .market-result{border:0;border-radius:8px;padding:12px;background:#FFFDFA}
 .market-result{display:flex;align-items:center;gap:8px;margin:16px 0;padding:16px 0;border-bottom:1px solid var(--line)}
 .market-result-info{min-width:0;display:flex;align-items:center;gap:12px;text-align:left;flex:1;background:transparent;padding:0}
@@ -43,12 +40,9 @@
 .market-get{background:var(--brand);color:white;border-radius:999px;padding:8px 16px;flex-shrink:0}
 .entry-empty{padding:40px 0;text-align:center;color:var(--secondary)}
 .entry-empty p{font-size:calc(14px * var(--unit));margin-top:12px}
-.entry-back{background:transparent;padding:0;color:var(--brand);margin-bottom:16px}
 
-/* 应用详情：红色标题栏、品牌封面及两列图文功能卡；不把整张UI作为页面背景。 */
-.entry-detail-header{display:flex;align-items:center;justify-content:space-between;margin:-16px -16px 0;padding:8px 16px;background:var(--brand);color:white}
-.entry-detail-header .entry-back{display:flex;align-items:center;gap:12px;color:white;margin:0;font-size:calc(20px * var(--unit))}
-.entry-detail-header>span{font-size:calc(12px * var(--unit));border:1px solid #FFFFFF80;border-radius:999px;padding:8px 12px}
+/* 应用详情在品牌封面下展示两列图文功能卡。 */
+.store-page{padding-top:0}
 .store-hero{position:relative;isolation:isolate;margin:0 -16px;padding:24px 16px;overflow:hidden}
 .store-hero:after{content:"";position:absolute;z-index:-1;right:0;top:0;bottom:0;width:40%;background:url("assets/zhumen/entry-market-door.webp") right center/cover no-repeat;opacity:.65;mask-image:linear-gradient(90deg,transparent,#000);pointer-events:none}
 .store-identity{display:flex;gap:16px;align-items:flex-start;margin-bottom:16px}
@@ -81,7 +75,6 @@
 /* 登录沿用归家封面的纸色、屋檐与淡山水；背景连续铺满，表单保持原有操作。 */
 .login-page{padding:0 24px 24px;background:#FBF7EF;color:#49372B}
 .login-page:before{content:"";position:absolute;inset:0;z-index:-1;background:url("assets/zhumen/home-ink-landscape.webp") center top/100% 1600px repeat-y;opacity:.28;pointer-events:none}
-.login-page>.entry-back{position:absolute;top:8px;right:8px;z-index:2;color:#96382C;width:44px;min-height:44px;background:#FBF7EFCC;border-radius:4px;display:grid;place-items:center}
 .login-brand{position:relative;isolation:isolate;text-align:left;margin:0 -24px 16px;padding:16px 24px 24px;background:transparent;color:#49372B;overflow:hidden}
 .login-brand:after{content:"";position:absolute;z-index:-1;inset:0;background:url("assets/zhumen/entry-market-corner.webp") right top/auto 100% no-repeat;mask-image:linear-gradient(to bottom,#000 65%,transparent);opacity:.72;pointer-events:none}
 .login-seal{display:inline-block;border:3px double #FFF3DB;outline:1px solid #A53425;border-radius:0;background:#A53425;color:#FFF3DB;padding:2px 4px;font:12px/1 KaiTi,STKaiti,serif;margin-bottom:8px}
@@ -114,7 +107,6 @@
 .entry-demo{margin-top:16px;color:var(--secondary);font-size:calc(12px * var(--unit));line-height:1.5;text-align:center}
 
 /* 大字号在窄屏优先换行，保持搜索、身份和协议操作可达。 */
-.large-type .market-page{padding-top:88px}
 .large-type .market-feature{padding:32px 16px}
 .large-type .market-feature h2{white-space:normal;font-size:calc(24px * var(--unit))}
 .large-type .market-feature:after{opacity:.2}
@@ -124,7 +116,6 @@
 .large-type .store-previews{grid-template-columns:1fr}
 .large-type .store-identity{flex-direction:column}
 .large-type :is(.entry-primary.store-get,.store-availability,.install-progress){width:100%;margin-left:0}
-.large-type .entry-detail-header{flex-wrap:wrap}
 .large-type .login-brand h1,.large-type .login-brand p{max-width:100%}
 .large-type .login-brand:after{opacity:.2}
 .phone.entry-mode.large-type .entry-code-row input[name=code]{flex:1 1 160px}

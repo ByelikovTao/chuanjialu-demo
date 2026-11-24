@@ -5,19 +5,13 @@
   const {icon:i,button:b,link:l,escape:e}=P;
   /** 首页汇总全家福、传承资料和家庭记录。 */
   function home() {return P.FamilyHomeViews.render();}
-  /** 人物档案统一展示资料，人生事件在传记内部按另一种方式浏览。 */
-  function life() {return P.PersonArchive.view();}
   /** 往事和媒体沿用同一详情排版，正文与附件仍按当前访问授权展示。 */
   function story() {
     const s=P.state;
     const item=P.visibleStories().find(x=>x.id===s.storyId);
-    const couple=P.Couples.detail(s.storyId,item);
-    if(couple)return couple;
     if (!item) {
       const exists=s.stories.some(story=>story.id===s.storyId&&!story.coupleId);
-      if (!exists) return `<div class="page"><div class="empty">${i('book')}<h2>没有找到这段记录</h2>${l('返回记录','house-stories','btn')}</div></div>`;
-      const waiting=(s.accessRequests || []).some(request=>request.actor===s.actor && request.storyId===s.storyId && ['pending','pending-owner'].includes(request.status));
-      return `<div class="page"><div class="empty">${i('lock')}<h2>这段内容暂未向你开放</h2><p>${waiting?'查看申请已提交，等待记录本人决定。':'你可以向记录本人申请查看，也可以返回已分享的故事。'}</p>${b(waiting?'等待本人授权':'申请查看','request-access','btn',waiting?'disabled':'')}${l('返回记录','house-stories','text-link full')}</div></div>`;
+      return P.unavailable('house-stories', exists ? '这段往事暂未向你开放。' : '没有找到这段往事。');
     }
     const legacyPhoto=Boolean(item.photoToken&&!item.photoQuestion);
     const title=legacyPhoto?item.quote||item.title:item.title;
@@ -35,41 +29,61 @@
     ]);
     const read=legacyPhoto||item.moment&&!item.text.length?'':b(i('volume')+' 听示例朗读','read-transcript','btn secondary',`data-id="${e(item.id)}"`);
     const source=item.moment&&!item.text.length?'':b('查看原始记录 '+i('arrow'),'source','text-link',`data-id="${e(item.id)}"`);
-    const ask=P.PhotoStories.askButton(item);
-    const journal = s.homeDiaryStory;
-    const diaryPage = journal ? P.FamilyJournal.diaryStoryPage(item) : null;
-    const dateLabel = journal
-      ? `<p class="caption journal-byline">${e([date || item.recorded, P.FamilyJournal.diaryByline(item)].filter(Boolean).join(' · '))}</p>`
-      : date ? `<p class="caption">${e(date)}</p>` : '';
-    const article = `<article class="page archive-detail story-detail${journal ? ' bound-paper journal-sheet journal-story diary-leaf' : ''}">
-      ${journal ? '' : storyBack(item) +
-        `<p class="eyebrow section">${item.babyMilestone?(item.growthSample?'成长记 · 示例':'成长记 · 里程碑'):item.lifeMilestone?'人生节点':item.photoToken?'照片往事':'家庭往事'}</p>`}
-      <h1 class="page-title">${e(title)}</h1>
-      ${ask?`<div class="story-ask-heading">${dateLabel}${ask}</div>`:dateLabel}
+    const diaryPage = s.homeDiaryStory ? P.FamilyJournal.diaryStoryPage(item) : null;
+    const previous = s.history?.at(-1)?.split('/')[0];
+    const dateLabel = date ? `<p class="caption">${e(date)}</p>` : '';
+    const category = item.babyMilestone ? (item.growthSample ? '成长记 · 示例' : '成长记 · 里程碑')
+      : item.lifeMilestone ? '人生节点' : item.photoToken ? '照片往事' : '家庭往事';
+    const audio = read ? `<div class="story-tools section">${read}</div><p class="caption">示例朗读由系统声音生成。</p>` : '';
+    const replies = P.Households.replyPanel(item);
+    const conversationEntry = s.storyConversationEntry && replies
+      ? b(i('chat') + '看留言', 'jump-story-conversation', 'text-link story-conversation-link', 'aria-controls="story-conversation"')
+      : '';
+    // 三个入口共用正文和留言区，日记仅在阅读流程中加翻篇控件。
+    const article = `<article class="page story-reading-page archive-detail story-detail${diaryPage ? ' diary-leaf' : ''}">
+      ${storyBack(item, previous)}
+      <div class="story-reading-heading">
+        <p class="eyebrow section">${category}</p><h1 class="page-title">${e(title)}</h1>
+        ${conversationEntry ? `<div class="story-ask-heading">${dateLabel}${conversationEntry}</div>` : dateLabel}
+        ${P.FamilyJournal.seal()}
+      </div>
       ${storyMedia(item)}
-      ${quote||text?`<div class="section">${quote}${text}</div>`:''}
-      ${journal ? P.Households.replyPanel(item, true) : ''}
+      ${quote || text ? `<div class="section story-reading-body">${quote}${text}</div>` : ''}
       ${diaryPage?.navigation || ''}
       <div data-screen-story-tools>${P.HouseScreen.photoButton(item)}${P.HouseScreen.voices(item)}</div>
-      ${P.FamilyMoment.playback(item)}${P.PhotoStories.region(item)}
-      ${read ? `<div class="story-tools section">${read}</div><p class="caption">示例朗读由系统声音生成。</p>` : ''}
-      ${meta}
+      ${P.FamilyMoment.playback(item)}
+      ${audio ? `<div class="story-reading-audio">${audio}</div>` : ''}
+      <section class="story-reading-info"><h2>记录信息</h2>${meta}</section>
       <div class="note"><strong>资料来源</strong><p>${e(item.source)}</p>${source}</div>
-      ${item.author===s.actor&&!item.photoToken?b(i('share')+' 调整分享范围','share-story','text-link section'):''}
-      ${P.PersonArchive.storyMaterials(item)}${familyPerspective(item)}${journal ? '' : P.Households.replyPanel(item)}
+      ${item.author===s.actor?b(i('share')+' 调整分享范围','share-story','text-link section'):''}
+      ${P.PersonArchive.storyMaterials(item)}${familyPerspective(item)}
+      ${replies ? `<section id="story-conversation" tabindex="-1" aria-label="留言与补写">${replies}</section>` : ''}
     </article>`;
     return diaryPage ? P.FamilyJournal.diaryBook('entry', diaryPage.number, article) : article;
   }
-  function storyBack(item){
-    const previous=P.state.history?.at(-1)?.split('/')[0];
-    const albumLabel={'house-baby':'返回成长相册','house-elders':'返回有声相册'}[previous];
-    if(P.Households.fromStoryList())return b(i('back')+' '+(albumLabel||'返回记录'),'back','text-link');
-    if(previous==='home')return b(i('back')+' 返回我家','back','text-link');
-    if(previous==='house-assistant')return b(i('back')+' 返回'+P.FamilyAssistant.title,'back','text-link');
-    if(previous==='archive-item')return b(i('back')+' 返回档案资料','back','text-link');
-    if(!previous||item.fromFamily||item.photoToken)return l(i('back')+' 返回记录',item.scope==='private'?'house-stories/personal/recent':'house-stories','text-link');
-    if(previous==='life')return b(i('back')+' 返回传记 · 按事件浏览','archive-events','text-link',`data-person="${e(item.commonWith||item.subject)}"`);
-    return b(i('back')+' 返回上一页','back','text-link');
+  function storyBack(item, previous) {
+    const content = label => `${i('back')}<span>${e(label)}</span>`;
+    const style = 'text-link story-reading-back';
+    if (P.state.homeDiaryStory) {
+      return P.returnLink(content('返回家庭日记'), P.FamilyJournal.diaryListFor(item.id), style);
+    }
+    const labels = {
+      'house-stories': '返回记录',
+      'question-history': '返回留言记录',
+      'questions': '返回家人留言',
+      'home': '返回我家',
+      'home-album': '返回家庭相册',
+      'materials': '返回我上传的',
+      'house-assistant': '返回' + P.FamilyAssistant.title,
+      'archive-item': '返回档案资料'
+    };
+    // 直接打开往事时回记录列表，从其他页面进入时回到实际来源。
+    if (!previous) {
+      if (P.state.storyConversationEntry) return P.returnLink(content('返回留言记录'), 'question-history', style);
+      const route = item.scope === 'private' ? 'house-stories/personal/recent' : 'house-stories';
+      return P.returnLink(content('返回记录'), route, style);
+    }
+    return b(content(labels[previous] || '返回上一页'), 'back', style);
   }
   function storyScope(item){
     return item.scope==='private'?'仅自己':item.scope==='selected'?'指定家人':'家庭可见';
@@ -100,7 +114,7 @@
   function familyPerspective(item) {
     if(item.scope==='private'||item.subject!=='father'||P.state.familyWorkspace)return '';
     const text=item.id==='first-order'?'<div class="note"><strong>林慧 · 家人讲述</strong><p>我记得他那天进门的时候，脸上一直带着笑。我们都觉得，日子有了新的盼头。</p></div>':'<p class="caption">同一件事，每个人也许记得不同的细节。</p>';
-    return `<div class="section"><div class="section-heading"><h2>家人记得的另一面</h2></div>${text}${b('补充你记得的细节 '+i('plus'),'contribute-story','text-link',`data-id="${item.id}"`)}</div>`;
+    return `<div class="section"><div class="section-heading"><h2>家人记得的另一面</h2></div>${text}</div>`;
   }
   /** 来源按钮固定到各条回答；资料或实际引用的故事撤回后不继续展示历史正文。 */
   function messageView(msg) {
@@ -124,8 +138,7 @@
   P.chatHasNotice=()=>P.AnswerFeedback.hasNotice();
   P.views['chat-messages']=chatMessages;
   /** 三维记忆空间由专用模块负责模型、相机和物件故事。 */
-  function space() { return P.MemorySpace.view(); }
   /** 将核心视图注册给静态原型路由。 */
-  Object.assign(P.views,{home,life,story,chat,space});
+  Object.assign(P.views,{home,story,chat});
   P.chatMessageView=messageView;
 }

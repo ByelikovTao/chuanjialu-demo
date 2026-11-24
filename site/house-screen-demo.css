@@ -1,5 +1,22 @@
-/* 相框、照片和管理区复用首页的纸面与朱砂主题。 */
+/* 体验页沿用「我家」的暖宣纸与朱砂色，相框和手机管理共用这组纸色。 */
 .studio.screen-demo-mode {
+  --family-hand: "Noto Serif SC", "Songti SC", STZhongsong, SimSun, serif;
+  --family-ink: #3e2718;
+  --family-muted: #68523e;
+  --family-brand: #a9311f;
+  --family-paper: #fbedd9;
+  --family-surface: #fff4e3;
+  --family-line: #dfc6a8;
+  --family-soft: #f8e6d0;
+  --family-blush: #f9dfc5;
+  --family-texture: url("assets/family-home/reference/xuan-paper.webp");
+  --ink: var(--family-ink);
+  --secondary: var(--family-muted);
+  --subtle: var(--family-muted);
+  --brand: var(--family-brand);
+  --line: var(--family-line);
+  --surface: var(--family-surface);
+  --soft: var(--family-soft);
   grid-template-columns: 228px minmax(0, 1fr);
 }
 
@@ -12,10 +29,23 @@
   height: auto;
   justify-content: flex-start;
   padding: 28px 32px;
-  background: var(--family-canvas);
+  background: linear-gradient(#eeb9b11a, #eeb9b11a),
+    var(--family-texture) center top / 470px auto #faecdf;
 }
 
 .screen-demo-mode :is(.review-toolbar, .phone, .review-panel, .stage-note) {
+  display: none;
+}
+
+.screen-demo-mode .stage > .top-nav {
+  position: sticky;
+  z-index: 3;
+  inset-block-start: 0;
+  max-width: 1120px;
+  margin-block-end: 20px;
+}
+
+.screen-demo-mode .stage > .bottom-nav {
   display: none;
 }
 
@@ -23,32 +53,17 @@
   width: 100%;
   max-width: 1120px;
   min-width: 0;
+  color: var(--family-ink);
   font-family: var(--family-font);
-}
-
-.screen-demo-heading {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 24px;
-}
-
-.screen-demo-nav {
-  display: flex;
-  align-items: center;
-}
-
-.screen-demo-intro {
-  min-width: 0;
 }
 
 .screen-preview-label {
   position: relative;
   padding-inline-start: 11px;
-  color: #433124;
+  color: var(--family-ink);
   font-family: var(--family-hand);
-  font-weight: 600;
-  letter-spacing: .12em;
+  font-weight: 700;
+  letter-spacing: .04em;
   overflow-wrap: anywhere;
 }
 
@@ -58,17 +73,8 @@
   inset-inline-start: 0;
   inline-size: 2px;
   border-radius: 1px;
-  background: #9b4a39;
+  background: var(--family-brand);
   content: "";
-}
-
-.screen-demo-heading h1 {
-  margin: 0;
-  color: var(--family-ink);
-  font: 600 calc(32px * var(--unit)) / 1.3 var(--family-hand);
-  letter-spacing: .04em;
-  text-wrap: balance;
-  overflow-wrap: anywhere;
 }
 
 .screen-preview-label {
@@ -112,26 +118,36 @@
   margin-bottom: 12px;
 }
 
-.screen-device {
-  --screen-book-edge: color-mix(in srgb, var(--family-line) 79%, var(--family-muted));
-}
-
-/* 书册外框由宽度定高，长内容只在中间的纸页区域滚动。 */
+/* 外框固定为 5:4，页面切换只改变相框内的内容。 */
 .screen-bezel {
+  --screen-wood-edge: clamp(12px, 1.45vw, 22px);
+  position: relative;
   display: grid;
   grid-template: minmax(0, 1fr) / minmax(0, 1fr);
   inline-size: 100%;
   min-block-size: 0;
-  aspect-ratio: 16 / 10;
-  border: 1px solid var(--screen-book-edge);
-  border-radius: 10px;
-  background: var(--family-surface);
-  box-shadow:
-    0 2px 0 var(--family-paper),
-    0 3px 0 var(--screen-book-edge),
-    0 5px 0 var(--family-paper),
-    0 6px 0 var(--family-line),
-    0 14px 24px rgb(96 67 36 / 10%);
+  aspect-ratio: 5 / 4;
+  border: var(--screen-wood-edge) solid #986347;
+  border-image: url("assets/family-home/reference/wood-frame.webp") 9 stretch;
+  border-radius: 1px;
+  background: #70462d;
+  box-shadow: 0 4px 0 #986447, 0 6px 0 #5b3624, 0 18px 24px -14px #65472bab;
+}
+
+.screen-bezel::after {
+  position: absolute;
+  inset-block-end: calc(0px - var(--screen-wood-edge) - 13px);
+  inset-inline-start: 50%;
+  inline-size: clamp(105px, 30%, 230px);
+  block-size: 14px;
+  transform: translateX(-50%) perspective(80px) rotateX(20deg);
+  transform-origin: top center;
+  border: 1px solid #684331;
+  border-radius: 2px 2px 5px 5px;
+  background: linear-gradient(#b27b53, #845234 55%, #5e3827);
+  box-shadow: 0 7px 12px -2px #65472b68;
+  pointer-events: none;
+  content: "";
 }
 
 .screen-glass {
@@ -139,7 +155,9 @@
   grid-template-rows: auto minmax(0, 1fr) auto;
   min-block-size: 0;
   overflow: hidden;
-  border-radius: inherit;
+  border: 1px solid #754b32;
+  border-radius: 2px;
+  background: var(--family-surface);
 }
 
 .screen-device-header,
@@ -152,20 +170,10 @@
 }
 
 .screen-device-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  display: flex;
+  justify-content: flex-end;
   min-block-size: 38px;
   border-block-end: 1px solid var(--family-line);
-}
-
-.screen-device-header strong {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-width: 0;
-  color: var(--family-ink);
-  font: 600 calc(18px * var(--unit)) / 1.4 var(--family-hand);
-  overflow-wrap: anywhere;
 }
 
 .screen-device .screen-device-header .screen-reminder-entry {
@@ -256,33 +264,40 @@
   min-block-size: 100%;
 }
 
+.screen-gallery:has(> .screen-carousel-photo) {
+  block-size: 100%;
+  grid-template-rows: minmax(0, 1fr);
+}
+
 .screen-photo {
   display: grid;
   grid-template-columns: minmax(0, 1.38fr) minmax(0, 1fr);
   align-items: center;
   color: var(--family-ink);
-  background: linear-gradient(to right,
-    color-mix(in srgb, var(--family-line) 28%, var(--family-paper)),
-    var(--family-surface) 8%, var(--family-paper) 56%,
-    color-mix(in srgb, var(--family-line) 30%, var(--family-paper)) 58%,
-    var(--family-surface) 62%);
+  background: var(--family-texture) center top / 470px auto var(--family-paper);
 }
 
 .screen-photo-paper {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   min-inline-size: 0;
   margin: 0;
   padding: 14px 14px 14px 18px;
 }
 
 .screen-photo-paper img {
+  grid-area: 1 / 1;
   display: block;
   width: 100%;
   aspect-ratio: 1.58;
   border: 4px solid var(--family-surface);
   outline: 1px solid var(--family-line);
-  box-shadow: 0 3px 8px rgb(98 73 39 / 12%);
   object-fit: contain;
   background: var(--family-soft);
+}
+
+.screen-photo-outgoing {
+  pointer-events: none;
 }
 
 .screen-photo-inscription {
@@ -291,6 +306,64 @@
   gap: 8px;
   min-inline-size: 0;
   padding: 16px 20px 16px 16px;
+}
+
+.screen-photo-context {
+  display: contents;
+}
+
+/* 题注和留言在自己的纸面内滚动，轮播按钮固定在右栏下方。 */
+.screen-carousel-photo {
+  grid-template-columns: minmax(0, 2.65fr) minmax(0, 1fr);
+}
+
+.screen-carousel-photo > .screen-photo-paper {
+  padding: 10px 8px 10px 12px;
+}
+
+.screen-carousel-photo > .screen-photo-inscription {
+  align-self: center;
+  align-content: stretch;
+  grid-template-rows: minmax(0, 1fr) calc(44px * var(--unit)) 44px;
+  block-size: min(100%, calc(320px * var(--unit)));
+  min-block-size: 0;
+  padding-inline: 8px 12px;
+}
+
+.screen-carousel-photo .screen-photo-context {
+  display: grid;
+  align-content: safe center;
+  gap: inherit;
+  min-block-size: 0;
+  min-inline-size: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--family-line) transparent;
+}
+
+.screen-carousel-photo .screen-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.screen-carousel-photo .screen-actions .screen-button {
+  justify-self: start;
+  block-size: 100%;
+  min-inline-size: 0;
+  padding: 4px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.screen-photo-caption-stack {
+  position: relative;
+}
+
+.screen-photo-caption.screen-photo-outgoing {
+  position: absolute;
+  inset: 0 0 auto;
 }
 
 .screen-photo-inscription :is(.screen-gift-intro, .screen-message, .screen-question) {
@@ -303,9 +376,20 @@
   line-height: 1.5;
 }
 
+.screen-photo-direct-reply:has(.screen-reply) .screen-photo-inscription :is(.screen-gift-intro, .screen-message) {
+  padding: 8px 10px;
+  border: 1px solid var(--family-line);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--family-paper) 72%, transparent);
+}
+
 .screen-photo-caption {
   display: grid;
   gap: 4px;
+}
+
+.screen-photo-caption > .screen-message {
+  margin-block-start: 4px;
 }
 
 .screen-photo-caption h3 {
@@ -313,6 +397,10 @@
   font: 600 calc(24px * var(--unit)) / 1.25 var(--family-hand);
   text-wrap: balance;
   overflow-wrap: anywhere;
+}
+
+.screen-photo-direct-reply:has(.screen-reply) .screen-photo-caption h3 {
+  font-weight: 700;
 }
 
 .screen-photo-year,
@@ -433,7 +521,7 @@
 .screen-reminder-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 192px), 1fr));
-  align-items: start;
+  align-items: stretch;
   gap: 8px;
   margin: 0;
   padding: 0;
@@ -448,7 +536,8 @@
 
 .screen-reminder-list .screen-agenda.is-due {
   border-color: color-mix(in srgb, var(--family-brand) 55%, var(--family-line));
-  background: var(--family-blush);
+  border-inline-start: 3px solid var(--family-brand);
+  background: #fae8d3;
 }
 
 .screen-reminder-list .screen-agenda :is(h3, h4) {
@@ -457,11 +546,16 @@
   overflow-wrap: anywhere;
 }
 
+.screen-reminder-list .screen-agenda > p {
+  color: var(--family-muted);
+  font-size: calc(14px * var(--unit));
+}
+
 .screen-reminder-row-meta {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 2px 8px;
+  gap: 4px 8px;
   color: var(--family-muted);
   font-size: calc(12px * var(--unit));
   overflow-wrap: anywhere;
@@ -469,7 +563,19 @@
 
 .screen-reminder-row-meta time {
   color: var(--family-brand);
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
+}
+
+.screen-reminder-row-meta > span {
+  padding-inline: 6px;
+  border-radius: 4px;
+  background: var(--family-paper);
+}
+
+.screen-agenda.is-due .screen-reminder-row-meta > span {
+  background: var(--family-surface);
+  color: var(--family-brand);
 }
 
 .screen-contact {
@@ -503,6 +609,11 @@
   min-height: 20px;
 }
 
+.screen-demo-status:empty {
+  min-height: 0;
+  margin: 0;
+}
+
 .screen-sync {
   margin-top: 8px;
   color: var(--family-muted);
@@ -525,7 +636,7 @@
 
 .screen-device-footer {
   padding-inline: 2px;
-  margin-block-start: 8px;
+  margin-block-start: 23px;
 }
 
 .screen-volume input {
@@ -577,14 +688,14 @@
   background: var(--pressed);
 }
 
-:is(.screen-demo-heading, .screen-phone) .screen-button.secondary {
+.screen-phone .screen-button.secondary {
   border-color: var(--family-line);
   border-radius: 12px;
   background: color-mix(in srgb, var(--family-surface) 72%, transparent);
   color: var(--family-ink);
 }
 
-:is(.screen-demo-heading, .screen-phone) .screen-button.secondary:hover:not(:disabled) {
+.screen-phone .screen-button.secondary:hover:not(:disabled) {
   background: var(--family-soft);
   color: var(--family-brand);
 }
@@ -593,15 +704,14 @@
   display: none;
 }
 
-.screen-demo-nav .screen-button.secondary {
-  border-color: transparent;
-  background: transparent;
-}
-
 .screen-device-grid:focus-visible,
 .screen-device .screen-button:focus-visible {
   outline: 2px solid var(--family-brand);
   outline-offset: -3px;
+}
+
+.house-screen-demo :is(.screen-field input, .screen-field select, .screen-button, summary, .screen-research-link):focus-visible {
+  outline-color: var(--family-brand);
 }
 
 .screen-device .screen-button:not(.plain) {
@@ -717,6 +827,21 @@
   overflow-wrap: anywhere;
 }
 
+.screen-reminder-board,
+.screen-photo-browse {
+  min-block-size: 100%;
+  background: var(--family-texture) center top / 470px auto var(--family-paper);
+}
+
+:is(.screen-reminder-board, .screen-photo-browse) .screen-browse-header {
+  padding-block-end: 8px;
+  border-block-end: 1px dashed var(--family-line);
+}
+
+:is(.screen-reminder-board, .screen-photo-browse) .screen-browse-header h3 {
+  font-weight: 700;
+}
+
 .screen-browse-grid {
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 136px), 1fr));
 }
@@ -746,11 +871,12 @@
 .screen-browse-avatar {
   display: grid;
   place-items: center;
-  inline-size: 48px;
-  block-size: 48px;
+  inline-size: 68px;
+  block-size: 68px;
+  max-inline-size: 100%;
   overflow: hidden;
   border: 1px solid var(--family-line);
-  border-radius: 4px;
+  border-radius: 10px;
   background: var(--family-soft);
   color: var(--family-brand);
   font-size: calc(20px * var(--unit));
@@ -773,6 +899,66 @@
   flex: 0 0 auto;
 }
 
+.screen-photo-browse .screen-browse-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
+  gap: 12px;
+}
+
+.screen-photo-browse .screen-browse-grid:has([data-screen-action="browse-person"]) {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 128px), 1fr));
+}
+
+.screen-photo-browse .screen-browse-grid .screen-browse-card {
+  grid-template-columns: minmax(0, 1fr);
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--family-surface);
+}
+
+.screen-photo-browse .screen-browse-grid .screen-browse-card[data-screen-action="browse-person"] {
+  padding: 14px 8px 12px;
+}
+
+.screen-photo-browse .screen-browse-grid .screen-browse-card:hover:not(:disabled) {
+  background: var(--family-soft);
+}
+
+.screen-photo-browse .screen-browse-image {
+  border: 1px solid var(--family-line);
+  border-radius: 6px;
+}
+
+.screen-photo-browse .screen-browse-label {
+  margin-block-start: 4px;
+  font-family: var(--family-hand);
+}
+
+.screen-photo-browse > .screen-empty {
+  border-style: solid;
+}
+
+/* 较长的留言和回话区随照片详情在相框内滚动。 */
+.screen-photo-browse:has(> .screen-photo) {
+  grid-template-rows: auto 1fr;
+}
+
+.screen-photo-browse:has(> .screen-photo) .screen-browse-header {
+  padding-block: 6px;
+}
+
+.screen-photo-browse .screen-photo-caption h3 {
+  font-weight: 700;
+}
+
+.screen-photo-browse .screen-button[data-screen-action="like-photo"] {
+  color: var(--family-brand);
+}
+
+.screen-photo-browse .screen-button[data-screen-action="like-photo"][aria-pressed="true"] {
+  border-color: var(--family-brand);
+  background: var(--family-blush);
+}
+
 .screen-question,
 .screen-story-form,
 .screen-story-replies {
@@ -789,6 +975,17 @@
 
 .screen-question strong {
   color: var(--family-brand);
+}
+
+.screen-story-browse .screen-photo-inscription .screen-question {
+  padding: 8px 10px;
+  border: 1px solid var(--family-line);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--family-paper) 72%, transparent);
+}
+
+.screen-story-form {
+  background: var(--family-surface);
 }
 
 .screen-story-replies > div {
@@ -861,9 +1058,8 @@
 .screen-phone {
   min-width: 0;
   border: 1px solid var(--family-line);
-  border-radius: 10px;
-  background: var(--family-surface);
-  box-shadow: 0 7px 16px rgb(96 67 36 / 7%);
+  border-radius: 12px;
+  background: var(--family-texture) center top / 470px auto var(--family-surface);
 }
 
 .screen-phone-wrap {
@@ -954,6 +1150,37 @@
 .screen-gift-intro,
 .screen-gift-greeting {
   grid-template-columns: minmax(0, 1fr);
+}
+
+.screen-device-settings > :is(.screen-caption:first-child, .screen-empty) {
+  padding: 12px;
+  border: 1px solid var(--family-line);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--family-surface) 84%, transparent);
+}
+
+.screen-device-settings > .screen-caption:first-child {
+  color: var(--family-ink);
+  line-height: 1.65;
+}
+
+.screen-device-settings > .screen-caption + .screen-caption {
+  padding-block-end: 12px;
+  border-block-end: 1px dashed var(--family-line);
+}
+
+.screen-device-settings > .screen-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.screen-device-settings > .screen-actions > .screen-button {
+  padding-inline: 6px;
+  overflow-wrap: anywhere;
+}
+
+.screen-device-settings > .screen-empty {
+  min-block-size: 0;
 }
 
 .screen-gift-intro,
@@ -1060,10 +1287,14 @@
   min-width: 0;
   min-height: 44px;
   padding: 8px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--family-line);
   border-radius: 8px;
-  background: var(--surface);
-  color: var(--ink);
+  background: var(--family-surface);
+  color: var(--family-ink);
+}
+
+.screen-field select option {
+  background: var(--family-surface);
 }
 
 :is(.screen-gift-import, .screen-import-field) input[type="file"] {
@@ -1078,10 +1309,10 @@
   min-height: 36px;
   margin-right: 8px;
   padding: 4px 8px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--family-line);
   border-radius: 4px;
-  background: var(--canvas);
-  color: var(--brand);
+  background: var(--family-paper);
+  color: var(--family-brand);
   font: inherit;
   cursor: pointer;
 }
@@ -1131,6 +1362,17 @@
   line-height: 20px;
 }
 
+.screen-clock-actions > .screen-button {
+  flex: 1 1 auto;
+}
+
+.screen-clock-actions + .screen-caption time {
+  margin-inline-start: 4px;
+  color: var(--family-muted);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 .screen-reminders {
   display: grid;
   gap: 8px;
@@ -1146,25 +1388,45 @@
   padding: 8px;
   border: 1px solid var(--family-line);
   border-radius: 8px;
+  background: color-mix(in srgb, var(--family-surface) 84%, transparent);
   overflow-wrap: anywhere;
 }
 
+/* 有提醒时将时间和说明分列，空列表提示沿用整行。 */
+.screen-reminders li:has(> time) {
+  grid-template-columns: minmax(0, 4em) minmax(0, 1fr);
+  align-items: baseline;
+  gap: 4px 10px;
+  padding: 10px 12px;
+}
+
 .screen-reminders time {
-  color: var(--copper);
+  color: var(--family-brand);
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
+}
+
+.screen-reminders li strong {
+  line-height: 1.4;
 }
 
 .screen-reminders span {
   display: block;
 }
 
-.screen-phone-content .screen-reminder-form {
-  padding-block-start: 12px;
-  border-block-start: 1px solid var(--family-line);
+.screen-phone-content :is(.screen-reminder-form, [data-screen-form="settings"]) {
+  padding: 12px;
+  border: 1px solid var(--family-line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--family-paper) 70%, transparent);
 }
 
 .screen-reminder-form > strong {
-  font: 600 calc(18px * var(--unit)) / 1.4 var(--family-hand);
+  font: 700 calc(18px * var(--unit)) / 1.4 var(--family-hand);
+}
+
+.screen-reminder-form .screen-field input::placeholder {
+  color: var(--family-muted);
 }
 
 .screen-details summary {
@@ -1188,6 +1450,16 @@
 :is(.screen-reply, .screen-voice) audio {
   width: 100%;
   min-width: 0;
+}
+
+:is(.screen-story-browse, .screen-photo-direct-reply) .screen-reply {
+  min-inline-size: 0;
+  background: var(--family-surface);
+}
+
+:is(.screen-story-browse, .screen-photo-direct-reply) [data-screen-recording-status] {
+  color: var(--family-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .screen-story-voices h2 {
@@ -1229,13 +1501,27 @@
     padding: 24px;
   }
 
-  .screen-demo-heading {
-    margin-bottom: 24px;
+  .screen-carousel-photo {
+    grid-template-columns: minmax(0, 1.65fr) minmax(min(140px, 55%), 1fr);
   }
 
-  .screen-demo-heading h1 {
-    font-size: calc(24px * var(--unit));
-    line-height: 1.333;
+  .screen-carousel-photo > .screen-photo-paper {
+    padding: 8px 4px 8px 7px;
+  }
+
+  .screen-carousel-photo > .screen-photo-inscription {
+    padding-inline: 4px 8px;
+  }
+
+  .screen-carousel-photo .screen-actions .screen-button {
+    gap: 2px;
+    font-size: calc(12px * var(--unit));
+  }
+
+  .screen-carousel-photo .screen-actions .icon {
+    flex: none;
+    inline-size: 14px;
+    block-size: 14px;
   }
 }
 
@@ -1248,14 +1534,6 @@
     gap: 6px;
     min-block-size: 32px;
     padding: 4px 8px;
-  }
-
-  .screen-device-header strong {
-    display: block;
-    overflow: hidden;
-    font-size: calc(16px * var(--unit));
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
   .screen-device .screen-device-header .screen-reminder-entry {
@@ -1303,6 +1581,10 @@
     gap: 2px;
   }
 
+  .screen-photo-caption > .screen-message {
+    margin-block-start: 2px;
+  }
+
   .screen-photo-caption h3,
   .screen-browse-header h3 {
     font-size: calc(18px * var(--unit));
@@ -1329,16 +1611,24 @@
   }
 
   .screen-browse {
-    gap: 4px;
-    padding: 8px;
+    gap: 6px;
+    padding: 6px 8px;
   }
 
-  .screen-device .screen-reminder-board .screen-browse-back {
-    min-block-size: 36px;
+  .screen-browse:has(> .screen-photo) {
+    padding-block: 6px;
+  }
+
+  .screen-browse:not(:has(> .screen-photo)) .screen-browse-header {
+    padding-block-end: 4px;
+  }
+
+  .screen-reminder-list {
+    gap: 6px;
   }
 
   .screen-reminder-list .screen-agenda {
-    padding: 8px;
+    padding: 6px 8px;
   }
 
   .screen-reminder-list .screen-agenda.is-due {
@@ -1364,7 +1654,13 @@
   }
 
   .screen-reminder-list .screen-agenda :is(h3, h4) {
-    font-size: calc(18px * var(--unit));
+    margin: 2px 0;
+    font-size: calc(16px * var(--unit));
+    line-height: 1.35;
+  }
+
+  .screen-reminder-list .screen-agenda > p {
+    font-size: calc(13px * var(--unit));
   }
 
   .screen-browse:has(> .screen-photo) .screen-browse-header {
@@ -1372,6 +1668,7 @@
   }
 
   .screen-device .screen-browse .screen-browse-back {
+    min-height: 36px;
     padding: 4px 6px;
     font-size: calc(12px * var(--unit));
   }
@@ -1380,24 +1677,111 @@
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 128px), 1fr));
   }
 
-  .screen-browse-grid:has([data-screen-action="browse-person"]) {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 4px;
+  .screen-photo-browse .screen-browse-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
   }
 
-  .screen-browse-grid .screen-browse-card[data-screen-action="browse-person"] {
-    gap: 1px;
-    padding: 4px 2px;
+  .screen-photo-browse .screen-browse-grid .screen-browse-card {
+    padding: 6px;
+  }
+
+  .screen-photo-browse .screen-browse-meta {
+    font-size: calc(12px * var(--unit));
+  }
+
+  .screen-photo-browse .screen-browse-card:has(> .screen-browse-image) .screen-browse-label {
+    margin-block-start: 2px;
+    font-size: calc(14px * var(--unit));
+    line-height: 1.35;
+  }
+
+  .screen-photo:not(.screen-carousel-photo) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .screen-photo-browse .screen-photo .screen-actions {
+    gap: 6px;
+  }
+
+  .screen-photo-browse .screen-photo .screen-actions .screen-button {
+    padding-inline: 6px;
+    font-size: calc(12px * var(--unit));
+  }
+
+  .screen-photo-browse .screen-photo .screen-actions .icon {
+    inline-size: 16px;
+    block-size: 16px;
+  }
+
+  .screen-photo:has(.screen-reply) {
+    grid-template-columns: minmax(0, .75fr) minmax(0, 1.25fr);
+  }
+
+  /* 窄屏滚动到录音操作时，原照片仍可在左侧看到。 */
+  .screen-photo-direct-reply .screen-photo-paper,
+  .screen-photo:has(.screen-reply) .screen-photo-paper {
+    position: sticky;
+    inset-block-start: 8px;
+    padding: 8px 4px 8px 7px;
+  }
+
+  .screen-photo-direct-reply .screen-photo-inscription,
+  .screen-photo:has(.screen-reply) .screen-photo-inscription {
+    padding: 8px 8px 8px 4px;
+  }
+
+  .screen-photo .screen-reply {
+    gap: 4px;
+    padding: 8px;
+  }
+
+  .screen-photo [data-screen-recording-status] {
+    line-height: 1.35;
+  }
+
+  .screen-photo .screen-reply audio {
+    block-size: 44px;
+  }
+
+  .screen-photo .screen-reply .screen-actions {
+    gap: 6px;
+  }
+
+  .screen-photo .screen-reply .screen-actions .screen-button {
+    padding-inline: 6px;
+    font-size: calc(12px * var(--unit));
+  }
+
+  .screen-photo .screen-reply .screen-actions .icon {
+    inline-size: 16px;
+    block-size: 16px;
+  }
+
+  .screen-photo-browse .screen-browse-grid:has([data-screen-action="browse-person"]) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .screen-photo-browse .screen-browse-grid .screen-browse-card[data-screen-action="browse-person"] {
+    gap: 2px;
+    padding: 4px 3px;
   }
 
   .screen-browse-card[data-screen-action="browse-person"] .screen-browse-avatar {
-    inline-size: 30px;
-    block-size: 30px;
+    inline-size: 32px;
+    block-size: 32px;
+    border-radius: 8px;
   }
 
-  .screen-browse-card[data-screen-action="browse-person"] .screen-browse-label,
-  .screen-browse-card[data-screen-action="browse-person"] .screen-browse-meta {
+  .screen-browse-card[data-screen-action="browse-person"] .screen-browse-label {
+    margin-block-start: 0;
     font-size: calc(12px * var(--unit));
+    line-height: 1.25;
+  }
+
+  .screen-browse-card[data-screen-action="browse-person"] .screen-browse-meta {
+    font-size: calc(11px * var(--unit));
     line-height: 1.25;
   }
 

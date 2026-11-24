@@ -4,12 +4,20 @@
   const P=window.App;
   const {icon:i,button:b,link:l,badge:t,avatar:a,escape:e}=P;
   /** 整理中的请求只绑定原草稿对象，不作为可跨账号复制的草稿字段。 */
-  const organizing=new WeakSet();
   /** 展开来源，始终先检查当前角色是否有权读取对应材料。 */
   function source(id='first-order') {
     const item=P.visibleStories().find(x=>x.id===id);
     if (!item) return P.toast('这段原始记录暂未向当前账号开放。');
-    P.modal('查看原始记录',`<div class="tags">${t(item.source)}${t('示例材料','gray')}</div><p class="caption">记录人：${e(P.PEOPLE[item.author]?.name || '家人')}<br>记录日期：${e(item.recorded)}</p><div class="source-transcript">${e(item.text.join('\n\n'))}</div><p class="caption">原型展示文字记录，不代表已接入真实录音。</p>${b('朗读这段示例文字','read-transcript','btn secondary full',`data-id="${id}"`)}`);
+    P.modal('查看原始记录', `<div class="story-source-record">
+      <div class="tags">${t(e(item.source))}${t('示例材料', 'gray')}</div>
+      <dl class="story-source-meta">
+        <div><dt>记录人：</dt><dd>${e(P.PEOPLE[item.author]?.name || '家人')}</dd></div>
+        <div><dt>记录日期：</dt><dd>${e(item.recorded)}</dd></div>
+      </dl>
+      <div class="source-transcript">${e(item.text.join('\n\n'))}</div>
+      <p class="caption">原型展示文字记录，不代表已接入真实录音。</p>
+      ${b(i('volume') + '朗读这段示例文字', 'read-transcript', 'btn secondary full', `data-id="${e(id)}"`)}
+    </div>`, 'dialog', undefined, {familySheet: true});
   }
   /** 系统朗读仅用于辅助演示，明确不会模拟本人原声。 */
   function readTranscript(id) {
@@ -59,79 +67,6 @@
     if(reply.type==='unknown')reply.storyId=source?.id || '';
     if(reply.type==='memory')reply.sourceLabel=visible.find(item=>item.id===reply.source)?.author===P.state.chatTarget?'据本人记录整理':'据已确认的家庭记录';
     completeReply(reply);
-  }
-  /** 从故事补充入口携带关联来源；已有草稿先留在当前账号，避免被新入口覆盖。 */
-  function contribute(storyId) {
-    const source=P.visibleStories().find(item=>item.id===storyId);
-    if(!source || !P.FamilyContext.invited(source.commonWith||source.subject))return P.toast('请从当前获授权的人生事件开始补充。');
-    captureRecord();
-    if(P.state.record.text.trim())return P.modal('你还有一份未完成的记录',`<p>先保存或完成当前草稿，再补充《${e(source.title)}》。</p>${l('继续当前记录','record','btn full')}`);
-    P.state.record={...P.emptyRecord(),kind:'contribution',subject:source.commonWith||source.subject,storyId,title:'补充：'+source.title};P.navigate('record');
-  }
-  /** 录入页和确认页均保存当前输入，回去更正时不丢分享范围或名单。 */
-  function captureRecord() {
-    const form=document.getElementById('record-form');
-    const r=P.state.record;
-    if(form?.recordDraft===r){
-      const data=new FormData(form);r.title=String(data.get('title') || '');r.text=String(data.get('text') || '');r.eventYear=String(data.get('eventYear') || '');
-      r.kind=String(data.get('kind') || 'own');r.storyId=String(data.get('storyId') || '');
-    }
-    const review=document.getElementById('publish-form');
-    if(review?.recordDraft===r){const data=new FormData(review);r.scope=String(data.get('scope'));r.viewers=data.getAll('viewers').filter(id=>P.state.members.includes(id) && id!==P.state.actor);}
-  }
-  /** 模拟录音状态切换，文字记录始终可用。 */
-  function toggleRecord() {
-    captureRecord();
-    const r=P.state.record;
-    if (!r.recording) {r.recording=true;r.paused=false;}
-    else r.paused=!r.paused;
-    P.render();
-  }
-  /** 结束录音只形成可编辑草稿，不直接分享。 */
-  function stopRecord() {
-    captureRecord();
-    const r=P.state.record;r.recording=false;r.paused=false;
-    if (!r.text.trim()) r.text='今天和家人一起翻看旧照片，又想起老家窗边的那张书桌。很多平时没有讲完的话，我想慢慢留下来。';
-    P.render();P.toast('录音演示已结束。请检查下方的示例文字，再保存或更正。');
-  }
-  /** 所有记录草稿统一回到我提交的资料，继续使用当前账号的同一份内存原稿。 */
-  function saveRecord(event) {
-    captureRecord();
-    const r=P.state.record;r.recording=false;r.paused=false;
-    if (!r.text.trim()) return P.toast('先写下想记录的话，再保存或整理。');
-    if(!/^\d{4}$/.test(r.eventYear) || Number(r.eventYear)>new Date().getFullYear() || Number(r.eventYear)<1000)return P.toast('请填写有效的事情发生年份，不晚于今年。');
-    if (!r.title.trim()) r.title='今天的一段回忆';
-    if (event.submitter?.value==='draft') {P.state.draftSaved=true;P.MaterialLibrary.open('drafts');P.toast('草稿已保存，仅自己可见。刷新原型会还原。');}
-    else {
-      const organize=event.submitter?.value==='organize',person=r.subject||P.state.actor;
-      if(organize&&(r.text.length>P.Billing.RULES.textLimit||(r.organizedText!==r.text&&!P.Billing.canUse(person,'organize'))))return P.toast(P.state.familyWorkspace?'文字整理是家庭会员权益，每次最多 5,000 字。也可免费查看原文并确认。':'文字整理限每次 5,000 字，可免费查看原文并确认。');
-      if(organizing.has(r))return;
-      if (P.state.failNextRecord) {P.state.failNextRecord=false;P.toast('本次整理未完成，原文字已保留。可以保存草稿或再次尝试。');return;}
-      const submit=event.submitter,s=P.state,actor=s.actor;organizing.add(r);if(submit){submit.disabled=true;submit.textContent='正在整理，请稍候…';}
-      setTimeout(()=>{organizing.delete(r);if(P.state!==s || s.actor!==actor || s.record!==r || s.route!=='record')return;if(organize&&r.organizedText!==r.text){if(!P.Billing.consume(person,'organize',P.nextId('organize-request')))return P.toast('整理额度或服务状态已改变，原文字保留。');r.organizedText=r.text;}r.aiOrganized=organize;r.reviewed=true;P.navigate('review');},450);
-    }
-  }
-  /** 本人确认或家人提交后统一回到我的提交；内容、提供者、分享范围及原审核机制保留。 */
-  function publishRecord(form) {
-    const data=new FormData(form),r=P.state.record;
-    if (!data.get('confirmed')) return;
-    if (!r.text.trim()) return P.toast('先记录想留下的话，再确认保存。');
-    const scope=String(data.get('scope')),actor=P.state.actor,target=r.subject||P.FamilyContext.current(),contribution=r.kind==='contribution' && actor!==target;
-    if(contribution&&!P.FamilyContext.invited(target))return P.toast('请只向已邀请你的人物补充经历。');
-    if(contribution && r.pendingId && !P.state.pending.some(entry=>entry.id===r.pendingId && entry.author===actor && entry.status==='returned'))return P.toast('原补充的状态已经变化，请回到家庭页重新核对。');
-    if(!['private','selected','family'].includes(scope))return P.toast('请选择有效的分享范围。');
-    const viewers=scope==='family'?[...P.state.members]:scope==='selected'?data.getAll('viewers').filter(id=>P.state.members.includes(id) && id!==actor):[];
-    if(scope==='selected' && !viewers.length)return P.toast('请选择至少一位家人，或改为仅自己保存。');
-    if(contribution && (scope==='private' || !viewers.includes(target)))return P.toast('补充对方经历需要向本人开放核对；也可以先保存为草稿。');
-    const now=new Date(),recorded=`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
-    if(!/^\d{4}$/.test(r.eventYear) || Number(r.eventYear)>now.getFullYear() || Number(r.eventYear)<1000)return P.toast('请先核对事情发生的年份。');
-    const item={id:contribution&&r.pendingId?r.pendingId:P.nextId('record'),title:r.title || '今天的一段回忆',year:r.eventYear,date:`${r.eventYear}年（具体日期未填写）`,recorded,recordedAt:now.getTime(),category:contribution?'家人补充':'个人记录',image:'family',author:actor,subject:contribution?target:actor,scope,text:[r.text],quote:r.text.slice(0,52),source:P.PEOPLE[actor].name+'的记录',duration:r.seconds?P.duration(r.seconds):'文字记录',viewers,storyId:r.storyId,archiveAddition:Boolean(r.archiveAddition),confirmedBy:contribution?null:actor};
-    if(contribution){
-      P.state.pending=P.state.pending.filter(entry=>entry.id!==r.pendingId);P.state.pending.push({...item,status:'pending',feedback:''});
-      P.MaterialLibrary.open('pending');P.state.record=P.emptyRecord();P.state.draftSaved=false;P.toast('已提交给'+P.PEOPLE[target].name+'核对，确认后才进入对方的人生档案。');
-    } else {
-      P.state.stories.push(item);P.MaterialLibrary.open('archived');P.state.record=P.emptyRecord();P.state.draftSaved=false;P.toast('记录已确认，并按你选择的范围保存。');
-    }
   }
   const INVITE_RELATIONS=P.FamilyTree.relations;
   /** 邀请仅能扩大管理人自己发布且已向家庭开放的往事，家人独立确认过的范围仍由本人维护。 */
@@ -233,7 +168,9 @@
   function person(id) {
     const p=P.PEOPLE[id];
     if (!p) return;
-    P.modal(p.name,`<div class="person-modal-top">${a(id,'large')}<div><h3>${e(p.name)}</h3><p class="caption">${e(P.relation(id))}${p.born?' · '+p.born+'年生':''}</p>${t(id==='grandpa'?'家人记载':'关系已确认',id==='grandpa'?'gray':'')}</div></div><p>${P.state.familyWorkspace?'可以查看这位家人已向你分享的资料。':id==='father'?'可以查看这位家人已分享的人生记录。':id==='grandpa'?'历史人物资料由家人整理，保留记录者身份。':'你们可以一起补充共同经历。'}</p>${l('查看'+e(p.name)+'的完整档案','life/'+id,'btn full')}${P.state.actor==='father' && !P.state.accounts[id] && id!=='grandpa'?b('邀请本人认领已有人物','invite-claim','btn secondary full',`data-id="${id}"`):''}<p class="caption section">管理身份和亲属称呼不代表可以查看全部个人资料。</p>`);
+    // 与首页家谱共用人物志入口，按当前家庭成员身份定位档案。
+    const archive = b('查看' + e(p.name) + '的完整档案', 'house-story-person', 'btn full', `data-id="${e(id)}"`);
+    P.modal(p.name,`<div class="person-modal-top">${a(id,'large')}<div><h3>${e(p.name)}</h3><p class="caption">${e(P.relation(id))}${p.born?' · '+p.born+'年生':''}</p>${t(id==='grandpa'?'家人记载':'关系已确认',id==='grandpa'?'gray':'')}</div></div><p>${P.state.familyWorkspace?'可以查看这位家人已向你分享的资料。':id==='father'?'可以查看这位家人已分享的人生记录。':id==='grandpa'?'历史人物资料由家人整理，保留记录者身份。':'你们可以一起补充共同经历。'}</p>${archive}${P.state.actor==='father' && !P.state.accounts[id] && id!=='grandpa'?b('邀请本人认领已有人物','invite-claim','btn secondary full',`data-id="${id}"`):''}<p class="caption section">管理身份和亲属称呼不代表可以查看全部个人资料。</p>`);
   }
   /** 仅允许资料本人更改其已有故事的可见范围。 */
   function share(id) {
@@ -243,20 +180,14 @@
     P.modal('这段故事分享给谁',`<p>${e(item.title)}</p><form id="share-form"><div class="privacy-options">${[['private','仅自己'],['selected','指定家人，按下方名单选择'],['family','当前家庭的家人']].map(([key,name])=>`<label><input type="radio" name="scope" value="${key}" ${item.scope===key?'checked':''}>${name}</label>`).join('')}</div>${P.shareViewerOptions(item.viewers)}<p class="caption">仅“指定家人”使用下方勾选名单；“当前家庭”以保存时成员范围为准，不自动授予未来加入的家人。</p><button class="btn full" type="submit">确认分享范围</button></form>`,'sheet');
   }
   /** 对当前家庭的分享固定到本次成员名单，新增成员不会悄悄扩大访问。 */
-  async function applyShare(form) {
-    const state=P.state,actor=state.actor;
+  function applyShare(form) {
+    const state=P.state;
     const item=state.stories.find(x=>x.id===P.state.shareStoryId && x.author===P.state.actor && !x.coupleId);
     if (!item) return;
     const data=new FormData(form),scope=String(data.get('scope'));
     if(!['private','selected','family'].includes(scope))return;
     const viewers=scope==='family'?[...P.state.members]:scope==='selected'?data.getAll('viewers').filter(id=>P.state.members.includes(id) && id!==P.state.actor):[];
     if(scope==='selected' && !viewers.length)return P.toast('请选择至少一位家人，或改为仅自己。');
-    // 收紧往事分享时同步关闭访客链接，避免家人从旧地址继续查看。
-    if(item.photoToken&&scope!=='family'){
-      try {await P.PhotoStories.revokeStory(item);}
-      catch {return P.toast('旧链接暂时无法撤回，请重试后再调整范围。');}
-      if(P.state!==state||state.actor!==actor)return;
-    }
     item.scope=scope;item.viewers=viewers;
     // 收紧范围同时取消待接受邀请中的单条授权，后续重新分享时需要重新选择。
     if(scope!=='family'){
@@ -289,19 +220,12 @@
     else {item.status='returned';item.feedback='请再核对这段经历的时间、人物与经过，修改后重新提交。';}
     P.closeModal();P.render();P.toast(approve?'已确认补充，保留提供者与原分享范围。':'已退回提供者更正，原稿没有丢失。');
   }
-  /** 仅更正自己被退回的补充，保留归档人物与分类来源，不覆盖仍在核对中的材料。 */
-  function editPending(id) {
-    const item=P.state.pending.find(entry=>entry.id===id && entry.author===P.state.actor && entry.status==='returned');
-    if(!item)return;
-    captureRecord();if(P.state.record.text.trim())return P.toast('请先保存或完成当前草稿，再更正退回的补充。');
-    P.state.record={...P.emptyRecord(),title:item.title,text:item.text.join('\n\n'),eventYear:item.year,scope:item.scope,viewers:[...item.viewers],kind:'contribution',subject:item.subject,storyId:item.storyId,pendingId:item.id,archiveAddition:Boolean(item.archiveAddition)};P.navigate('record');
-  }
   /** 重复查看申请不会不断堆积；不存在或已获授权的内容不创建申请。 */
-  function requestAccess() {
+  function requestAccess(storyId) {
     const s=P.state;
-    if(!s.stories.some(item=>item.id===s.storyId&&!item.coupleId) || P.visibleStories().some(item=>item.id===s.storyId))return P.toast('当前不需要申请这段内容。');
-    if(!s.accessRequests.some(item=>item.actor===s.actor && item.storyId===s.storyId && ['pending','pending-owner'].includes(item.status)))s.accessRequests.push({id:P.nextId('access'),actor:s.actor,storyId:s.storyId,status:'pending'});
-    P.render();P.toast('申请已提交给内容提供者，授权前仍无法查看。');
+    if(!s.stories.some(item=>item.id===storyId&&!item.coupleId) || P.visibleStories().some(item=>item.id===storyId))return P.toast('当前不需要申请这段内容。');
+    if(!s.accessRequests.some(item=>item.actor===s.actor && item.storyId===storyId && ['pending','pending-owner'].includes(item.status)))s.accessRequests.push({id:P.nextId('access'),actor:s.actor,storyId,status:'pending'});
+    P.toast('申请已提交给内容提供者，授权前仍无法查看。');
   }
   /** 授权只增加申请人；拒绝申请不会扩大原有可见范围。 */
   function decideAccess(id,approve) {
@@ -328,21 +252,20 @@
   /** 统一派发按钮动作；新增动作应保持与其界面文案一致。 */
   function act(action,el) {
     const s=P.state;
-    if(P.Couples.handleAction(action,el)||P.FamilyEditions.handleAction(action,el)||P.FamilyMoment.handleAction(action)||P.PhotoStories.handleAction(action,el)||P.Households.handleAction(action,el)||P.FamilyHomeEditor.handleAction(action,el))return;
+    if(P.FamilyMoment.handleAction(action)||P.FamilyEditions.handleAction(action,el)||P.Households.handleAction(action,el)||P.FamilyHomeEditor.handleAction(action,el))return;
     if (P.FamilyTree.handleAction(action, el)) return;
     if (action === 'family-album-photo') return P.FamilyJournal.openPhoto(el);
     if (P.FamilyAssistant.handleAction(action, el) || P.FamilyPicks.handleAction(action, el)) return;
     if(P.FamilyContext.handleAction(action,el)||P.FamilyMemories.handleAction(action,el))return;
     if(P.BillingViews.handleAction(action,el))return;
     if(P.Customization.handleAction(action,el))return;
-    if(P.KeepsakeBooks.handleAction(action,el))return;
     if(P.MaterialLibrary.handleAction(action,el)||P.AnswerFeedback.handleAction(action,el))return;
     if(P.ContentChat.handleAction(action,el))return;
     if(P.PersonArchive?.handleAction(action,el))return;
-    if(P.MemorySpace?.handleAction(action,el))return;
     if(P.DigitalHuman?.handleAction(action,el))return;
-    const simple={invite,pending,'record-toggle':toggleRecord,'record-stop':stopRecord,'request-access':requestAccess,export:exportRecords};
+    const simple={invite,pending,export:exportRecords};
     if (simple[action]) return simple[action]();
+    if (action === 'request-access') return requestAccess(el.dataset.id);
     if (action==='source' || action==='listen') return source(el.dataset.id || 'first-order');
     if (action==='read-transcript') return readTranscript(el.dataset.id);
     if (action==='invite-claim') return invite(el.dataset.id);
@@ -356,15 +279,18 @@
     if (action==='share-owned') return share(el.dataset.id);
     if (action==='share-story') return share(s.storyId);
     if (action==='ask-order' || action==='ask-advice') return P.FamilyAssistant.openQuestion(action==='ask-order'?'第一次创业时最担心什么？':'遇到困难时，你会怎么做？');
-    if (action==='ask-space') {const id=el.dataset.id || s.hotspot,item=P.MemorySpace.items()[id];if(item)return P.FamilyAssistant.openQuestion(`讲讲${item.label}的故事。`);return;}
-    if (action==='contribute-story') return contribute(el.dataset.id);
+    if (action === 'jump-story-conversation') return P.QuestionInbox.focusConversation();
     if (action==='focus-chat') return document.getElementById('chat-input')?.focus();
     if (action==='preview-invite') {s.inviteIndex=Number(el.dataset.index);return P.navigate('invitation');}
     if (action==='correct-invite') {const item=s.invitations[s.inviteIndex || 0];if(item?.status==='pending'){item.correctionNote='姓名、人物或关系需要更正，邀请人修改后请重新核对。';P.render();P.toast('更正请求已保存在当前演示，尚未加入家庭。');}return;}
     if (action==='approve-pending' || action==='return-pending') return reviewPending(el.dataset.id,action==='approve-pending');
-    if (action==='edit-pending') return editPending(el.dataset.id);
     if (action==='approve-access' || action==='deny-access') return decideAccess(el.dataset.id,action==='approve-access');
-    if (action==='toggle-font') return P.toggleFont();
+    if (action === 'toggle-font') {
+      const focusId = el.matches(':focus-visible') ? el.id : '';
+      P.toggleFont();
+      if (focusId) document.getElementById(focusId)?.focus({preventScroll: true});
+      return;
+    }
     if (action==='clear-chat-context') {s.chatContext=null;return P.render();}
     if (action==='choose-person') return P.modal('选择交流的人物',`<div class="family-selector"><button data-action="close-modal">${a('father')}<span>爸爸的数字人<small>陈远山 · 已获授权</small></span>${i('check')}</button><button data-action="unavailable-person">${a('mother')}<span>妈妈 · 林慧<small>尚未建立或开放数字人</small></span>${i('lock')}</button></div>`);
     if (action==='unavailable-person') return P.toast('这位家人尚未建立或向你开放数字人服务。');
@@ -374,21 +300,18 @@
   function submit(event) {
     event.preventDefault();
     const form=event.target;
-    if(P.Couples.submit(form)||P.FamilyEditions.submit(form)||P.FamilyMoment.submit(form)||P.PhotoStories.submit(form)||P.Households.submit(form)||P.FamilyHomeEditor.submit(form))return;
+    if(P.FamilyMoment.submit(form)||P.Households.submit(form)||P.FamilyHomeEditor.submit(form))return;
     if (P.FamilyTree.submit(form)) return;
     if (P.FamilyAssistant.submit(form)) return;
     if(P.FamilyContext.submit(form)||P.FamilyMemories.submit(form))return;
     if(P.BillingViews.submit(form))return;
     if(P.Customization.submit(form))return;
-    if(P.KeepsakeBooks.submit(form))return;
     if(P.MaterialLibrary.submit(form,event)||P.AnswerFeedback.submit(form,event))return;
     if(P.QuestionInbox?.submit(form))return;
     if (form.id==='chat-form') {const text=String(new FormData(form).get('message') || '');if(text.trim()){P.DigitalHuman.clearDraft();return sendMessage(text);}return;}
-    if (form.id==='record-form') return saveRecord(event);
-    if (form.id==='publish-form') return publishRecord(form);
     if (form.id==='invite-form') return createInvite(form);
     if (form.id==='accept-invite-form') return acceptInvite(form);
     if (form.id==='share-form') return applyShare(form);
   }
-  P.act=act;P.submit=submit;P.captureRecord=captureRecord;P.sendChatMessage=sendMessage;P.pendingCount=pendingCount;P.welcomeStories=welcomeStories;
+  P.act=act;P.submit=submit;P.sendChatMessage=sendMessage;P.pendingCount=pendingCount;P.welcomeStories=welcomeStories;
 }

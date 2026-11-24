@@ -77,10 +77,6 @@
     return order?.key === 'book' && order.person === person && order.customization.phase === 'book';
   }
 
-  function linkedBook(order) {
-    return P.state.keepsakeBooks.find(book => book.serviceOrderId === order.id);
-  }
-
   /** 经办人确认方案与付款，拍摄对象或收件人处理本人确认事项。 */
   function pendingActor(order) {
     const {phase, requester} = order.customization;
@@ -90,11 +86,7 @@
   }
 
   function needsAction(order) {
-    if (order.customization.phase !== 'book') return pendingActor(order) === P.state.actor;
-    const book = linkedBook(order);
-    if (!book) return order.person === P.state.actor;
-    const books = P.KeepsakeBooks;
-    return books.pendingActor(book) === P.state.actor && (book.phase === 'draft' || books.ready(book));
+    return pendingActor(order) === P.state.actor;
   }
 
   /** 成片认领到对应订单，并继续服从人物档案的查看权限。 */
@@ -112,14 +104,8 @@
     const {phase, closedReason} = order.customization;
     if (phase === 'closed') return [PHASES.closed[0], -1, closedReason];
     if (order.key === 'frame') return FRAME_PHASES[phase];
-    if (phase !== 'book') return PHASES[phase];
-    const book = linkedBook(order);
-    const name = P.PEOPLE[order.person]?.name || '本人';
-    if (!book || book.phase === 'draft') return ['待本人选材', 2, '请由' + name + '选择可以入书的本人资料。'];
-    if (book.phase === 'delivered') return ['已完成', 4, '纪念书已确认收件，可回看书稿与交付清单。'];
-    if (book.phase === 'cancelled') return ['制作已取消', -1, '本次纪念书制作已结束，可回看制作单。'];
-    if (book.phase === 'shipped') return ['待确认收件', 3, '纪念书已寄出，请在制作单中确认收件。'];
-    return [P.KeepsakeBooks.orderStatus(book), 2, '选材、校样、样书和寄送进度可在纪念书制作单中查看。'];
+    if (phase === 'book') return ['已确认纸书方案', 2, '顾问将联系经办人确认纸书制作安排。'];
+    return PHASES[phase];
   }
 
   function listTitle(order) {
@@ -246,7 +232,9 @@
         schedule: '本人确认拍摄安排后开始，示例制作周期两周。'
       };
     }
-    const {editing, sample, printing} = P.KeepsakeBooks.FEES;
+    const editing = 1200;
+    const sample = 200;
+    const printing = 360;
     return {
       scope: '本人选材，编辑排版，核对校样和一册实物样书后印制三册。',
       price: '编辑排版 ¥' + editing + '、样书 ¥' + sample + '、印制与寄送 ¥' + printing,
@@ -259,7 +247,7 @@
   }
 
   function staffPanel() {
-    const host = document.getElementById('book-demo-controls');
+    const host = document.getElementById('customization-demo-controls');
     const order = current();
     const step = order && DEMO_ACTIONS[order.customization.phase];
     host.hidden = !step;
@@ -276,18 +264,6 @@
       '"></video><figcaption>' + e(label) + ' · 演示视频</figcaption></figure>' : '';
   }
 
-  function productionAction(order) {
-    const book = linkedBook(order);
-    if (book && P.KeepsakeBooks.readable(book)) {
-      const page = book.phase === 'draft' ? 'book-edit' : 'book-order';
-      return l('查看纪念书制作单', page + '/' + e(book.id), 'btn full');
-    }
-    if (book || P.state.actor !== order.person) return '';
-    return P.KeepsakeBooks.canStart(order.person, order.id)
-      ? action(order, '开始选材', 'start-book')
-      : l('去添加我可选用的资料', 'house-record/photo', 'btn full');
-  }
-
   function customerActions(order) {
     const phase = order.customization.phase;
     const requester = order.customization.requester === P.state.actor;
@@ -295,13 +271,13 @@
     const end = mayCancel(order) ? action(order, '结束咨询', 'cancel', 'text-link full') : '';
     if (phase === 'requested') return requester ? action(order, '补充需求', 'change', 'btn secondary full') + end : '';
     if (phase === 'proposed') return requester ?
-      action(order, order.key === 'book' && participant ? '确认方案，开始选材' : (OPTIONS[order.key].approveLabel || '确认制作方案'), 'approve') +
+      action(order, OPTIONS[order.key].approveLabel || '确认制作方案', 'approve') +
       action(order, '要求调整方案', 'change', 'btn secondary full') + end : '';
     if (order.key === 'frame') {
       if (phase === 'payment') return requester ? action(order, '模拟支付相框款', 'pay-frame') + end : '';
       return phase === 'shipped' && participant ? action(order, '确认收件', 'accept') : '';
     }
-    if (phase === 'book') return productionAction(order) + end;
+    if (phase === 'book') return end;
     if (phase === 'consent') return (participant ? action(order, '确认拍摄安排与资料使用', 'consent') : '') + end;
     if (phase === 'sample' && participant) return action(order, '确认样片', 'approve-sample') +
       action(order, '提出样片修改', 'change', 'btn secondary full');
@@ -321,9 +297,8 @@
 
   function view() {
     const order = current();
-    const back = l('返回订单与进度', 'service-orders', 'paper-link paper-outline full');
-    if (!order) return '<div class="page service-orders-page"><div class="paper-card service-order-card">' +
-      '<h2>暂无可查看的定制进度</h2><p>可从订单列表查看本人参与的定制。</p></div>' + back + '</div>';
+    if (!order) return P.unavailable('service-orders', '暂无可查看的定制进度。');
+    const back = action(order, '返回订单与进度', 'order-list', 'paper-link paper-outline full');
 
     const {requirement, quote, proposalVersion, sampleVersion, note, phase} = order.customization;
     const isFrame = order.key === 'frame';
@@ -388,7 +363,7 @@
   function mayCancel(order) {
     const {phase, requester} = order.customization;
     return requester === P.state.actor && (['requested', 'proposed', 'consent', 'payment'].includes(phase) ||
-      (phase === 'book' && !linkedBook(order)));
+      phase === 'book');
   }
 
   /** 客户确认与顾问演示均校验本单、当前账号和阶段，过期操作无法跳过确认。 */
@@ -400,13 +375,19 @@
     }
     const order = current();
     if (!order || order.id !== element.dataset.id) return true;
+    if (name === 'customization-order-list') {
+      // 从订单列表进入时恢复原位置，从介绍页进入时直接切到订单列表。
+      if (P.state.history?.at(-1) === 'service-orders') P.back();
+      else P.navigate('service-orders', {replace: true, reset: true});
+      return true;
+    }
     const data = order.customization;
     const {phase} = data;
     const requester = data.requester === P.state.actor;
     const participant = order.person === P.state.actor;
     if (name === 'customization-advance' || name === 'customization-decline') {
       const next = DEMO_ACTIONS[phase];
-      if (!next || !element.closest('#book-demo-controls') || document.querySelector('.phone .modal[open]')) return true;
+      if (!next || !element.closest('#customization-demo-controls') || document.querySelector('.phone .modal[open]')) return true;
       if (name === 'customization-decline') {
         if (phase !== 'requested') return true;
         data.closedReason = '顾问暂时无法排期，已结束这次咨询。';
@@ -422,13 +403,6 @@
     } else if (name === 'customization-approve' && requester && phase === 'proposed') {
       const nextPhase = {book: 'book', film: 'consent', frame: 'payment'};
       data.phase = nextPhase[order.key];
-      if (order.key === 'book' && participant && P.KeepsakeBooks.canStart(order.person, order.id)) {
-        P.KeepsakeBooks.start(order.person, order.id);
-        return true;
-      }
-    } else if (name === 'customization-start-book' && participant && phase === 'book') {
-      P.KeepsakeBooks.start(order.person, order.id);
-      return true;
     } else if (name === 'customization-consent' && participant && phase === 'consent') {
       data.phase = 'filming';
     } else if (name === 'customization-approve-sample' && participant && phase === 'sample') {

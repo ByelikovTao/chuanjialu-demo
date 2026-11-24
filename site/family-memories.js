@@ -1,4 +1,4 @@
-/** 照片补充按影片归档，人物经历沿用记录与本人核对流程。 */
+/** 家人补充的照片与对应影片关联，由影片本人处理。 */
 'use strict';
 {
   const P=window.App,{escape:e,button:b,link:l}=P;
@@ -28,9 +28,13 @@
   function filmContribution(film) {
     if(film?.kind!=='film'||!P.PersonArchive.getItem(film.id))return '';
     const actor=P.state.actor,tasks=filmPhotoTasks(film.id),photos=filmPhotos(film.id);
-    const pending=tasks.filter(item=>item.subject===actor).length;
     const received=photos.length?`<h3>家人补的照片</h3>${filmPhotoCards(photos)}`:'';
-    if(actor===film.subject)return pending||photos.length?`<section class="film-photo-section section" aria-label="家人补的照片">${pending?l(`核对家人补的照片（${pending}）`,'material-inbox','btn secondary full'):''}${received}</section>`:'';
+    if(actor===film.subject){
+      const pending=tasks.map(item=>b(`核对${e(P.PEOPLE[item.author]?.name || '家人')}补的照片`, 'material-inspect', 'btn secondary full', `data-id="${e(item.id)}"`));
+      return pending.length||photos.length?`<section class="film-photo-section section" aria-label="家人补的照片">
+        ${pending.length ? `<div class="stack">${pending.join('')}</div>` : ''}${received}
+      </section>`:'';
+    }
     if(!P.MaterialLibrary.filmForContribution(film.id))return '';
     const waiting = tasks.some(item => item.status === 'pending');
     const status = waiting ? '已提交的照片正在等本人核对。' : tasks.length ? '有一张照片需要更正。' : '如果你也记得影片里的事，可以补一张有关的照片。';
@@ -103,17 +107,6 @@
       }
     }
   }
-  /** 记录标题按语义替换完整标题节点，换行排版不影响原有记录去向。 */
-  function record(base) {
-    const s=P.state,r=s.record,target=r.subject||P.FamilyContext.current();
-    const titlePattern=/<h1 class="page-title">[\s\S]*?<\/h1>/;
-    // 从传记分类添加时固定当前人物，避免切换记录去向后脱离原分类。
-    if(r.archiveAddition)return base.replace(titlePattern,'<h1 class="page-title">补充一段人生经历</h1>').replace(/<select id="record-kind" name="kind">[\s\S]*?<\/select>/,`<select id="record-kind" name="kind"><option value="${r.kind}">${e(P.PEOPLE[target].name)}的人生经历${target===s.actor?'':' · 提交本人核对'}</option></select>`);
-    return base;
-  }
-  function review(base) {
-    return base.replaceAll('陈远山',P.PEOPLE[P.state.record.subject||P.FamilyContext.current()]?.name||'对方');
-  }
   /** 影片照片操作沿用现有权限与提交状态。 */
   function handleAction(action,element) {
     if(action==='film-photo-add'){openFilmPhoto(element.dataset.filmId);return true;}
@@ -125,5 +118,5 @@
     if(form.id==='film-photo-form'){void submitFilmPhoto(form);return true;}
     return false;
   }
-  P.FamilyMemories={record,review,handleAction,submit,filmContribution,openFilmPhoto};
+  P.FamilyMemories={handleAction,submit,filmContribution,openFilmPhoto};
 }

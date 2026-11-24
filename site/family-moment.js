@@ -11,35 +11,24 @@
       item.actor === P.state.actor && item.hash === location.hash && P.state.route === 'house-moment');
   }
 
-  function view(selectedMembers, mode) {
+  function view(selectedMembers) {
     const form = isCurrent() ? draft.form : null;
     const data = form ? new FormData(form) : null;
     const members = data ? P.Households.memberIds(data.getAll('relatedMembers')) : selectedMembers;
-    const edition = selectedMembers.length && ['milestone', 'elder'].includes(mode) ? mode : '';
-    const person = edition ? selectedMembers[0] : '';
-    const milestone = edition === 'milestone';
-    const elder = edition === 'elder';
-    const title = `<label class="form-field"><span>${milestone ? '发生了什么？' : '标题'}</span>
-      <input name="title" maxlength="48" value="${e(data?.get('title') || '')}" placeholder="${milestone ? '例如 第一次喊妈妈' : '留空时自动生成'}" ${milestone ? 'required' : ''}></label>`;
-    const note = person ? '为 ' + P.PEOPLE[person].name + ' 记下这一刻。' :
-      '存到 ' + P.Households.current().name + ' 的往事，日期自动带入。';
-    const elderOptions = elder ? `<label class="form-field"><span>时间（默认今天）</span>
-      <input name="date" maxlength="24" value="${e(data?.get('date') || '')}" placeholder="如 1987 年或 1980 年代"></label>
-      <label class="check-row"><input name="lifeMilestone" type="checkbox" ${data?.has('lifeMilestone') ? 'checked' : ''}>
-        <span>标为人生节点（需标题）</span></label>` : '';
-    return `<div class="page house-page moment-page">
+    const title = `<label class="form-field"><span>标题</span>
+      <input name="title" maxlength="48" value="${e(data?.get('title') || '')}" placeholder="留空时自动生成"></label>`;
+    const note = '存到 ' + P.Households.current().name + ' 的往事，日期自动带入。';
+    return `<div class="page house-page moment-page moment-standard">
       <p class="page-subtitle">${e(note)}</p>
-      <form id="moment-form" class="house-form" data-edition="${edition}">
-        ${milestone ? title : ''}
+      <form id="moment-form" class="house-form">
         <div class="moment-tools" data-moment-tools></div>
         <label class="text-link moment-album">从相册选<input type="file" name="photo" accept="${photoTypes.join(',')}" aria-label="从相册选照片"></label>
         <div class="moment-media" data-moment-media></div>
         <p class="caption" data-moment-status role="status"></p>
-        <details class="moment-options" ${form?.querySelector('.moment-options')?.open ? 'open' : ''}>
-          <summary>${milestone ? '日期或其他家人' : elder ? '标题、时间和人生节点' : '标题或关联家人'}（选填）</summary>
-          ${milestone ? `<label class="form-field"><span>发生日期</span><input name="date" type="date" min="1900-01-01"
-            max="${P.FamilyEditions.today()}" value="${e(data?.get('date') || P.FamilyEditions.today())}"></label>` : title}
-          ${elderOptions}${P.Households.memberFields(members, person)}
+        <details class="moment-options" ${form?.querySelector('.moment-options')?.open === false ? '' : 'open'}>
+          <summary>标题或关联家人（选填）</summary>
+          ${title}
+          ${P.Households.memberFields(members)}
         </details>
         ${P.Households.audienceFields('moment-scope', data?.get('scope') || 'private', data?.getAll('viewers') || [])}
         <button class="btn full" type="submit">保存到往事</button>
@@ -49,8 +38,7 @@
 
   function updateSave(item) {
     const { form, phase } = item;
-    const needsTitle = form.dataset.edition === 'milestone' || form.elements.lifeMilestone?.checked;
-    const ready = needsTitle ? form.elements.title.value.trim() : item.photo || item.voice;
+    const ready = item.photo || item.voice;
     form.querySelector('[type="submit"]').disabled = Boolean(phase) || !ready;
   }
 
@@ -222,25 +210,9 @@
     if (form.id !== 'moment-form') return false;
     if (!isCurrent() || draft.form !== form || draft.phase) return true;
     const item = draft;
-    const milestone = form.dataset.edition === 'milestone';
-    const elder = form.dataset.edition === 'elder';
-    const lifeMilestone = Boolean(form.elements.lifeMilestone?.checked);
     const textTitle = form.elements.title.value.trim();
-    const needsTitle = milestone || lifeMilestone;
-    if (needsTitle ? !textTitle : !item.photo && !item.voice) {
-      P.toast(needsTitle ? '请给这个节点写一句标题。' : '先拍一张照片，或录一句话。');
-      return true;
-    }
-    const today = P.FamilyEditions.today();
-    const timeInput = form.elements.date?.value.trim() || today;
-    const time = elder ? P.FamilyEditions.calendarTime(timeInput) : null;
-    // 长辈回忆允许只填年份或年代，保存时保留这个精度。
-    if (elder && (!time || time.order > P.FamilyEditions.calendarTime(today).order)) {
-      P.toast('可以填写日期、年份或年代，例如 1987 年。');
-      return true;
-    }
-    if (!elder && !P.FamilyEditions.validDate(timeInput)) {
-      P.toast('请填写有效的发生日期。');
+    if (!item.photo && !item.voice) {
+      P.toast('先拍一张照片，或录一句话。');
       return true;
     }
     const bytes = item.photo?.size || 0;
@@ -251,17 +223,15 @@
     const data = new FormData(form);
     const audience = P.Households.recordAudience(data);
     if (!audience) return true;
-    const title = textTitle || (elder ? '家里' : '今天') + (item.photo ? '的一张照片' : '的一段语音');
+    const title = textTitle || '今天' + (item.photo ? '的一张照片' : '的一段语音');
     const houseVoice = item.voice ? { url: item.voiceUrl, bytes: item.voice.size } : undefined;
     const photoUrl = item.photoUrl || '';
     // 保存时把媒体地址交给原往事，离开编辑页只清理未保存的临时资源。
     item.photoUrl = item.voiceUrl = '';
     close();
-    const origin = P.state.history?.at(-1)?.split('/')[0];
-    const replaceComposer = origin === 'house-baby' || origin === 'house-elders';
     P.Households.saveStory({ title, text: [], photoUrl, bytes, houseVoice,
-      eventDate: elder ? time.date?.iso : timeInput, dateLabel: elder && !time.date ? time.label : undefined,
-      moment: true, babyMilestone: milestone, lifeMilestone, replaceComposer, relatedMembers: data.getAll('relatedMembers'), ...audience });
+      eventDate: P.FamilyEditions.today(), moment: true, replaceComposer: true,
+      relatedMembers: data.getAll('relatedMembers'), ...audience });
     return true;
   }
 

@@ -1,7 +1,7 @@
 /** 往事里的真人留言，正文和回答仅提问者及接收本人可见。 */
 'use strict';
 {
-  const P=window.App,{escape:e,link:l,badge:t}=P;
+  const P=window.App,{escape:e,icon:i,link:l,badge:t}=P;
   const QUESTION_LIMIT=240,ANSWER_LIMIT=2000;
   const STORY_ROUTES=['story','house-story'];
 
@@ -66,30 +66,71 @@
     if(!owner&&!items.length)return '';
     // 只有提问者打开对应往事才清除提醒，消息索引和家人账号都不会标记已读。
     for(const item of items)if(item.from===P.state.actor&&item.status==='answered')item.replyRead=true;
-    const form=owner?`<details class="card house-card section"><summary>给${e(P.PEOPLE[owner].name)}留言</summary>
+    const form=owner?`<details class="card house-card section story-question-composer">
+      <summary><span>给${e(P.PEOPLE[owner].name)}留言</span>${i('arrow')}</summary>
       <p class="caption">留言和回复仅你和这位家人可见。</p>
       <form data-story-question="${e(story.id)}" class="house-form"><label class="form-field"><span>关于这段往事，你想问什么？</span>
       <textarea name="question" maxlength="${QUESTION_LIMIT}" required>${e(drafts().stories[story.id]||'')}</textarea></label>
       <button class="btn" type="submit">留下问题</button></form></details>`:'';
     const cards=items.length?`<div class="stack section">${items.slice().reverse().map(card).join('')}</div>`:'';
-    return `<section class="house-page section"><h2>家人留言</h2>${cards}${form}</section>`;
+    return `<section class="house-page section story-question-panel"><h2>家人留言</h2>${cards}${form}</section>`;
   }
-  function view(){
-    const visible=new Map(P.visibleStories().map(story=>[story.id,story]));
-    const items=entries().slice().reverse().map(item=>{
-      const id=storyId(item),story=visible.get(id);
-      if(!id){
+
+  /** 从留言记录进入或点「看留言」时，同步移动视口和键盘焦点。 */
+  function focusConversation() {
+    const conversation = document.getElementById('story-conversation');
+    conversation?.focus({preventScroll: true});
+    conversation?.scrollIntoView({block: 'start'});
+  }
+
+  function historyRow(item, story) {
+    const sent = item.from === P.state.actor;
+    const relative = e(P.PEOPLE[sent ? item.owner : item.from]?.name || '家人');
+    const direction = sent ? `我留给 ${relative}` : `${relative} 留给我`;
+    const needsAttention = notice(item);
+    const label = sent && needsAttention ? '有新回复' : status(item);
+    return l(`<span class="message-history-copy">
+      <span class="message-history-meta">${direction}
+        <span class="message-history-status${needsAttention ? ' is-new' : ''}">${label}</span>
+      </span>
+      <strong>${e(story.title)}</strong>
+    </span>${i('arrow')}`, 'story/' + e(story.id) + '/comments', 'message-history-row');
+  }
+
+  function historySheet(items) {
+    return `<div class="page">
+      <section class="message-history-sheet" aria-label="往事留言">
+        <header class="message-history-heading">
+          <div>
+            <h2>${items.length ? `共 ${items.length} 条留言` : '还没有留言'}</h2>
+            <p>留言和回复仅双方可见</p>
+          </div>
+          <span class="message-history-seal" aria-hidden="true">${i('mail')}</span>
+        </header>
+        ${items.length
+          ? `<ul class="message-history-list">${items.map(item => `<li>${item}</li>`).join('')}</ul>`
+          : '<p class="message-history-empty">打开一条家庭往事，就能给相关的家人留言。</p>'}
+        <footer class="message-history-footer">
+          ${l('查看家庭往事' + i('arrow'), 'house-stories/family', 'paper-link')}
+        </footer>
+      </section>
+    </div>`;
+  }
+
+  function view() {
+    const visible = new Map(P.visibleStories().map(story => [story.id, story]));
+    const items = entries().reverse().map(item => {
+      const id = storyId(item);
+      if (!id) {
         // 旧留言没有对应往事，仍可在这里查看和回复。
-        if(item.from===P.state.actor&&item.status==='answered')item.replyRead=true;
+        if (item.from === P.state.actor && item.status === 'answered') item.replyRead = true;
         return card(item);
       }
-      if(!story)return '';
-      return `<article class="card question-card"><h2>${e(story.title)}</h2>
-        <p>${e(status(item))}${notice(item)?' · 有留言待查看':''}</p>${l('回这条往事查看','story/'+e(id),'btn secondary')}</article>`;
+      // 两个入口都只列出当前账号能打开的往事，留言正文与回复在往事中查看。
+      const story = visible.get(id);
+      return story ? historyRow(item, story) : '';
     }).filter(Boolean);
-    return `<div class="page"><p class="page-subtitle">点开对应的往事查看留言和回复。</p>
-      <div class="section stack">${items.join('')||'<p class="note">还没有留言。可以打开一条家庭往事，给记录的家人留个问题。</p>'}</div>
-      ${l('查看家庭往事','house-stories/family','btn secondary full section')}</div>`;
+    return historySheet(items);
   }
   function submit(form){
     const id=form.dataset.storyQuestion,answerId=form.dataset.questionAnswer;
@@ -119,6 +160,6 @@
     item.answer=answer;item.status='answered';item.replyRead=false;delete drafts().answers[item.id];
     P.render();P.toast('本人回复已保存，提问家人可以查看。');return true;
   }
-  P.QuestionInbox={view,storyPanel,storyNotice,submit,captureDrafts,hasNotice};
+  P.QuestionInbox={view,storyPanel,focusConversation,storyNotice,submit,captureDrafts,hasNotice};
   Object.assign(P.views, {questions: view, 'question-history': view});
 }

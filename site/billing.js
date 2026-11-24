@@ -59,19 +59,14 @@
   }
   /** 年度服务统一包含AI和档案保管，只有主动选择时才计入独立数字人建档。 */
   function quote(person,kind,bookId='',includeSetup=false) {
-    if(kind==='annual'&&P.state.familyWorkspace)return null;
-    if(kind==='book'?(!P.FamilyContext.authorized(person,'archive')):(!service(person)||!P.FamilyContext.authorized(person,'archive')))return null;
-    const s=kind==='annual'?service(person):null;
+    if(kind!=='annual'||P.state.familyWorkspace)return null;
+    const s=service(person);
+    if(!s||!P.FamilyContext.authorized(person,'archive'))return null;
     if(includeSetup===true&&(kind!=='annual'||!canOrderSetup(person)))return null;
     const setup=includeSetup===true?RULES.setup:0;
-    let price,start,end;
-    if(kind==='annual'){
-      start=[today(),...s.periods.map(item=>item.end)].sort().at(-1);end=shift(start,1);price=RULES.annual;
-    }else if(kind==='book'){
-      const book=P.state.keepsakeBooks.find(item=>item.id===bookId&&item.subject===person&&item.creator===P.state.actor&&item.phase==='quote');
-      if(!book||!P.KeepsakeBooks.ready(book))return null;
-      price=P.KeepsakeBooks.FEES.editing;
-    }else return null;
+    const start=[today(),...s.periods.map(item=>item.end)].sort().at(-1);
+    const end=shift(start,1);
+    const price=RULES.annual;
     return {person,kind,price,setup,start,end,cash:price+setup,bookId};
   }
   /** 结算重新核验金额、付款账号和服务对象，防止重复支付或续费。 */
@@ -81,7 +76,6 @@
     if(!q||JSON.stringify(q)!==request.fingerprint)return null;
     const order={...q,id:P.nextId('service-order'),actor:P.state.actor,date:today(),refunded:false};
     if(q.kind==='annual'){service(q.person).periods.push({start:q.start,end:q.end,qaUsed:0,organizeUsed:0});if(q.setup)P.state.accounts[q.person].setupOrdered=true;}
-    if(q.kind==='book'){const book=P.state.keepsakeBooks.find(item=>item.id===q.bookId);book.paid.editing=true;book.billingOrderId=order.id;book.phase='editing';}
     request.paid=true;P.state.billingOrders.push(order);return order;
   }
   /** 撤销入口只提供给最后一段未开始且未使用的年度，避免留下断开的后续订单。 */

@@ -55,7 +55,7 @@
   function card(item) {
     if(!available(item))return `<article class="card"><p>相关资料当前未向你开放，这条纠正暂时不能查看或处理。</p></article>`;
     const owner=item.owner===P.state.actor,status=item.status==='pending'?'等待本人核对':item.status==='accepted'?'本人已确认修订':'本人暂不采纳';
-    return `<article class="card"><div class="tags">${t(REASONS[item.reason],'gray')}${t(status,item.status==='pending'?'warm':'')}</div><h2 class="section">${e(item.question)}</h2><p class="caption">${e(P.PEOPLE[item.from].name)}提交给 ${e(P.PEOPLE[item.owner].name)}</p><details class="section"><summary>回看原回答</summary><p class="feature-prose">${e(item.original)}</p></details><p class="feature-prose section"><strong>建议：</strong>${e(item.suggestion)}</p>${item.status!=='pending'?`<div class="note section"><strong>${item.status==='accepted'?'本人确认的修订答复':'处理意见'}</strong><p class="feature-prose">${e(item.approved||item.note)}</p>${item.note&&item.approved?`<p>${e(item.note)}</p>`:''}</div>${owner&&item.status==='accepted'?b('另存为记录草稿','answer-to-record','text-link',`data-id="${item.id}"`):''}`:owner?b('核对并处理','answer-inspect','btn secondary section',`data-id="${item.id}"`):''}</article>`;
+    return `<article class="card"><div class="tags">${t(REASONS[item.reason],'gray')}${t(status,item.status==='pending'?'warm':'')}</div><h2 class="section">${e(item.question)}</h2><p class="caption">${e(P.PEOPLE[item.from].name)}提交给 ${e(P.PEOPLE[item.owner].name)}</p><details class="section"><summary>回看原回答</summary><p class="feature-prose">${e(item.original)}</p></details><p class="feature-prose section"><strong>建议：</strong>${e(item.suggestion)}</p>${item.status!=='pending'?`<div class="note section"><strong>${item.status==='accepted'?'本人确认的修订答复':'处理意见'}</strong><p class="feature-prose">${e(item.approved||item.note)}</p>${item.note&&item.approved?`<p>${e(item.note)}</p>`:''}</div>`:owner?b('核对并处理','answer-inspect','btn secondary section',`data-id="${item.id}"`):''}</article>`;
   }
   /** 本人可以修改修订文本，说明采纳或退回原因，不替其他作者改动原材料。 */
   function inspect(id) {
@@ -83,12 +83,6 @@
     if(action==='answer-feedback'){open(el);return true;}
     if(action==='answer-replace-draft'){open(el,true);return true;}
     if(action==='answer-inspect'){inspect(el.dataset.id);return true;}
-    if(action==='answer-to-record'){
-      const item=P.state.answerFeedback.find(value=>value.id===el.dataset.id&&value.owner===P.state.actor&&value.status==='accepted');
-      if(!item||!available(item))return true;
-      P.captureRecord();if(P.state.record.text.trim()){P.toast('请先保存或完成原记录草稿，避免覆盖。');return true;}
-      P.state.record={...P.emptyRecord(),title:'本人答复补充：'+item.question,text:item.approved,kind:'own'};P.navigate('record');return true;
-    }
     return false;
   }
   /** 每次处理重新检查接收人、状态和来源，重复提交不能覆盖已经确认的结论。 */

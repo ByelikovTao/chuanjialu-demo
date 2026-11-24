@@ -1,4 +1,4 @@
-/* 原型外框、业务标题栏、底栏和内页共用家册的纸色与线色。 */
+/* 原型外框和内页共用家册的纸色与线色。 */
 body {
   --canvas: var(--family-paper);
   --surface: var(--family-surface);
@@ -11,6 +11,8 @@ body {
   --secondary: var(--family-muted);
   --subtle: var(--family-muted);
   --line: var(--family-line);
+  --family-book-spine: #9a644e;
+  --family-book-thread: #e1bc88;
   background: var(--family-canvas);
   color: var(--family-ink);
 }
@@ -24,43 +26,13 @@ body {
   font-family: var(--family-font);
 }
 
-.phone:is([data-route="service-orders"], [data-route="service-order"], [data-route="family"]) {
+.phone:is([data-route="profile"], [data-route="service-orders"], [data-route="service-order"], [data-route="family"]) {
   --family-canvas: linear-gradient(150deg, var(--family-blush), var(--family-paper) 70%);
 }
 
-.studio-sidebar,
-.phone:not(.entry-mode, .space-mode) .statusbar {
+.studio-sidebar{
   background: var(--family-blush);
 }
-
-.phone:not(.entry-mode, .space-mode) .app-header,
-.phone[data-route]:not(.entry-mode, .space-mode) .bottom-nav {
-  background: var(--family-blush);
-  border-bottom: 1px solid var(--line);
-  color: var(--ink);
-}
-
-.phone[data-route]:not(.entry-mode, .space-mode) .bottom-nav {
-  border-top: 1px solid var(--line);
-  border-bottom: 0;
-}
-
-.phone[data-route]:not(.entry-mode):not(.space-mode) .app-header::before,
-.phone[data-route]:not(.entry-mode):not(.space-mode) .app-header::after {
-  content: none;
-}
-
-.phone[data-route]:not(.entry-mode, .space-mode) .app-header h1 {
-  color: var(--ink);
-  font-family: var(--family-font);
-  letter-spacing: .06em;
-}
-
-.phone .app-header :is(.icon-button, .my-button, .chat-message-trigger),
-.phone .bottom-nav button { color: var(--family-muted); }
-.phone .bottom-nav button.active { color: var(--brand); }
-.phone .bottom-nav button.active .icon { background: transparent; }
-.phone .bottom-nav .icon { width: 24px; height: 24px; padding: 0; }
 
 .phone:not(.entry-mode, .space-mode) .app-content {
   background: var(--family-texture) center top / 720px auto var(--family-paper);
@@ -81,10 +53,6 @@ body {
 .phone .card { border-color: var(--line); border-radius: 12px; }
 .phone .btn.secondary { background: var(--soft); border-color: var(--line); }
 
-.phone:is([data-route="home"], [data-route="profile"]) .app-header,
-.embedded .phone:is([data-route="home"], [data-route="profile"]) .statusbar,
-.embedded .phone.journal-mode .statusbar { display: none; }
-
 .phone:is([data-route="home"], [data-route="house-stories"], [data-route="house-assistant"],
   [data-route="house-picks"], [data-route="profile"]):not(.entry-mode) .app-content,
 .phone.profile-secondary:not(.entry-mode) .app-content,
@@ -96,25 +64,32 @@ body {
 
 .phone .family-dashboard { padding: 48px 24px 32px; }
 
-.phone:not(.entry-mode, .space-mode) .app-content:has(> .family-add-page) {
-  background: var(--family-canvas);
-  background-blend-mode: normal;
+/* 添加记录沿用人物志的宣纸底色，现有入口以同一张纸面排列。 */
+.phone .family-add-page {
+  min-height: 100%;
+  padding: 16px var(--home-xuan-gutter) 28px;
 }
-.phone .family-add-page { min-height: 100%; padding-inline: clamp(16px, 6vw, 24px); }
+
 .phone .family-add-page > .page-title {
   padding-inline-start: 10px;
-  border-inline-start: 2px solid var(--family-brand);
-  font: 600 calc(23px * var(--unit)) / 1.35 var(--family-hand);
+  border-inline-start: 2px solid var(--home-xuan-red);
+  color: var(--home-xuan-ink);
+  font: 700 calc(24px * var(--unit)) / 1.35 var(--home-xuan-song);
 }
+
+.family-add-page > .page-subtitle { color: var(--home-xuan-muted); }
+
 .family-add-options {
+  margin-block-start: 20px;
   padding: 0 12px;
-  border: 1px solid var(--family-line);
-  border-radius: 10px;
-  background: var(--family-surface);
+  border: 1px solid var(--home-xuan-line);
+  border-radius: 12px;
+  background: #fff6e7;
 }
+
 .phone .family-add-options > .menu-row {
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) 14px;
+  grid-template-columns: 38px minmax(0, 1fr) 14px;
   align-items: center;
   gap: 10px;
   min-height: 68px;
@@ -125,21 +100,31 @@ body {
   background: transparent;
   text-align: start;
 }
-.phone .family-add-options > .menu-row + .menu-row { border-block-start: 1px solid var(--family-line); }
-.phone .family-add-options > .menu-row:hover { background: var(--family-paper); }
-.phone .family-add-options > .menu-row:focus-visible { outline-offset: 1px; }
-.family-add-options > .menu-row > .icon:first-child {
-  width: 34px;
-  height: 34px;
-  padding: 8px;
-  border-radius: 6px;
-  background: var(--family-soft);
-  color: var(--family-brand);
+
+.phone .family-add-options > .menu-row + .menu-row { border-block-start: 1px solid var(--home-xuan-line); }
+.phone .family-add-options > .menu-row:hover { background: var(--home-xuan-surface); }
+.phone .family-add-options > .menu-row:focus-visible {
+  outline: 2px solid var(--home-xuan-red);
+  outline-offset: 1px;
 }
-.family-add-options > .menu-row > .icon:last-child { width: 14px; height: 14px; color: var(--family-muted); }
-.family-add-options strong { display: block; font: 600 calc(17px * var(--unit)) / 1.35 var(--family-font); }
-.family-add-options small { display: block; color: var(--family-muted); font-size: calc(13px * var(--unit)); line-height: 1.45; }
-.phone .family-add-photo-invite { width: 100%; }
+
+.family-add-options > .menu-row > .icon:first-child {
+  width: 38px;
+  height: 38px;
+  padding: 9px;
+  border-radius: 8px;
+  background: #f9dfc5;
+  color: var(--home-xuan-red);
+}
+
+.family-add-options > .menu-row > .icon:last-child { width: 14px; height: 14px; color: var(--home-xuan-muted); }
+.family-add-options strong {
+  display: block;
+  color: var(--home-xuan-ink);
+  font: 700 calc(18px * var(--unit)) / 1.35 var(--home-xuan-song);
+}
+
+.family-add-options small { display: block; color: var(--home-xuan-muted); font-size: calc(13px * var(--unit)); line-height: 1.5; }
 
 .phone .family-dashboard .heritage-body::before { content: none; }
 .phone .family-dashboard .heritage-body > section { margin-block-start: 26px; }
@@ -147,14 +132,9 @@ body {
 .phone .family-dashboard .home-section-heading,
 .phone .family-dashboard .home-leaf-heading { margin: 0 0 8px; }
 
-/* 首页分区、主栏目和册页标题共用墨字与朱砂短线。 */
-.phone :is(.family-dashboard, .profile-page) :is(.home-section-heading, .home-leaf-heading) > h2,
-.phone[data-route="home-surname"] .app-header > .app-book-label,
-.phone:is([data-route="home-motto-edit"], [data-route="home-manage"]):not(.entry-mode, .space-mode) .app-header > h1,
-.phone .heritage-manage .manage-section-heading > h2,
+/* 首页分区和册页标题共用墨字与朱砂短线。 */
+.phone .family-dashboard :is(.home-section-heading, .home-leaf-heading) > h2,
 .phone .history-section-title,
-.phone:is([data-route="house-service"]:has(.family-service-page), [data-route="service-orders"], [data-route="service-order"],
-  [data-route="house-stories"], [data-route="house-assistant"], [data-route="house-picks"]) .app-header > h1,
 .phone :is(.story-archive-section-heading > h2, .assistant-suggestions > h3, .picks-heading) {
   position: relative;
   padding-inline-start: 11px;
@@ -163,13 +143,8 @@ body {
   letter-spacing: .12em;
 }
 
-.phone :is(.family-dashboard, .profile-page) :is(.home-section-heading, .home-leaf-heading) > h2::before,
-.phone[data-route="home-surname"] .app-header > .app-book-label::before,
-.phone:is([data-route="home-motto-edit"], [data-route="home-manage"]) .app-header > h1::before,
-.phone .heritage-manage .manage-section-heading > h2::before,
+.phone .family-dashboard :is(.home-section-heading, .home-leaf-heading) > h2::before,
 .phone .history-section-title::before,
-.phone:is([data-route="house-service"]:has(.family-service-page), [data-route="service-orders"], [data-route="service-order"],
-  [data-route="house-stories"], [data-route="house-assistant"], [data-route="house-picks"]) .app-header > h1::before,
 .phone :is(.story-archive-section-heading > h2, .assistant-suggestions > h3, .picks-heading)::before {
   position: absolute;
   inset-inline-start: 0;
@@ -180,7 +155,7 @@ body {
 }
 
 /* 朱砂短线接到卡片上沿，标题行保留原有高度。 */
-.phone :is(.family-dashboard, .profile-page) :is(.home-section-heading, .home-leaf-heading) > h2 {
+.phone .family-dashboard :is(.home-section-heading, .home-leaf-heading) > h2 {
   z-index: 1;
   inset-block-start: 5px;
   inset-inline-start: 12px;
@@ -192,7 +167,7 @@ body {
   padding-block-end: 1px;
 }
 
-.phone :is(.family-dashboard, .profile-page) :is(.home-section-heading, .home-leaf-heading) > h2::before {
+.phone .family-dashboard :is(.home-section-heading, .home-leaf-heading) > h2::before {
   inset-block-start: calc(11px * var(--unit));
   inset-block-end: -5px;
 }
@@ -204,15 +179,7 @@ body {
   padding-inline: var(--family-page-gutter);
 }
 
-.phone:is([data-route="house-stories"], [data-route="house-assistant"],
-  [data-route="house-picks"]) .app-header > h1 {
-  margin-inline-start: 8px;
-  text-align: start;
-}
-
-.phone:is([data-route="house-stories"], [data-route="house-assistant"],
-  [data-route="house-picks"]) .app-header > h1::before,
-.phone :is(.story-archive-section-heading > h2, .assistant-suggestions > h3, .picks-heading, .profile-menu-group > h2)::before {
+.phone :is(.story-archive-section-heading > h2, .assistant-suggestions > h3, .picks-heading)::before {
   inset-block: .16em;
 }
 
@@ -227,16 +194,6 @@ body {
   padding: 24px var(--profile-page-gutter) 32px;
 }
 
-.phone.profile-secondary .app-header {
-  padding: 6px var(--profile-page-gutter) 6px max(8px, var(--profile-page-gutter) - 12px);
-}
-
-.phone.profile-secondary .app-header .icon-button {
-  width: 44px;
-  min-height: 44px;
-}
-
-.phone.profile-secondary[data-route] .app-header > h1,
 .phone.profile-secondary .page > .page-title,
 .phone.profile-secondary .section-heading > h2 {
   position: relative;
@@ -248,7 +205,7 @@ body {
   overflow-wrap: anywhere;
 }
 
-.phone.profile-secondary :is(.app-header > h1, .page > .page-title, .section-heading > h2)::before {
+.phone.profile-secondary :is(.page > .page-title, .section-heading > h2)::before {
   position: absolute;
   inset-inline-start: 0;
   inset-block-start: .2em;
@@ -260,6 +217,138 @@ body {
 }
 
 .phone.profile-secondary .app-content .section { margin-block-start: 16px; }
+
+/* 留言簿沿用留影的书脊和缝线，往来信息排在同一张信纸上。 */
+.message-history-sheet {
+  --message-spine-width: 18px;
+  position: relative;
+  padding: 20px 14px 4px calc(var(--message-spine-width) + 14px);
+  border: 1px solid var(--family-line);
+  border-radius: 12px;
+  background: var(--profile-paper);
+  background-blend-mode: soft-light;
+  box-shadow: 0 2px var(--family-surface), 0 3px var(--family-line),
+    0 5px var(--family-surface), 0 6px var(--family-line), var(--family-shadow);
+}
+
+.message-history-sheet::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  inline-size: var(--message-spine-width);
+  border-radius: 11px 0 0 11px;
+  background: var(--family-book-spine);
+  box-shadow: inset 2px 0 rgb(255 249 238 / 12%), inset -2px 0 rgb(37 34 27 / 20%);
+  pointer-events: none;
+  content: "";
+}
+
+.message-history-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 4px 16px;
+  border-block-end: 1px solid var(--family-line);
+  color: var(--family-muted);
+  font-size: calc(13px * var(--unit));
+}
+
+.message-history-heading h2 {
+  margin-block-end: 4px;
+  color: var(--family-ink);
+  font: 600 calc(22px * var(--unit)) / 1.35 var(--family-hand);
+  overflow-wrap: anywhere;
+}
+
+.message-history-seal {
+  display: grid;
+  flex: 0 0 40px;
+  block-size: 40px;
+  place-items: center;
+  border: 1px dashed currentColor;
+  border-radius: 5px;
+  background: var(--family-soft);
+  color: var(--family-brand);
+}
+
+.message-history-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.message-history-list > li {
+  padding-block: 3px;
+  border-block-end: 1px dashed var(--family-line);
+}
+
+.message-history-list .question-card { margin-block: 8px; }
+
+.message-history-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 16px;
+  align-items: center;
+  gap: 8px;
+  inline-size: 100%;
+  min-block-size: 64px;
+  padding: 10px 4px;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--family-ink);
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+
+.message-history-row:hover { background: var(--family-soft); }
+
+.message-history-row > .icon {
+  inline-size: 16px;
+  block-size: 16px;
+  color: var(--family-brand);
+}
+
+.message-history-copy {
+  display: grid;
+  gap: 4px;
+  font-size: calc(17px * var(--unit));
+  line-height: 1.5;
+}
+
+.message-history-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 3px 8px;
+  color: var(--family-muted);
+  font-size: calc(13px * var(--unit));
+}
+
+.message-history-status {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--muted);
+}
+
+.message-history-status.is-new {
+  background: var(--family-soft);
+  color: var(--family-brand);
+  font-weight: 600;
+}
+
+.message-history-empty {
+  padding: 16px 4px;
+  border-block-end: 1px dashed var(--family-line);
+  color: var(--family-muted);
+  font-size: calc(15px * var(--unit));
+}
+
+.message-history-footer { text-align: center; }
+
+.phone .message-history-footer .paper-link {
+  min-block-size: 44px;
+  color: var(--family-brand);
+}
 
 .phone.profile-secondary .profile-section-page > .page-subtitle {
   margin: 0 0 16px;
@@ -347,21 +436,6 @@ body {
 }
 
 .phone.profile-secondary .plan-price strong { font-size: calc(36px * var(--unit)); }
-
-.phone.profile-secondary .material-stage-tabs {
-  gap: 4px;
-  padding: 0;
-  border-bottom: 1px solid var(--family-line);
-  border-radius: 0;
-  background: transparent;
-}
-
-.phone.profile-secondary .material-stage-tabs > button.active {
-  border-radius: 0;
-  background: transparent;
-  color: var(--family-brand);
-  box-shadow: inset 0 -2px var(--family-brand);
-}
 
 @media (max-width: 365px) {
   .phone.profile-secondary { --profile-page-gutter: 16px; }
@@ -491,14 +565,13 @@ body {
   font: 500 calc(14px * var(--unit)) / 1.5 var(--family-font);
 }
 
-.home-cover-brand:has(+ .home-family-role) { margin-block-end: 8px; }
-.home-cover .home-family-role {
+.home-cover-brand:has(+ .home-account-name) { margin-block-end: 8px; }
+.home-cover .home-account-name {
   margin: 0 0 12px;
   color: var(--family-muted);
   font-size: calc(13px * var(--unit));
   line-height: 1.5;
 }
-.home-family-role strong { color: var(--family-ink); font-weight: 500; }
 
 /* 选择层沿用首页宋体，字号区分标题、家名与身份。 */
 .family-paper-sheet:has(.home-family-options) .modal-header h2 {
@@ -510,7 +583,7 @@ body {
   gap: 8px;
   padding-block-end: 4px;
 }
-.modal .home-family-option {
+.home-family-options .home-family-option {
   display: grid;
   grid-template-columns: 36px minmax(0, 1fr) auto;
   align-items: center;
@@ -527,7 +600,7 @@ body {
 }
 .home-family-option:is(:hover, [aria-pressed="true"]) { background: var(--family-soft); }
 .home-family-option:active { border-color: var(--family-brand); }
-.modal .home-family-option:focus-visible { outline: 2px solid var(--family-brand); outline-offset: 2px; }
+.home-family-options .home-family-option:focus-visible { outline: 2px solid var(--family-brand); outline-offset: 2px; }
 
 .home-family-option-seal {
   display: grid;
@@ -548,7 +621,6 @@ body {
   font-size: calc(13px * var(--unit));
   line-height: 1.45;
 }
-.home-family-option-copy small > span { display: inline-block; max-width: 100%; }
 .home-family-option-current {
   display: inline-flex;
   align-items: center;
@@ -584,9 +656,7 @@ body {
   box-shadow: inset 0 0 0 1px #ecd8bd, 0 3px 5px rgb(69 39 19 / 22%);
 }
 
-.home-cover-photo,
-.home-surname-content figure { margin: 0; }
-.home-cover-photo { margin-inline: 5px; }
+.home-cover-photo { margin: 0 5px; }
 
 .home-cover-window {
   position: relative;
@@ -637,9 +707,48 @@ body {
 
 .home-cover-empty {
   display: grid;
-  place-items: center;
+  place-content: center;
+  gap: 4px;
   min-height: 146px;
   color: var(--family-muted);
+}
+.home-cover-empty small { font-size: calc(12px * var(--unit)); }
+
+.home-cover-manager {
+  display: grid;
+  gap: 10px;
+}
+.home-cover-manager-count {
+  color: var(--family-ink);
+  font-size: calc(13px * var(--unit));
+  font-weight: 600;
+}
+.home-cover-manager-photos {
+  max-block-size: min(28dvh, 14rem);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.home-cover-manager-photos:empty { display: none; }
+.home-cover-manager-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.home-cover-manager-grid img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--family-line);
+  border-radius: 8px;
+  background: var(--family-soft);
+  object-fit: cover;
+}
+.home-cover-manager .home-cover-manager-add {
+  width: 100%;
+  margin-block-start: 2px;
 }
 
 .phone .paper-link,
@@ -672,11 +781,6 @@ body {
 .paper-outline .icon { width: 16px; height: 16px; }
 .paper-link:hover,
 .phone .paper-outline:hover { color: var(--brand); background-color: var(--soft); }
-
-.phone .app-header .story-message-history {
-  flex: none;
-  color: var(--family-muted);
-}
 
 .phone .home-cover-caption > .home-screen-entry {
   flex: none;
@@ -754,8 +858,12 @@ body {
   background-blend-mode: multiply;
 }
 
-.home-motto-board {
+.home-motto-board,
+.motto-manuscript {
   --motto-brush: "Zhi Mang Xing", STXingkai, "华文行楷", var(--family-hand);
+}
+
+.home-motto-board {
   container-type: inline-size;
   padding: clamp(9px, 2.6%, 13px) clamp(8px, 3.5%, 15px);
   border-width: 6px;
@@ -789,74 +897,6 @@ body {
   letter-spacing: .1em;
   overflow-wrap: anywhere;
 }
-
-.home-surname-card {
-  container-type: inline-size;
-  padding: 8px 4.5%;
-}
-
-.home-surname-card,
-.surname-reader-public,
-.phone .assistant-intro,
-.picks-feature.paper-card {
-  background: url("assets/zhumen/ivory-rice-paper.webp") center / 520px auto #f4ddd8;
-  background-blend-mode: soft-light;
-}
-
-.home-surname-card,
-.surname-reader-public,
-.phone .assistant-intro {
-  border-color: rgb(151 108 75 / 18%);
-  box-shadow: 0 3px 6px rgb(88 55 35 / 14%);
-}
-
-.phone .home-surname-card h3 {
-  margin: 0 0 8px;
-  padding-inline: 3.5cqi;
-  color: #312518;
-  font-size: calc(clamp(16px, 5.2cqi, 20px) * var(--unit));
-  line-height: 1.3;
-  letter-spacing: .05em;
-}
-.home-surname-content { display: grid; gap: 8px; }
-.home-surname-content.has-photo {
-  /* 图文两栏按卡片宽度留白，大字模式沿用单栏排列。 */
-  grid-template-columns: minmax(0, 1.38fr) minmax(0, 1fr);
-  column-gap: 6cqi;
-  padding-inline: 2.4cqi;
-}
-.home-surname-content .photo-mount { aspect-ratio: 1.65; }
-.home-surname-content figcaption,
-.home-surname-author {
-  margin-top: 2px;
-  color: #493a2b;
-  font-size: calc(clamp(11px, 3.25cqi, 13px) * var(--unit));
-  line-height: 1.35;
-  text-align: center;
-}
-.home-surname-content p { font-size: calc(14px * var(--unit)); line-height: 1.55; }
-.home-surname-content.has-photo p:first-child {
-  color: #312518;
-  font-size: calc(clamp(12px, 3.9cqi, 15px) * var(--unit));
-  line-height: 1.42;
-  letter-spacing: .065em;
-  text-align: justify;
-}
-.home-surname-content .home-surname-author {
-  margin-top: 4px;
-  font-size: calc(clamp(10px, 3.1cqi, 12px) * var(--unit));
-  text-align: end;
-}
-.phone .home-surname-card > .paper-link {
-  width: 100%;
-  min-height: 28px;
-  margin-top: 6px;
-  gap: 2px;
-  border-top: 1px solid rgb(151 108 75 / 20%);
-  font-size: calc(clamp(12px, 3.65cqi, 14px) * var(--unit));
-  letter-spacing: .06em;
-}
-.home-surname-card > .paper-link .icon { width: 12px; height: 12px; }
 
 /* 首页书封和下方的翻阅文字共用一个点按区。 */
 .home-history-cover { padding-block: 6px 0; }
@@ -1017,49 +1057,150 @@ body {
 .journal-row-thumb img[hidden],
 .album-print-media img[hidden] { display: none; }
 
+/* 封面和内页沿用同一条布脊，页边的两道纸边对应可以翻阅的册页。 */
+.phone :is(.album-preview, .journal-sheet.family-album) {
+  --album-edge: #c8b49b;
+  --album-paper: #f6ecdc;
+  --album-mat: #fff9ee;
+  --album-title: #383027;
+  --album-spine-width: 20px;
+  border: 1px solid var(--album-edge);
+  border-radius: 12px;
+  background: var(--family-book-spine);
+  color: var(--album-title);
+  box-shadow: 0 2px var(--album-paper), 0 3px var(--album-edge), 0 5px var(--album-paper),
+    0 6px var(--album-edge), 0 10px 12px rgb(66 45 29 / 12%);
+}
+
+:is(.album-preview, .family-album)::before {
+  inset: 0 auto 0 0;
+  width: var(--album-spine-width);
+  border: 0;
+  border-radius: 11px 0 0 11px;
+  background: var(--family-book-spine);
+  box-shadow: inset 2px 0 rgb(255 249 238 / 12%), inset -2px 0 rgb(37 34 27 / 20%);
+}
+
+/* 留影、家史、人物志、作品详情、家庭日记和留言簿共用书脊缝线。 */
+:is(.album-preview, .family-album, .story-person-volume, .diary-preview, .family-diary,
+  .history-manuscript, .message-history-sheet, .archive-work-sheet)::after,
+.history-article > .history-book-page::after {
+  position: absolute;
+  inset: 8px auto 8px 8px;
+  border-inline-start: 1px dashed var(--family-book-thread);
+  pointer-events: none;
+  content: "";
+}
+
 .album-preview-open {
   display: grid;
   width: 100%;
   padding: 0;
+  border-radius: 12px;
   background: transparent;
   text-align: center;
 }
-.album-preview { display: block; padding: 10px 12px 13px 28px; }
-.album-preview-title,
-.diary-preview h3 { text-align: center; }
-.phone .family-dashboard :is(.album-preview-title, .diary-preview h3) {
-  font-size: calc(22px * var(--unit));
-  letter-spacing: .04em;
+
+.phone .family-dashboard .album-preview {
+  display: block;
+  padding: 16px 12px 16px calc(var(--album-spine-width) + 12px);
+  background: var(--album-paper);
 }
+
+.phone .family-dashboard .album-preview-title {
+  display: block;
+  font: 700 calc(20px * var(--unit)) / 1.4 var(--home-xuan-song, var(--family-hand));
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
 .album-preview-photos {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   align-items: start;
-  margin-block-start: 8px;
+  margin-block-start: 12px;
 }
 .album-preview-photos:has(> :only-child) { grid-template-columns: minmax(0, 1fr); }
+.album-preview-photos > :only-child { width: min(100%, 224px); justify-self: center; }
 .album-photo { display: grid; gap: 4px; min-width: 0; padding: 3px; background: transparent; }
 .album-photo .photo-mount { aspect-ratio: 1.32; overflow: visible; }
 .album-photo:hover .photo-mount { border-color: var(--brand); }
 .album-photo-caption { font-size: calc(12px * var(--unit)); overflow-wrap: anywhere; }
+
+:is(.album-preview, .family-album) .album-photo {
+  gap: 4px;
+  padding: 4px 4px 8px;
+  border: 1px solid var(--album-edge);
+  border-radius: 4px;
+  background: var(--album-mat);
+  box-shadow: 0 2px 3px rgb(66 45 29 / 10%);
+  color: var(--album-title);
+}
+
+:is(.album-preview, .family-album) .album-photo .photo-mount {
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  background: var(--album-paper);
+  box-shadow: none;
+}
+
+:is(.album-preview, .family-album) .photo-mount::before { content: none; }
+
 .album-preview-caption {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  min-height: 44px;
-  margin-block-start: 8px;
+  gap: 8px;
+  margin-block-start: 12px;
+  color: var(--home-xuan-ink, var(--family-ink));
   font-size: calc(14px * var(--unit));
+  font-weight: 600;
+  line-height: 1.5;
 }
 .album-preview-caption .icon { width: 16px; height: 16px; }
-.album-preview-open:hover .album-preview-caption { color: var(--brand); }
-
-.diary-preview {
-  padding: 12px 10px 2px 27px;
-  border-color: #dfc7a9;
+.album-preview-open:hover .album-preview-caption { color: var(--home-xuan-red, var(--brand)); }
+.album-preview-open:focus-visible,
+.family-album .album-photo:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
 }
-.diary-preview > .paper-link { display: flex; width: 100%; letter-spacing: .06em; }
+
+/* 首页封面在开册时作为翻动的一页，因此纸色与排版不依赖首页容器。 */
+.diary-preview {
+  padding: 16px 12px 4px calc(var(--diary-spine) + 12px);
+  border-color: #d8b994;
+  background: url("assets/zhumen/ivory-rice-paper.webp") center top / 540px auto #f8e9d6;
+  background-blend-mode: soft-light;
+  color: var(--family-ink);
+  box-shadow: inset 0 0 0 2px rgb(255 247 231 / 65%), 0 2px #f6e4cb, 0 3px #d8b994,
+    0 5px #f6e4cb, 0 6px #d8b994, 0 10px 14px rgb(94 56 31 / 12%);
+  font-family: var(--family-font);
+}
+
+.phone .diary-preview h3 {
+  margin: 0;
+  color: inherit;
+  font: 700 calc(20px * var(--unit)) / 1.4 var(--family-font);
+  overflow-wrap: anywhere;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.phone .diary-preview > .paper-link {
+  display: flex;
+  justify-content: center;
+  min-height: 44px;
+  width: 100%;
+  padding-inline: 4px;
+  color: inherit;
+  font-size: calc(14px * var(--unit));
+  font-weight: 600;
+}
+
+.phone .diary-preview > .paper-link:hover { color: var(--family-brand); }
 .journal-divider {
   display: flex;
   align-items: center;
@@ -1108,31 +1249,24 @@ body {
   background: var(--soft);
   color: var(--family-muted);
 }
+.diary-preview .journal-row {
+  min-height: 44px;
+  padding: 8px 0;
+  border-color: #ddc4a7;
+  color: inherit;
+  font-family: inherit;
+}
+.diary-preview .journal-row:hover { background: rgb(255 250 239 / 45%); }
+.diary-preview .journal-row-copy small { font-size: calc(12px * var(--unit)); }
+.diary-preview .journal-row-thumb {
+  aspect-ratio: 1.4;
+  border-radius: 8px;
+  background: var(--family-paper);
+}
+.diary-preview .home-section-empty { padding: 12px 0; text-align: center; }
 .phone .family-dashboard .home-section-empty { padding: 12px; color: var(--family-muted); }
 
 /* 阅读页使用完整册页尺寸，页码和翻页按钮在窄屏下仍分列可操作。 */
-.phone.journal-mode .app-header {
-  min-height: 52px;
-  padding: 4px 12px;
-  border: 0;
-  background: var(--family-blush);
-}
-.phone.journal-mode .app-header > .icon-button { width: 40px; }
-.app-book-label {
-  flex: 1;
-  min-width: 0;
-  font-size: calc(20px * var(--unit));
-  font-weight: 600;
-  overflow-wrap: anywhere;
-}
-
-.phone.journal-mode .app-header .paper-link { color: var(--brand); }
-.phone.journal-mode .bottom-nav { display: none; }
-
-/* 日记的导航沿用阅读区顶边的青灰与浅粉。 */
-.phone.journal-mode:is([data-route="home-diary"], [data-route="story"]):not(.entry-mode) .app-header {
-  background: linear-gradient(to left, var(--family-sage), var(--family-blush) 88%);
-}
 
 /* 家史全文沿用内页的暖纸，返回入口与正文共用这一张纸。 */
 .phone:is([data-route="home-origin"], [data-route="home-origin-edit"]):not(.entry-mode) {
@@ -1140,37 +1274,28 @@ body {
   background: var(--family-texture) center top / 540px auto var(--family-surface);
   background-blend-mode: soft-light;
 }
-.phone:is([data-route="home-origin"], [data-route="home-origin-edit"]):not(.entry-mode) :is(.statusbar, .app-header, .app-content) {
+.phone:is([data-route="home-origin"], [data-route="home-origin-edit"]):not(.entry-mode) .app-content {
   background: transparent;
 }
-.phone:is([data-route="home-origin"], [data-route="home-origin-edit"]) .app-header :is(.paper-link, .app-book-label) {
-  color: var(--family-ink);
-}
-.phone[data-route="home-origin"] .app-header .history-header-edit { margin-inline-start: auto; }
+
 .phone[data-route="home-origin"] .app-content { scrollbar-color: var(--family-line) transparent; }
-.history-header-edit > .icon { color: var(--family-brand); }
-.phone[data-route="home-origin-edit"] .app-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+
+.phone[data-route="home-origin-edit"]:not(.entry-mode) {
+  --history-gutter: 16px;
+  --history-editor-paper: #fff8ed;
 }
-.phone[data-route="home-origin-edit"] .app-header .history-back {
-  justify-self: start;
-  color: var(--family-muted);
-}
+
 .phone[data-route="home-origin-edit"] .app-content { scroll-padding-block-end: 72px; }
 
-/* 相册在手机内沿共用一层底色，滚动时继续保留整本相册的纸色。 */
+/* 相册导航和册页之间保留完整的纸面底色。 */
 .phone[data-route="home-album"]:not(.entry-mode) {
-  background: radial-gradient(ellipse at top right, var(--family-sage), transparent 62%), var(--family-paper);
+  background: var(--family-paper);
 }
-.phone[data-route="home-album"]:not(.entry-mode) :is(.statusbar, .app-header, .app-content) { background: transparent; }
+.phone[data-route="home-album"]:not(.entry-mode) .app-content { background: transparent; }
 .phone[data-route="home-album"]:not(.entry-mode) .app-content { scrollbar-width: none; }
 
 /* 家册内页与定制进度卡片共用浅色宣纸底纹。 */
-.album-leaf,
 .family-diary,
-.phone .journal-sheet.journal-story,
-.phone.journal-mode[data-route="story"]:not(.entry-mode):has(.journal-story) .app-header,
 .phone[data-route="service-order"] .service-order-card {
   background: url("assets/zhumen/ivory-rice-paper.webp") center / 540px auto #f9eee1;
   background-blend-mode: soft-light;
@@ -1207,88 +1332,91 @@ body {
 [data-paper-swipe] { touch-action: pan-y pinch-zoom; }
 
 .phone .journal-sheet.family-album {
-  container-type: inline-size;
-  margin: 4px 10px 22px 4px;
-  padding: 0 0 0 22px;
-  border-radius: 18px;
-  border-color: #dfc8aa;
-  box-shadow: 1px 2px #fff0dc, 2px 4px #d2b79a, 3px 6px #f7ead6, 4px 8px #d6ba9b, var(--family-shadow);
-}
-.family-album::before {
-  width: 22px;
-  border-radius: 17px 3px 3px 17px;
-  background:
-    radial-gradient(ellipse 27px 8px at 50% 1px,
-      transparent 64%, #bc9b77 69%, #fff4df 78%, #b79572 86%, transparent 95%) center 64px / 22px 84px repeat-y,
-    linear-gradient(90deg, #c9aa86, #f7e7cf 43%, #dec29f 82%, #b8966f);
+  margin: 4px 16px 24px;
+  padding: 0 0 0 var(--album-spine-width);
 }
 .album-deck {
   position: relative;
   isolation: isolate;
   min-width: 0;
   overflow: hidden;
-  border-radius: 4px 17px 17px 4px;
+  border-radius: 0 11px 11px 0;
   perspective: 1000px;
 }
 .album-leaf {
   position: relative;
   min-width: 0;
-  padding: 28px 16px 22px 22px;
+  padding: 16px;
   border-radius: inherit;
-  box-shadow: inset 2px 1px 0 #fff7ec, inset 0 0 8px #b7966c26;
+  background: var(--album-paper);
+  box-shadow: inset 2px 0 #e6d8c5;
 }
 .album-leaf .journal-heading-row h1 {
   margin: 0;
-  font-size: calc(28px * var(--unit));
-  letter-spacing: .07em;
+  color: var(--album-title);
+  font: 700 calc(20px * var(--unit)) / 1.4 var(--family-hand);
+  letter-spacing: normal;
 }
 .phone .album-leaf .paper-outline {
-  min-height: 36px;
-  border-color: #c6a687;
-  border-radius: 999px;
+  flex: none;
+  min-height: 44px;
+  border-color: var(--album-edge);
+  border-radius: 8px;
   background: transparent;
-  letter-spacing: .04em;
+  letter-spacing: normal;
 }
-.phone .album-leaf .paper-outline:hover { background-color: var(--soft); }
+.phone .album-leaf .paper-outline:hover { background-color: var(--album-mat); }
 
 .family-album-photos {
   display: grid;
-  grid-template-rows: repeat(2, 1fr);
   justify-items: center;
-  gap: 32px;
-  margin-block: 32px 18px;
+  gap: 16px;
+  margin-block: 16px;
 }
 
 .family-album-photos .album-photo {
-  width: min(100%, 75cqi);
-  padding: 0;
+  gap: 8px;
+  width: min(100%, 256px);
+  padding: 8px;
 }
-.family-album .photo-mount { aspect-ratio: 1.42; }
-.family-album .photo-mount::before { background-size: 24px 24px; }
+
+.family-album-photos .album-photo:hover { border-color: var(--family-book-spine); }
+
+.family-album-photos .album-photo-caption {
+  font-size: calc(14px * var(--unit));
+  line-height: 1.5;
+  text-align: center;
+}
+.family-album .album-photo .photo-mount { aspect-ratio: 3 / 2; }
 .album-photo img { object-position: center; }
 .family-album .paper-pagination {
-  padding-block-start: 0;
-  border-top: 0;
-  color: var(--ink);
+  padding-block-start: 4px;
+  border-color: var(--album-edge);
+  color: var(--album-title);
 }
-.family-album .paper-pagination .paper-link { min-width: 44px; }
-.family-album .paper-position { font-size: calc(16px * var(--unit)); }
+.family-album .paper-pagination .paper-link {
+  min-height: 44px;
+  padding-inline: 0;
+  color: var(--family-book-spine);
+  font-size: calc(14px * var(--unit));
+  letter-spacing: normal;
+}
+.family-album .paper-pagination button:hover { color: var(--brand); }
+.family-album .paper-position { font-variant-numeric: tabular-nums; }
 .album-opening-cover {
   display: grid;
   place-items: center;
-  border: 1px solid #c69d70;
-  border-radius: inherit;
-  background: var(--family-texture) center / 540px auto #e5c7a0;
-  background-blend-mode: multiply;
-  box-shadow: inset 0 0 0 5px #f4dec0, inset 0 0 0 6px #bf996e;
+  padding: 16px;
+  background: var(--album-paper);
+  box-shadow: inset 2px 0 #e6d8c5;
 }
 .album-cover-title {
-  padding: 12px 16px;
-  border: 1px solid #bd9974;
+  padding: 12px;
+  border: 1px solid var(--album-edge);
   border-radius: 4px;
-  background: var(--family-paper);
-  font-size: calc(24px * var(--unit));
-  font-weight: 600;
+  background: var(--album-mat);
+  color: var(--album-title);
+  font: 700 calc(20px * var(--unit)) / 1.4 var(--family-hand);
   text-align: center;
 }
 :is(.album-turn-overlay, .diary-turn-overlay) {
@@ -1327,14 +1455,6 @@ body {
   from { transform: rotateY(-98deg); }
 }
 
-.album-other-links {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 4px 8px;
-  padding: 0 16px 20px;
-}
-
 .paper-pagination {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
@@ -1359,33 +1479,22 @@ body {
     text-align: center;
   }
 }
-.family-album .paper-swipe-hint {
-  display: block;
-  margin-block-start: 0;
-  color: var(--ink);
-  font-size: calc(14px * var(--unit));
-  letter-spacing: .08em;
-  text-align: center;
-}
+.family-album .paper-swipe-hint { font-size: calc(12px * var(--unit)); }
 
 .diary-book {
-  --paper-turn-hinge: 19px;
+  --paper-turn-hinge: var(--diary-spine);
   display: flow-root;
   position: relative;
   isolation: isolate;
+  margin: 8px var(--diary-gutter) 20px;
   perspective: 1000px;
 }
-.diary-book[data-diary-motion] { overflow: hidden; }
-.diary-opening-cover {
-  display: grid;
-  place-content: center;
-  justify-items: center;
-  gap: 16px;
-  border-color: #c69d70;
-  background-color: #ead3b2;
-  font-size: calc(27px * var(--unit));
-  text-align: center;
+.diary-book[data-diary-part="entry"] {
+  --paper-turn-hinge: left;
+  margin: 0;
 }
+.diary-book[data-diary-motion] { overflow: hidden; }
+.phone .diary-book > .diary-leaf { margin: 0; }
 /* 家史按原段落连续阅读，较长的标题和正文随屏宽换行。 */
 .history-article {
   min-height: 100%;
@@ -1473,15 +1582,15 @@ body {
   flex-direction: column;
   container-type: inline-size;
   min-height: 100%;
-  padding: 4px var(--history-gutter) 0;
-  color: var(--family-ink);
+  padding: 12px var(--history-gutter) 0;
+  color: var(--home-xuan-ink);
   font-family: var(--family-font);
 }
 .phone .history-edit-page .heritage-editor {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   margin: 0;
 }
 .phone .history-edit-page #history-file[hidden] { display: none; }
@@ -1491,13 +1600,18 @@ body {
   align-items: center;
   gap: 4px;
   padding: 3px;
-  border: 1px solid var(--family-line);
+  border: 1px solid var(--home-xuan-line);
   border-radius: 10px;
-  background: var(--family-paper);
+  background: var(--history-editor-paper);
 }
-.history-writing-tools > .paper-link {
+.phone .history-writing-tools > .paper-link {
   min-width: 0;
+  min-height: 44px;
+  padding-inline: 3px;
   border-radius: 6px;
+  color: var(--home-xuan-ink);
+  font-size: calc(13px * var(--unit));
+  white-space: normal;
 }
 .history-writing-tools > .paper-link:focus-visible { outline-offset: -2px; }
 .history-writing-tools > .paper-link .icon,
@@ -1530,19 +1644,32 @@ body {
 .history-manuscript {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  padding: 16px 14px 16px 27px;
+  border-color: var(--home-xuan-line);
+  border-radius: 12px;
+  background: var(--history-editor-paper);
+  box-shadow: 0 2px var(--history-editor-paper), 0 3px var(--home-xuan-line),
+    0 5px var(--history-editor-paper), 0 6px var(--home-xuan-line);
+}
+.history-manuscript::before {
+  width: 14px;
+  border: 0;
+  border-radius: 11px 0 0 11px;
+  background: var(--family-book-spine);
 }
 .history-manuscript .heritage-caption,
 .history-polish-heading .heritage-caption,
 .history-writing-sheet .heritage-caption { color: var(--family-muted); }
 .history-manuscript > .heritage-caption { justify-self: center; }
 .phone .history-edit-page .heritage-editor #heritage-title {
-  padding: 8px 0;
+  margin: 0;
+  padding: 2px 0 8px;
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: var(--family-ink);
-  font: 600 calc(26px * var(--unit)) / 1.35 var(--family-hand);
-  letter-spacing: .08em;
+  color: var(--home-xuan-ink);
+  font: 700 calc(24px * var(--unit)) / 1.4 var(--home-xuan-song);
+  letter-spacing: normal;
   text-align: center;
 }
 .history-text-heading,
@@ -1554,12 +1681,24 @@ body {
   gap: 2px 8px;
 }
 .history-text-heading {
-  margin-block-start: 8px;
-  border-block-start: 1px solid var(--family-line);
+  margin-block-start: 4px;
+  border-block-start: 1px solid var(--home-xuan-line);
 }
 .history-section-title { margin: 0; }
 .history-section-title::before { inset-block: .12em 0; }
-.phone .history-text-heading > .paper-link { border-radius: 6px; color: var(--family-brand); }
+.phone .history-text-heading > .history-section-title {
+  color: var(--home-xuan-ink);
+  font: 700 calc(16px * var(--unit)) / 1.5 var(--home-xuan-song);
+  letter-spacing: normal;
+}
+.phone .history-text-heading > .paper-link {
+  min-height: 44px;
+  padding-inline: 4px;
+  border-radius: 6px;
+  color: var(--home-xuan-red);
+  font-size: calc(13px * var(--unit));
+  white-space: normal;
+}
 .phone .history-text-heading > .paper-link:disabled { opacity: .55; }
 .phone .history-edit-page .heritage-editor #heritage-text,
 .phone .history-writing-sheet textarea {
@@ -1570,19 +1709,21 @@ body {
   font: 400 calc(16px * var(--unit)) / 1.75 var(--family-font);
 }
 .phone .history-edit-page .heritage-editor #heritage-text {
-  padding: 6px 0 0;
+  padding: 2px 0 0;
   border: 0;
   border-radius: 0;
   background: transparent;
+  color: var(--home-xuan-ink);
+  line-height: 1.8;
 }
 @supports (field-sizing: content) {
   .phone .history-edit-page .heritage-editor #heritage-text {
     field-sizing: content;
-    min-block-size: calc(7lh + 6px);
+    min-block-size: calc(7lh + 2px);
     resize: none;
   }
   .phone .history-edit-page .heritage-editor:has(.history-polish-result:not([hidden])) #heritage-text {
-    min-block-size: calc(3lh + 6px);
+    min-block-size: calc(3lh + 2px);
   }
 }
 .history-edit-page .heritage-editor :is(input, textarea):focus-visible,
@@ -1604,12 +1745,36 @@ body {
   position: sticky;
   z-index: 1;
   inset-block-end: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 8px;
   margin-block-start: auto;
   margin-inline: calc(-1 * var(--history-gutter));
-  padding: 8px var(--history-gutter) max(8px, env(safe-area-inset-bottom));
-  border-block-start: 1px solid var(--family-line);
-  background: var(--family-surface);
+  padding: 8px var(--history-gutter);
+  border-block-start: 1px solid var(--home-xuan-line);
+  background: var(--history-editor-paper);
 }
+.phone .history-edit-footer > .paper-link {
+  justify-content: center;
+  min-height: 44px;
+  border: 1px solid var(--home-xuan-line);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--home-xuan-ink);
+  font-size: calc(14px * var(--unit));
+}
+.phone .history-edit-footer > .paper-link:hover { background: var(--family-soft); }
+.phone[data-route="home-origin-edit"] :is(.history-edit-footer, .history-writing-sheet .history-editor-actions) > .paper-outline {
+  border-color: var(--home-xuan-red);
+  background: var(--home-xuan-red);
+  color: var(--history-editor-paper);
+  font-weight: 700;
+}
+.phone[data-route="home-origin-edit"] :is(.history-edit-footer, .history-writing-sheet .history-editor-actions) > .paper-outline:hover {
+  border-color: var(--family-pressed);
+  background: var(--family-pressed);
+}
+.history-edit-footer > .paper-outline .icon { color: currentColor; }
 .history-polish-heading { margin-block-end: 8px; }
 .phone .history-polish-heading .history-section-title { font-size: calc(18px * var(--unit)); }
 .history-polish-result {
@@ -1660,151 +1825,48 @@ body {
 .history-writing-sheet .history-editor-actions { margin-block-start: 0; }
 @container (max-width: 340px) {
   .history-manuscript { padding-inline-start: 24px; }
-  .history-writing-tools .paper-link {
+  .phone .history-writing-tools > .paper-link {
     gap: 3px;
-    padding-inline: 3px;
-    font-size: calc(13px * var(--unit));
   }
   .history-writing-tools .paper-link .icon { width: 13px; height: 13px; }
 }
 
-/* 从导航到正文滚动区连续铺放首页的浅粉青灰底色。 */
-.phone:is([data-route="home-surname"], [data-route="home-motto-edit"], [data-route="home-manage"], [data-route="house-service"]:has(.family-service-page), [data-route="service-orders"], [data-route="service-order"]):not(.entry-mode) {
+/* 正文滚动区沿用首页的浅粉青灰底色。 */
+.phone:is([data-route="service-orders"], [data-route="service-order"]):not(.entry-mode) {
   background: var(--family-canvas);
 }
 
-.phone:is([data-route="home-surname"], [data-route="home-motto-edit"], [data-route="home-manage"], [data-route="house-service"]:has(.family-service-page), [data-route="service-orders"], [data-route="service-order"]):not(.entry-mode) :is(.statusbar, .app-header, .app-content) {
+.phone:is([data-route="service-orders"], [data-route="service-order"]):not(.entry-mode) .app-content {
   background: transparent;
 }
-
-.phone[data-route="home-surname"] .app-header > .app-book-label::before,
-.phone:is([data-route="home-motto-edit"], [data-route="home-manage"]) .app-header > h1::before,
-.phone .heritage-manage .manage-section-heading > h2::before,
-.phone:is([data-route="house-service"]:has(.family-service-page), [data-route="service-orders"], [data-route="service-order"]) .app-header > h1::before {
-  inset-block: .16em;
-}
-
-.phone:is([data-route="home-motto-edit"], [data-route="home-manage"]) .app-header { border-bottom: 0; }
-.phone:is([data-route="home-motto-edit"], [data-route="home-manage"]) .app-header > h1 { text-align: start; }
-
-/* 家训沿用首页木框，个人档案的两个入口收在同一张纸上。 */
-.phone .heritage-manage {
-  display: grid;
-  align-content: start;
-  gap: 24px;
-  padding-block: 6px 20px;
-}
-.heritage-manage > section { min-width: 0; }
-.manage-section-heading {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0 10px;
-  margin-block-end: 8px;
-}
-.manage-section-heading > h2 { min-width: 0; margin: 0; overflow-wrap: anywhere; }
-.manage-section-heading .manage-motto-action { margin-inline-start: auto; }
-.heritage-manage .manage-motto-action:hover {
-  background: transparent;
-  text-decoration: underline;
-  text-underline-offset: .2em;
-}
-/* 维护人的按钮包含家训木框，其他家人的建议入口只响应按钮本身。 */
-.manage-motto-preview { position: relative; }
-.manage-motto-action[data-kind="motto"]::after {
-  position: absolute;
-  z-index: 1;
-  inset: 0;
-  content: "";
-}
-.manage-motto-preview .manage-motto-action[data-kind="motto"]:active { transform: none; }
-.manage-motto-preview .manage-motto-action[data-kind="motto"]:focus-visible { outline: 0; }
-.manage-motto-action[data-kind="motto"]:focus-visible::after {
-  outline: 2px solid var(--family-brand);
-  outline-offset: 3px;
-}
-.heritage-manage .paper-link { gap: 4px; color: var(--family-muted); }
-.heritage-manage .paper-link .icon { flex: none; color: var(--family-brand); }
-.manage-motto .heritage-empty { margin: 12px 0; text-align: center; }
-/* 大字号优先在标点处分行，无标点的长句仍按木框宽度折行。 */
-.manage-motto .home-motto-quote { word-break: keep-all; overflow-wrap: anywhere; }
-.manage-motto-caption {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 2px 12px;
-  margin-block-start: 8px;
-  color: var(--family-muted);
-  font-size: calc(12px * var(--unit));
-  line-height: 1.55;
-  overflow-wrap: anywhere;
-}
-.manage-motto-caption p { min-width: 0; margin: 0; overflow-wrap: anywhere; }
-.manage-motto-caption time { white-space: nowrap; }
-.manage-archive-list { padding-inline: 12px; }
-.phone .manage-archive-row {
-  display: grid;
-  grid-template-columns: 42px minmax(0, 1fr) 16px;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  min-height: 72px;
-  padding: 10px 2px;
-  background: transparent;
-  text-align: start;
-}
-.manage-archive-row + .manage-archive-row { border-block-start: 1px solid var(--family-line); }
-.manage-archive-row:hover .manage-entry-copy strong { color: var(--family-brand); }
-.manage-entry-art {
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  overflow: hidden;
-  border: 1px solid var(--family-line);
-  border-radius: 6px;
-  background: var(--family-soft);
-  color: var(--family-brand);
-  font: 600 20px / 1 var(--family-hand);
-}
-.manage-entry-art > span { white-space: nowrap; }
-.manage-entry-art img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.manage-entry-art .icon { width: 22px; height: 22px; }
-.manage-entry-copy { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
-.manage-entry-copy strong { color: var(--family-ink); font-size: calc(16px * var(--unit)); line-height: 1.4; }
-.manage-entry-copy small, .manage-readonly {
-  color: var(--family-muted);
-  font-size: calc(13px * var(--unit));
-  line-height: 1.5;
-}
-.manage-archive-row > .icon { width: 16px; height: 16px; color: var(--family-muted); }
-.manage-readonly { margin: 0; }
-.heritage-manage .manage-back { justify-self: start; padding-inline-start: 0; }
 
 .phone .heritage-edit-page { padding-block: 4px 24px; }
 .heritage-edit-page .heritage-editor { grid-template-columns: minmax(0, 1fr); gap: 16px; }
 .heritage-edit-page .heritage-form-error:empty { display: none; }
 
-.phone[data-route="home-motto-edit"] {
-  --family-canvas: linear-gradient(180deg, var(--family-blush), var(--family-paper) 55%);
+.phone[data-route="home-motto-edit"] .app-content > .heritage-edit-page {
+  padding: 16px var(--home-xuan-gutter) 24px;
+  font-family: var(--home-xuan-sans);
+}
+
+.phone[data-route="home-motto-edit"] .heritage-editor {
+  gap: 12px;
+  margin-block-start: 0;
 }
 
 .motto-editor-section {
   display: grid;
   min-width: 0;
-  gap: 20px;
+  gap: 12px;
 }
 
-/* 正文与落款共用一张宣纸，细叠页提示纸张边缘。 */
+/* 复用首页家训的淡金回纹边框，正文与落款留在一张稿纸上。 */
 .motto-manuscript {
   min-width: 0;
-  padding: 4px 16px 8px;
-  border: 1px solid var(--family-line);
-  border-radius: 6px;
-  background: linear-gradient(rgb(255 250 241 / 74%), rgb(255 250 241 / 74%)),
-    url("assets/zhumen/ivory-rice-paper.webp") center / 520px auto var(--family-surface);
-  box-shadow: 0 3px 0 -1px var(--family-paper), 0 4px 0 -1px var(--family-line);
+  padding: 16px;
+  border: 1px solid transparent;
+  border-image: url("assets/family-home/reference/xuan-motto-frame.png") 96 / 26px stretch;
+  background: #fff8ed;
 }
 
 .motto-editor-heading-row {
@@ -1812,30 +1874,32 @@ body {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0 8px;
-  border-block-end: 1px solid var(--family-line);
+  gap: 0 12px;
+  border-block-end: 1px solid var(--home-xuan-line);
 }
-.motto-editor-heading {
+.phone .motto-manuscript .motto-editor-heading {
   margin: 0;
-  color: var(--family-ink);
-  font: 600 calc(18px * var(--unit)) / 1.4 var(--family-hand);
-  letter-spacing: .08em;
+  color: var(--home-xuan-ink);
+  font: 700 calc(18px * var(--unit)) / 1.3333 var(--home-xuan-song);
 }
 .motto-manuscript-footer {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 8px 16px;
-  border-block-start: 1px solid var(--family-line);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding-block-start: 8px;
+  border-block-start: 1px solid var(--home-xuan-line);
 }
 .phone .motto-manuscript-footer .motto-editor-text-count {
-  color: var(--family-muted);
+  padding-block-end: 10px;
+  color: var(--home-xuan-muted);
   font-size: calc(12px * var(--unit));
 }
 .phone .motto-manuscript-footer .motto-editor-text-count.is-at-limit { color: var(--family-brand); }
 .phone .motto-polish-toggle {
-  padding-inline: 6px 0;
-  color: var(--family-brand);
+  padding-inline: 0;
+  color: var(--home-xuan-red);
 }
 .phone .motto-polish-toggle:hover,
 .phone .motto-polish-toggle[aria-expanded="true"] { background: transparent; color: var(--family-pressed); }
@@ -1843,13 +1907,21 @@ body {
 
 .motto-polish-result {
   min-width: 0;
-  padding-inline: 12px;
-  border-inline-start: 2px solid var(--family-line);
+  padding: 12px 16px 4px;
+  border: 1px solid var(--home-xuan-line);
+  border-radius: 8px;
+  background: #fff8ed;
   overflow-wrap: anywhere;
 }
 .motto-polish-result .history-polish-heading { margin-block-end: 4px; }
-.phone .motto-polish-result .history-section-title { padding-inline-start: 0; }
+.phone .motto-polish-result .history-section-title {
+  padding-inline-start: 0;
+  color: var(--home-xuan-ink);
+  font: 700 calc(18px * var(--unit)) / 1.3333 var(--home-xuan-song);
+}
 .phone .motto-polish-result .history-section-title::before { content: none; }
+/* 展开后标题接收程序化焦点，便于读屏器定位新出现的建议。 */
+.phone .motto-polish-result h2.history-section-title:focus-visible { outline: none; }
 .motto-polish-result > p { color: var(--family-muted); font-size: calc(14px * var(--unit)); }
 .phone .motto-polish-result [data-action="heritage-writing-apply"] { color: var(--family-brand); }
 
@@ -1869,12 +1941,12 @@ body {
 
 .motto-editor-byline {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 8px;
+  width: min(100%, 136px);
+  margin-inline-start: auto;
+  text-align: end;
 }
 
-.motto-editor-byline label { color: var(--family-muted); font-size: calc(13px * var(--unit)); }
+.motto-editor-byline label { color: var(--home-xuan-muted); font-size: calc(12px * var(--unit)); }
 
 .phone .motto-manuscript :is(#heritage-text, #motto-byline) {
   border: 0;
@@ -1885,23 +1957,26 @@ body {
 
 .phone .motto-manuscript #motto-byline {
   min-height: 44px;
-  padding: 8px 2px;
-  border-block-end: 1px dotted var(--family-line);
-  font: 400 calc(14px * var(--unit)) / 1.4 var(--family-font);
+  padding: 0 2px;
+  border-block-end: 1px dotted var(--home-xuan-line);
+  font: 400 calc(16px * var(--unit)) / 1.5 var(--motto-brush);
   text-align: end;
 }
 
 .motto-text-entry {
-  --motto-text-font: 500 calc(20px * var(--unit)) / 1.6 var(--family-hand);
+  --motto-text-font: 400 calc(24px * var(--unit)) / 1.5 var(--motto-brush);
+  --motto-text-padding: 24px 0 16px;
+  text-align: center;
 }
 
 .phone .motto-manuscript #heritage-text {
-  min-height: 112px;
-  padding: 12px 0;
+  min-height: 128px;
+  padding: var(--motto-text-padding);
   field-sizing: content;
   overflow: hidden;
   overflow-wrap: break-word;
   font: var(--motto-text-font);
+  text-align: inherit;
   resize: none;
 }
 
@@ -1912,7 +1987,7 @@ body {
   .motto-text-entry::after { grid-area: 1 / 1; }
   .motto-text-entry::after {
     min-width: 0;
-    padding: 12px 0;
+    padding: var(--motto-text-padding);
     visibility: hidden;
     font: var(--motto-text-font);
     white-space: pre-wrap;
@@ -1928,24 +2003,32 @@ body {
 
 .phone .paper-link.motto-editor-save {
   justify-self: end;
-  min-width: 84px;
+  min-width: 104px;
   min-height: 44px;
-  border-radius: 6px;
-  background: var(--family-soft);
-  color: var(--family-ink);
-  font-family: var(--family-font);
+  padding-inline: 16px;
+  border-color: var(--home-xuan-red);
+  border-radius: 8px;
+  background: var(--home-xuan-red);
+  color: var(--family-surface);
+  font-family: var(--home-xuan-sans);
+  font-size: calc(14px * var(--unit));
+  font-weight: 600;
 }
-.motto-editor-save .icon { color: var(--family-brand); }
+.phone .paper-link.motto-editor-save:is(:hover, :active) {
+  border-color: var(--family-pressed);
+  background: var(--family-pressed);
+}
 
+/* 姓源沿用首页的宣纸版心，覆盖通用册页的装订样式。 */
 .phone .journal-sheet.surname-reader {
-  --surname-divider: rgb(151 108 75 / 20%);
-  --surname-rule: #9b4a39;
-  --surname-section-ink: #433124;
-  min-width: 0;
-  margin: 16px 24px 24px;
-  padding: 16px 16px 8px;
-  background-color: color-mix(in srgb, #f4ddd8 62%, var(--family-surface));
-  color: var(--family-ink);
+  margin: 0;
+  padding: 16px var(--home-xuan-gutter) 32px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--home-xuan-ink);
+  font-family: var(--home-xuan-sans);
   overflow-wrap: anywhere;
 }
 
@@ -1953,47 +2036,85 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding-block: 4px;
+  padding-block: 4px 8px;
 }
 
 .surname-reader-heading > div { min-width: 0; }
 
+/* 竹影与远山退到文字背后，随各自章节滚动。 */
+.surname-reader :is(.surname-reader-heading, .surname-reader-population) {
+  position: relative;
+  isolation: isolate;
+}
+
+.surname-reader :is(.surname-reader-heading, .surname-reader-population)::after {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+}
+
+.surname-reader-heading::after {
+  inset: -16px calc(-1 * var(--home-xuan-gutter)) auto auto;
+  width: min(35%, 116px);
+  height: 82px;
+  background: var(--home-xuan-bamboo) right top / contain no-repeat;
+  opacity: .58;
+}
+
+.surname-reader-population::after {
+  inset: 6px 0 auto auto;
+  width: min(58%, 184px);
+  height: 42px;
+  background: var(--home-xuan-mountains) left bottom / contain no-repeat;
+  opacity: .58;
+  transform: scaleX(-1);
+}
+
+.large-type .surname-reader-heading::after {
+  width: min(30%, 100px);
+  opacity: .32;
+}
+
 .surname-reader-glyph {
   display: grid;
-  flex: 0 0 52px;
+  flex: 0 0 54px;
   place-items: center;
-  min-height: 58px;
-  border: 1px solid var(--surname-divider);
-  border-radius: 6px;
-  background: rgb(255 250 241 / 72%);
-  color: var(--family-ink);
-  font: 600 calc(34px * var(--unit)) / 1 var(--family-hand);
+  min-height: 60px;
+  border: 1px solid var(--home-xuan-line);
+  border-radius: 8px;
+  background: var(--home-xuan-surface);
+  font: 700 calc(32px * var(--unit)) / 1 var(--home-xuan-song);
   white-space: nowrap;
 }
 
 .surname-reader-glyph.is-compound { font-size: calc(18px * var(--unit)); }
 
-.surname-reader h1 {
-  margin: 2px 0 6px;
-  color: #312518;
-  font: 600 calc(22px * var(--unit)) / 1.3 var(--family-font);
-  letter-spacing: .05em;
-  text-wrap: balance;
+.phone .surname-reader h1 {
+  margin: 0;
+  color: var(--home-xuan-ink);
+  font: 700 calc(28px * var(--unit)) / 1.25 var(--home-xuan-song);
+  letter-spacing: .03em;
+  text-wrap: pretty;
 }
 
-.surname-reader-character {
-  padding-inline: 1px;
+.surname-reader .surname-reader-character {
+  margin-inline-start: 2px;
+  padding-inline: 4px;
+  border-color: var(--home-xuan-red);
+  background: var(--home-xuan-red);
+  color: #fff6e8;
+  font: 600 calc(14px * var(--unit)) / 1.4 var(--home-xuan-song);
+  vertical-align: .3em;
   white-space: nowrap;
 }
 
-.surname-reader-character.is-compound { font-size: calc(12px * var(--unit)); }
+.surname-reader .surname-reader-character.is-compound { font-size: calc(12px * var(--unit)); }
 
-.surname-reader-meta,
-.surname-reader-culture-name > span,
-.surname-reader dt {
+.surname-reader :is(.surname-reader-meta, dt, .surname-reader-culture-name > span) {
   margin: 0;
-  color: var(--family-muted);
-  font-size: calc(12px * var(--unit));
+  color: var(--home-xuan-muted);
+  font-size: calc(13px * var(--unit));
   line-height: 1.5;
 }
 
@@ -2001,110 +2122,54 @@ body {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 4px 12px;
-  margin: 0;
-  color: var(--family-muted);
+  gap: 2px 12px;
+  margin: 6px 0 0;
+  color: var(--home-xuan-muted);
   font-size: calc(14px * var(--unit));
   line-height: 1.5;
 }
 
 .surname-reader-pronunciation > [lang] {
   font-size: calc(16px * var(--unit));
-  letter-spacing: .08em;
+  letter-spacing: .06em;
 }
 
 .surname-reader-text {
   margin: 0;
-  color: var(--family-ink);
-  font: 400 calc(15px * var(--unit)) / 1.65 var(--family-font);
+  font-size: calc(16px * var(--unit));
+  line-height: 1.6;
   text-wrap: pretty;
   white-space: pre-line;
 }
 
-.surname-reader .surname-reader-intro,
-.surname-reader-empty {
-  margin: 12px 0;
-  padding-block-start: 12px;
-  border-block-start: 1px solid var(--surname-divider);
-}
-
 .surname-reader .surname-reader-intro {
-  font-size: calc(16px * var(--unit));
-  line-height: 1.7;
+  margin-block-start: 12px;
+  padding-block-start: 12px;
+  border-block-start: 1px solid var(--home-xuan-line);
 }
 
 .surname-reader-empty {
-  color: var(--family-muted);
+  margin: 16px 0 0;
+  color: var(--home-xuan-muted);
   font-size: calc(14px * var(--unit));
+  line-height: 1.5;
 }
 
-.surname-reader-fields {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 16px;
-  margin: 0 0 12px;
-}
-
-.surname-reader-facts { margin-block-start: 16px; }
-
-.surname-reader-facts dt,
-.surname-reader-population dt,
-.surname-reader-culture-list dt {
-  position: relative;
-  padding-inline-start: 7px;
-  color: var(--surname-section-ink);
-  font: 600 calc(12px * var(--unit)) / 1.5 var(--family-hand);
-}
-
-.surname-reader-fields > .is-full { grid-column: 1 / -1; }
-
-.surname-reader dd { margin: 0; }
-
-.surname-reader-fields dd,
-.surname-reader-entry h2,
-.surname-reader-culture-name strong {
-  color: var(--family-ink);
-  font: 600 calc(16px * var(--unit)) / 1.5 var(--family-font);
-}
-
-.surname-reader-fields dd { margin-block-start: 2px; }
-
-.surname-reader-population .surname-reader-fields > div,
-.surname-reader-culture-list > div {
-  display: grid;
-  grid-template-columns: calc(56px * var(--unit)) minmax(0, 1fr);
-  align-items: baseline;
-  gap: 8px;
-}
-
-.surname-reader-population dd {
-  margin: 0;
-  font-variant-numeric: tabular-nums;
-}
-
-.surname-reader :is(.surname-reader-population, .surname-reader-origin, .surname-reader-culture) {
+.surname-reader > :is(section, details) {
   margin-block-start: 16px;
-  border-block-start: 1px solid var(--surname-divider);
-}
-
-.surname-reader-population + .surname-reader-origin,
-.surname-reader-origin + .surname-reader-culture {
-  margin-block-start: 0;
+  padding-block-start: 8px;
+  border-block-start: 1px solid var(--home-xuan-line);
 }
 
 .surname-reader .surname-reader-section-title {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   min-height: 44px;
-  margin: 0;
-  padding-block: 4px;
-  padding-inline-start: 11px;
-  color: var(--surname-section-ink);
-  font: 600 calc(18px * var(--unit)) / 1.4 var(--family-hand);
-  letter-spacing: .1em;
+  margin: 0 0 4px;
+  color: var(--home-xuan-ink);
+  font: 700 calc(22px * var(--unit)) / 1.35 var(--home-xuan-song);
 }
 
 .surname-reader summary {
@@ -2113,45 +2178,63 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-.surname-reader-section-title::before,
-.surname-reader-facts dt::before,
-.surname-reader-population dt::before,
-.surname-reader-culture-list dt::before {
-  position: absolute;
-  inset-block-start: 50%;
-  inset-inline-start: 0;
-  width: 2px;
-  height: min(16px, .9em);
-  border-radius: 1px;
-  background: var(--surname-rule);
-  content: "";
-  transform: translateY(-50%);
-}
-
 .surname-reader summary::-webkit-details-marker { display: none; }
-
+.surname-reader summary:hover { color: var(--home-xuan-red); }
 .surname-reader summary:focus-visible {
-  outline: 2px solid var(--family-brand);
-  outline-offset: -2px;
+  outline: 2px solid var(--home-xuan-red);
+  outline-offset: 2px;
 }
-
 .surname-reader summary > .icon {
   flex: none;
   width: 16px;
   height: 16px;
-  color: var(--family-muted);
+  color: var(--home-xuan-muted);
 }
-
 .surname-reader details[open] > summary > .icon { transform: rotate(180deg); }
 
-.surname-reader-entries {
-  padding: 0;
-  list-style: none;
+.surname-reader-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+  margin: 0;
 }
 
+.surname-reader-facts {
+  margin-block-start: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--home-xuan-line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--home-xuan-surface) 72%, transparent);
+}
+
+.surname-reader-fields > .is-full { grid-column: 1 / -1; }
+.surname-reader dd { margin: 0; }
+
+.surname-reader-fields dd,
+.surname-reader-entry h2,
+.surname-reader-culture-name strong {
+  color: var(--home-xuan-ink);
+  font: 600 calc(16px * var(--unit)) / 1.5 var(--home-xuan-sans);
+}
+
+.surname-reader-facts dd { margin-block-start: 2px; }
+
+.surname-reader-population .surname-reader-fields > div,
+.surname-reader-culture-list > div {
+  display: grid;
+  grid-template-columns: minmax(0, 4.5em) minmax(0, 1fr);
+  align-items: baseline;
+  gap: 8px;
+}
+
+.surname-reader-population dd { font-variant-numeric: tabular-nums; }
+
 .surname-reader-entries,
-.surname-reader-culture-list {
-  margin: 0 0 8px;
+.surname-reader-culture-list,
+.surname-reader-culture-items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .surname-reader-entry,
@@ -2160,28 +2243,13 @@ body {
 }
 
 .surname-reader-entry h2 { margin: 0; }
-
 .surname-reader-entry > .surname-reader-text { margin-block-start: 4px; }
-
-.surname-reader-entries > li:only-child:has(> h2 + .surname-reader-text) > :is(h2, .surname-reader-text) {
-  display: inline;
-  font-weight: 400;
-}
-
-.surname-reader-entry-context {
-  margin-block: 2px 4px;
-}
-
-.surname-reader-culture-items {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
+.surname-reader .surname-reader-entry-context { margin-block: 2px 4px; }
 
 .surname-reader-entry + .surname-reader-entry,
 .surname-reader-culture-list > div + div,
 .surname-reader-culture-items > li + li {
-  border-block-start: 1px solid var(--surname-divider);
+  border-block-start: 1px solid var(--home-xuan-line);
 }
 
 .surname-reader-culture-items > li + li {
@@ -2196,38 +2264,13 @@ body {
   gap: 0 8px;
 }
 
-.large-type .surname-reader-fields { grid-template-columns: 1fr; }
+.large-type .surname-reader-fields { grid-template-columns: minmax(0, 1fr); }
 
-@media (max-width: 365px) {
-  .phone .journal-sheet.surname-reader { margin-inline: 16px; }
-  .surname-reader-glyph { flex-basis: 48px; min-height: 54px; }
-}
-
-.phone:is([data-route="house-service"]:has(.family-service-page), [data-route="service-orders"], [data-route="service-order"]) .app-header {
-  border-bottom: 0;
-}
-
-.phone:is([data-route="house-service"]:has(.family-service-page), [data-route="service-orders"], [data-route="service-order"]) .app-header > h1 {
-  text-align: start;
-}
-
-.phone :is(.family-service-page, .service-orders-page) {
+.phone .service-orders-page {
   padding: 12px 24px 32px;
   overflow-wrap: anywhere;
 }
 
-.family-service-card { padding: 16px; }
-
-.phone .family-service-card > .page-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0;
-  color: var(--family-ink);
-  font-family: var(--family-font);
-}
-
-.family-service-card > .page-title .icon,
 .service-order-title .icon {
   flex: none;
   width: 36px;
@@ -2239,51 +2282,23 @@ body {
   color: var(--family-brand);
 }
 
-.phone .family-service-card > .page-subtitle {
-  margin: 12px 0 0;
-  color: var(--family-ink);
-  font-size: calc(16px * var(--unit));
-  line-height: 1.75;
-}
-
-.phone .family-service-card > .house-card {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: baseline;
-  gap: 12px;
-  margin: 12px 0 0;
-  padding: 12px 0 0;
-  border: 0;
-  border-block-start: 1px solid var(--family-line);
-  border-radius: 0;
-  background: transparent;
-  font-size: calc(16px * var(--unit));
-  line-height: 1.5;
-}
-
-.phone .family-service-card > .house-card h2 {
-  margin: 0;
-  color: var(--family-muted);
-  font-size: calc(14px * var(--unit));
-}
-
-.phone :is(.family-service-page, .service-orders-page) > .house-actions {
+.phone .service-orders-page > .house-actions {
   gap: 8px;
   margin-block-start: 16px;
 }
 
-.phone :is(.family-service-page, .service-orders-page) .house-actions > .btn {
+.phone .service-orders-page .house-actions > .btn {
   padding: 8px 12px;
   border-radius: 12px;
   font-weight: 600;
 }
 
-.phone :is(.family-service-page, .service-orders-page) .house-actions > .btn.secondary {
+.phone .service-orders-page .house-actions > .btn.secondary {
   background-color: var(--family-surface);
   color: var(--family-ink);
 }
 
-.phone :is(.family-service-page, .service-orders-page) .house-actions > .btn.secondary:hover {
+.phone .service-orders-page .house-actions > .btn.secondary:hover {
   background-color: var(--family-soft);
   color: var(--family-brand);
 }
@@ -2533,110 +2548,126 @@ body {
   resize: vertical;
 }
 
-.family-diary > h1 { text-align: center; }
-.family-diary .journal-month + .journal-month { margin-top: 20px; }
-.family-diary h2 { font-size: calc(18px * var(--unit)); }
-.family-diary .journal-row { padding-block: 12px; }
-.family-diary .journal-row:last-child { border-bottom: 0; }
-.diary-cover-title {
-  padding: 12px 16px;
-  border: 1px solid #bd9974;
-  border-radius: 4px;
-  background: var(--family-paper);
+/* 纸页随顶栏和底栏之间的可用空间伸缩，列表翻页时继续使用同一高度。 */
+.phone[data-route="home-diary"] > .app-content {
+  display: flex;
+  flex-direction: column;
 }
-.diary-leaf .paper-pagination { margin-block-start: 14px; }
-.journal-story .paper-swipe-hint { margin-block-end: 8px; }
-
-/* 首页预览与日记篇章共用左侧装订。篇章导航接在册页上沿。 */
-.diary-preview,
-.journal-story,
-.phone.journal-mode[data-route="story"]:not(.entry-mode):has(.journal-story) {
-  --diary-gutter: 12px;
-  --diary-spine: 18px;
-  --diary-binding: linear-gradient(90deg, #d8b895, #f9ead4 45%, #e9cfad 82%, #ba946c);
+.phone[data-route="home-diary"] .diary-book[data-diary-part="list"] {
+  display: grid;
+  flex: 1 0 auto;
+  margin-block: 8px 12px;
 }
-.phone.journal-mode[data-route="story"]:not(.entry-mode):has(.journal-story) {
-  background: var(--family-canvas);
+.phone .diary-book[data-diary-part="list"] > .family-diary {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  padding-block: 12px;
 }
-.phone.journal-mode[data-route="story"]:not(.entry-mode):has(.journal-story) :is(.statusbar, .app-content) {
-  background: transparent;
+.family-diary > h1 {
+  margin-block-end: 0;
+  text-align: center;
 }
-.phone .journal-sheet.journal-story,
-.phone.journal-mode[data-route="story"]:not(.entry-mode):has(.journal-story) .app-header {
-  border-color: #dfc7a9;
-}
-:is(.diary-preview, .journal-story)::before {
-  width: var(--diary-spine);
-  background:
-    radial-gradient(ellipse 24px 8px at 50% 1px,
-      transparent 64%, #bc9b77 69%, #fff4df 78%, #b79572 86%, transparent 95%) center 30px / 100% 76px repeat-y,
-    var(--diary-binding);
-}
-.phone.journal-mode[data-route="story"]:not(.entry-mode):has(.journal-story) .app-header {
-  margin: 16px var(--diary-gutter) 0;
-  padding-inline: 24px 8px;
-  border: 1px solid #dfc7a9;
-  border-block-end-color: #e6d2b7;
-  border-radius: 16px 16px 0 0;
-}
-.phone.journal-mode[data-route="story"]:not(.entry-mode):has(.journal-story) .app-header::before {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: var(--diary-spine);
-  border-right: 1px solid rgb(135 95 60 / 26%);
-  border-radius: 15px 0 0 0;
-  background: var(--diary-binding);
-  pointer-events: none;
-  content: "";
-}
-.phone .journal-sheet.journal-story {
-  margin: 0 var(--diary-gutter) 20px;
-  padding: 20px 16px 24px 34px;
-  border-block-start: 0;
-  border-radius: 0 0 16px 16px;
-}
-.journal-story::before { border-radius: 0 0 0 15px; }
-
-.phone .journal-story .archive-player {
-  margin-block-start: 18px;
-  padding: 0;
-  border: 0;
-  box-shadow: none;
-  background: transparent;
-}
-.journal-story .archive-photo-detail { margin: 0; }
-.journal-story .archive-photo-detail img {
-  display: block;
-  width: 100%;
-  max-height: none;
-  aspect-ratio: 1.55;
-  border-radius: 8px;
-  object-fit: cover;
-  object-position: center 36%;
-}
-.journal-story .story-paragraph { margin-block: 12px; }
-.journal-replies {
-  padding-block: 16px 8px;
-  border-top: 1px solid var(--line);
-}
-.journal-replies > details { margin-top: 12px; }
-.journal-replies h2 { color: var(--brand); font-size: calc(16px * var(--unit)); }
-.journal-note p { margin: 4px 0 12px; font: 500 calc(19px * var(--unit)) / 1.55 var(--family-hand); }
-.journal-replies summary {
+.diary-author-filter {
   display: flex;
   align-items: center;
-  gap: 4px;
-  width: fit-content;
-  min-height: 44px;
-  margin-inline-start: auto;
-  padding: 4px 10px;
-  border: 1px solid var(--brand);
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: calc(15px * var(--unit));
-  color: var(--brand);
+  justify-content: center;
+  gap: 6px;
+  margin-block-end: 6px;
+  color: var(--family-muted);
+  font-size: calc(12px * var(--unit));
 }
-.journal-replies summary .icon { width: 16px; height: 16px; }
+.diary-author-choice {
+  position: relative;
+  display: inline-flex;
+  min-width: 0;
+  max-width: 75%;
+  align-items: center;
+  color: var(--family-ink);
+}
+.diary-author-choice:hover { color: var(--family-brand); }
+.phone[data-route="home-diary"] .family-diary .diary-author-choice select {
+  appearance: none;
+  field-sizing: content;
+  min-height: 44px;
+  margin: 0;
+  padding: 0 20px 0 2px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font-size: calc(14px * var(--unit));
+  cursor: pointer;
+}
+.diary-author-choice option { background: var(--family-paper); }
+.diary-author-choice .icon {
+  position: absolute;
+  inset-inline-end: 2px;
+  width: 13px;
+  height: 13px;
+  color: var(--family-brand);
+  pointer-events: none;
+}
+.diary-list-entries { position: relative; }
+.diary-list-measurement {
+  position: absolute;
+  inset: 0 0 auto;
+  block-size: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+.family-diary .diary-list-entries .journal-month {
+  display: flow-root;
+  margin-block-start: 0;
+}
+.family-diary .diary-list-entries .journal-month + .journal-month { margin-block-start: 8px; }
+.family-diary .journal-divider {
+  margin-block: 4px;
+  font-size: calc(16px * var(--unit));
+  line-height: 1.25;
+}
+.family-diary .diary-list-entries .journal-row {
+  grid-template-columns: minmax(0, 1fr) 72px 16px;
+  min-block-size: 0;
+  padding-block: 6px;
+}
+.family-diary .journal-row-thumb { aspect-ratio: 4 / 3; }
+.family-diary .journal-row-copy > small {
+  overflow: hidden;
+  font-size: calc(12px * var(--unit));
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.family-diary .journal-row-copy > strong {
+  display: -webkit-box;
+  overflow: hidden;
+  line-height: 1.3;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.family-diary .journal-row:last-child { border-block-end-color: transparent; }
+.diary-leaf .paper-pagination { margin-block-start: 14px; }
+/* 单页和无记录时预留同样的翻页空间，避免增减页码改变内容容量。 */
+.diary-list-pagination {
+  min-block-size: 53px;
+  margin-block-start: 8px;
+}
+.phone .diary-book .diary-list-pagination > .paper-pagination { margin-block-start: 0; }
+@media (max-height: 600px) {
+  .large-text .family-diary .journal-row-copy > strong { -webkit-line-clamp: 1; }
+}
+.story-reading-page .paper-swipe-hint { margin-block-end: 8px; }
+
+/* 日记封面和列表保留装订，往事页仅在翻篇时使用纸面叠层。 */
+.diary-preview,
+.diary-book {
+  --diary-gutter: 12px;
+  --diary-spine: 18px;
+}
+:is(.diary-preview, .family-diary)::before {
+  width: var(--diary-spine);
+  background: var(--family-book-spine);
+}
 
 .phone-dialog-layer:has(> .modal[data-presentation="photo-print"][open]) {
   background: rgb(45 34 24 / 64%);
@@ -2716,19 +2747,15 @@ body {
     --family-page-gutter: 16px;
   }
   .journal-sheet, .phone .journal-sheet { padding-inline: 28px 12px; }
-  .phone :is(.family-service-page, .service-orders-page) { padding-inline: 16px; }
+  .phone .service-orders-page { padding-inline: 16px; }
 }
 
-.large-type .home-surname-content.has-photo { grid-template-columns: 1fr; }
 .phone.large-type .home-family-panel-tools { flex-wrap: wrap; }
 
-/* 下载与登录入口保留原构图，导航和卡片沿用家册主题色。 */
-.phone.entry-mode .statusbar,
-.entry-page :is(.entry-search-header, .entry-detail-header) {
+/* 下载与登录入口的状态栏和卡片沿用家册主题色。 */
+.phone.entry-mode .statusbar {
   border-bottom: 1px solid var(--line);
   background: var(--family-blush);
   color: var(--ink);
 }
-.entry-page :is(.entry-search-header, .entry-detail-header) .entry-back { color: var(--ink); }
-.entry-detail-header > span { border-color: var(--line); }
 .entry-page .market-feature h2 { color: var(--brand); }

@@ -149,16 +149,6 @@
     {"id": "father-work-calligraphy", "subject": "father", "kind": "work", "title": "书法 · 家和", "date": "2024年 · 虚构作品示例", "year": "2024", "description": "“家和”二字的书法作品归档示例。画面裁自已确认设计稿，是AI示意，不是真实书法扫描。", "poster": "assets/works/father-work-calligraphy.webp", "author": "father", "sourceLabel": "原型虚构书法 · 文字与展示图均为演示内容", "scope": "family", "viewers": ["father", "mother", "xia", "grandpa", "nian"], "body": ["作品内容：家和。", "创作说明（虚构）：想把这两个字留在家里，提醒自己和晚辈，意见不一样时，也可以把话慢慢说清楚。", "展示说明：当前使用设计稿中的AI书法配图，正式资料可替换为整幅原作、局部细节与落款照片；本示例不提供真实书法家、尺寸或收藏鉴定信息。"]},
     {"id": "father-work-painting", "subject": "father", "kind": "work", "title": "绘画 · 山居小景", "date": "2025年 · 虚构作品示例", "year": "2025", "description": "以远山、树木与小屋构成的设计稿AI配图，用于演示绘画归档，不是陈远山真实画作。", "poster": "assets/works/father-work-painting.webp", "author": "father", "sourceLabel": "原型虚构绘画 · 文字与展示图均为演示内容", "scope": "family", "viewers": ["father", "mother", "xia", "grandpa", "nian"], "body": ["画面说明：远处的山层层展开，近处是一间小屋和几棵树。画面留出大片天空，想表达安静、舒展的感觉。", "创作说明（虚构）：外出走过很多地方后，仍然喜欢有山、有树、有人家的景色。它像记忆里的一个去处，不必与某个真实地点完全对应。", "展示说明：当前画面为已确认设计稿中的AI绘画示意；正式归档可保存原作高清图、创作手记和细节照片。"]},
     {
-      id:'old-home-letter',subject:'father',kind:'document',title:'离家后的家书 · 节选',
-      date:'1986—1992年 · 虚构节选',year:'1986',description:'“那张一直没换的书桌”事件的书信资料示例，不是原始信件扫描。家书与该事件关联，不计入个人作品。',
-      poster:'assets/room.webp',author:'father',sourceLabel:'事件书信资料示例 · 虚构家书节选',scope:'family',viewers:[...FAMILY],relatedStoryId:'old-home',
-      body:[
-        '亲爱的家人：家里一切可好？今天又在窗边坐了一会儿，想起离家前你们收拾行李的样子。路上有许多新鲜事，等下次回去，再慢慢讲给你们听。',
-        '这里的日子忙碌，我会好好照顾自己。你们也不要太累。想家的时候，我会把想说的话写下来，好像隔着信纸，仍能听见家里熟悉的声音。',
-        '等到再见面，我们坐在一起吃顿饭。许多当时来不及讲清楚的事情，也许慢慢说，就能说得明白。'
-      ]
-    },
-    {
       id:'mother-photo-family',subject:'mother',kind:'photo',title:'林慧的家庭相册 · 团聚',
       date:'2026年 · 示例归档',year:'2026',description:'林慧档案中的家庭相关照片示例。画面为共享示意素材，不认定其中人物为林慧本人。',
       poster:'assets/family.webp',author:'mother',sourceLabel:'AI 生成的家庭关联照片示例',scope:'family',viewers:[...FAMILY]

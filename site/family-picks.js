@@ -15,10 +15,7 @@
     {
       id: 'parents-screen', category: 'parents', name: frameName, price: 699, photo: [2, 1],
       screenSize: '10.1 英寸',
-      spec: '10.1 英寸 · 送给爸妈的生日礼物',
-      detail: '给爸爸看第一天上班的老照片，问一句「爸，这件衬衫谁给你改的？」爸爸在相框上点「回一句」，自己的声音就留在家庭相册的原照片下。下次想听，打开这张照片就能找到。',
-      giftPlan: `挑好照片，选一张做开机首图，再写句祝福或录下自己的声音。以后回了外地，也能往${frameName}里添新照片。`,
-      giftRoute: 'house-screen//gift/house-picks'
+      introRoute: 'house-screen-intro//addons'
     },
     {
       id: 'bath-slippers', category: 'parents', name: '防滑浴室拖鞋', price: 29, photo: [1, 1],
@@ -62,22 +59,24 @@
   }
 
   function productSpread(product) {
-    return `${mountedPhoto(product)}<strong class="picks-feature-title">${e(product.name)}</strong>`;
+    return `${mountedPhoto(product)}<span class="picks-feature-label">
+      <strong class="picks-feature-title">${e(product.name)}</strong>
+      <small class="picks-feature-link">查看详情 ${i('arrow')}</small>
+    </span>`;
   }
 
   function featuredGift(product) {
     // 备礼需要当前家庭的相册。未建家时仍可浏览相框规格和演示价。
     const prepare = P.Households.current()
-      ? l(GIFT_LABEL + i('arrow'), product.giftRoute, 'btn compact')
+      ? l(GIFT_LABEL + i('arrow'), 'house-screen//gift/house-picks', 'btn compact')
       : '';
     const details = b(productSpread(product), 'picks-product', 'picks-feature-spread picks-gift-product',
       `data-product="${e(product.id)}" aria-label="查看${e(product.name)}详情"`);
     return `<article class="paper-card bound-paper picks-feature picks-gift">
       ${details}
       <div class="picks-gift-info">
-        <h3 class="picks-gift-title">相框礼盒 <span>${e(product.screenSize)}</span></h3>
-        <p class="picks-gift-package">预装照片与祝福 · 基础家庭空间</p>
-        <p class="picks-gift-description">送到手就能看，家人也能继续往相框里添照片。</p>
+        <p class="picks-gift-package">相框礼盒 · ${e(product.screenSize)} · 含基础家庭空间</p>
+        <p class="picks-gift-description">提前装好照片和祝福，送到手就能看。家人也能继续添照片。</p>
       </div>
       <div class="picks-gift-footer">
         <div class="picks-detail-price picks-gift-price">${price(product)}<small>演示价</small></div>${prepare}
@@ -86,11 +85,11 @@
   }
 
   function featuredProduct(product) {
-    if (product.giftRoute) return featuredGift(product);
+    if (product.introRoute) return featuredGift(product);
     return b(`<span class="picks-feature-spread">${productSpread(product)}</span>
     <span class="picks-feature-caption">
       <small class="picks-feature-spec">${e(product.spec)}</small>
-      <span class="picks-feature-detail">${price(product)}<small>查看详情 ${i('arrow')}</small></span>
+      <span class="picks-feature-detail">${price(product)}<small>演示价</small></span>
     </span>`, 'picks-product', 'paper-card bound-paper picks-feature',
     `data-product="${e(product.id)}" aria-label="${e(product.name)}，${product.price} 元，查看详情"`);
   }
@@ -112,11 +111,11 @@
     // 当前商品不在所选分类时，册页展示该分类的第一件商品。
     const featured = visible.find(product => product.id === P.state.picksProduct) || visible[0];
     return `<div class="page family-picks-page">
-      <h2 class="picks-heading">家用良品</h2>
       <div class="picks-categories" role="group" aria-label="商品分类">${categories}</div>
       ${featured ? `<section class="picks-gallery" aria-label="商品浏览">
         ${featuredProduct(featured)}
-        <div class="picks-thumbnails" role="group" aria-label="切换商品大图">
+        <h2 class="picks-heading" id="picks-thumbnails-title">选看商品</h2>
+        <div class="picks-thumbnails" role="group" aria-labelledby="picks-thumbnails-title">
           ${visible.map(product => thumbnail(product, featured.id)).join('')}
         </div>
       </section>` : ''}
@@ -124,22 +123,8 @@
   }
 
   function openProduct(product) {
-    const family = P.Households.current();
-    const prepare = product.giftRoute && family
-      ? l(GIFT_LABEL + i('arrow'), product.giftRoute, 'btn secondary full')
-      : '';
-    if (product.id === 'parents-screen') {
-      const actions = family ? `<div class="family-sheet-footer">${prepare}
-        ${P.Households.addonEntry('frame', `咨询${frameName}的试售价与配送`, {returnLabel: `返回${frameName}详情`, className: 'btn'})}</div>` : '';
-      P.modal(product.name, `<div class="picks-detail frame-offer">
-        <div class="frame-offer-summary">${mountedPhoto(product)}
-          <div><p class="family-sheet-note">${e(product.spec)}</p>
-            <p class="frame-offer-price">${price(product)} <small>演示价</small></p></div>
-        </div>
-        <details class="frame-offer-info"><summary>${frameName}功能与备礼说明</summary>
-          <p>${e(product.detail)}</p><p>${e(product.giftPlan)}</p>
-        </details>
-        ${actions}</div>`, 'sheet', undefined, {eyebrow: '实物商品', closeLabel: '返回优选', familySheet: true});
+    if (product.introRoute) {
+      P.navigate(product.introRoute);
       return;
     }
     P.modal(product.name, `<div class="picks-detail">
@@ -147,8 +132,6 @@
       <div class="picks-detail-price">${price(product)}<small>演示价</small></div>
       <p class="picks-detail-spec">${e(product.spec)}</p>
       <p>${e(product.detail)}${product.detailEmphasis ? `<strong class="text-emphasis"></strong>` : ''}</p>
-      ${prepare}
-      ${product.giftPlan ? `<section class="note"><h3>送之前能准备什么</h3><p>${e(product.giftPlan)}</p></section>` : ''}
     </div>`, 'sheet');
   }
 

@@ -11,9 +11,9 @@
     ['invite', '成员与邀请', 'family',
       '查看家人关系，再体验邀请亲人加入。家谱里也可以保留尚未认领账号的家人。'],
     ['permissions', '人生空间授权', 'family-permissions',
-      '分别查看人物档案与故里的授权。亲属关系和各项服务的开放范围独立管理。'],
-    ['privacy', '记录权限与大字号', 'settings',
-      '选择一条我上传的往事，试试仅自己、指定家人和当前家庭三种分享范围。这里也能切换大字号。'],
+      '查看人生档案的授权。亲属关系和资料的开放范围独立管理。'],
+    ['privacy', '大字号', 'profile',
+      '在「我的」首页直接切换大字号。打开本人记录的详情，可以调整这条记录的分享范围。'],
     ['stories', '家庭全部记录', 'house-stories',
       '点底栏「记录」先进入本人档案。再从顶部下拉框选择「家庭全部记录」，即可查看向你开放的家庭共享内容。'],
     ['assistant', 'AI问家', 'house-assistant',
@@ -26,38 +26,18 @@
       '选照片、视频、文字或作品，填写必要内容。关联家人可以多选，可见范围单独设置。'],
     ['moment', '记一刻', 'house-moment',
       '试试拍一张或说一句。照片和原声可以一起留在同一条往事里。'],
-    ['old-photo', '发老照片问长辈', 'house-record/photo/father',
-      '用示例结婚照问爸爸一句，保存给当前家庭。打开长辈端回语音，再到原照片点「再问一位家人」，让两段话留在同一张照片下。'],
-    ['review', '资料提交与核对', 'materials',
-      '从「记录 → 我上传的」查看提交进度。「我的」有待核对事项时，可直接打开处理。'],
+    ['review', '资料草稿与上传', 'materials',
+      '从「记录 → 我上传的」查看草稿、上传进度和已收录的资料。'],
     ['messages', '家人留言', 'question-history',
       '从「记录 → 留言记录」回看对话，打开对应往事查看或回复。新的留言或回复会在「我的」提醒。'],
-    ['baby', '成长记', 'house-baby/nian',
-      '在「成长记」相册里从孕期翻到出生、各月龄和成长里程碑。照片和视频在时间线上直接展示。'],
-    ['elders', '长辈岁月', 'house-elders/father',
-      '在「长辈岁月」里按年月翻有声相册，点一下听语音。相册里既有爸妈自己记的，也有家人帮忙记的。'],
-    ['couple', '相伴记', 'house-couple-setup',
-      '用陈远山邀请林慧，切换到林慧接受邀请，即可打开「相伴记」相册。默认仅两人可见，分享到家庭要双方确认。'],
     ['screen-photo', '投照片与回语音', 'house-screen//photos',
       '知夏翻出爸爸第一天上班的照片。用手机把照片送到客厅，切到大屏点「回一句」，再回手机打开原照片听爸爸的讲述。这里演示的是一家人收到相框后怎么用。'],
-    ['screen-gift', '送爸妈一台传家相框', 'house-screen//gift',
-      '从手机相册挑一组照片，指定爸妈开机先看的那张，写下祝福或录一段自己的声音，再看爸妈打开相框的样子。'],
     ['screen-settings', '绑定与离线同步', 'house-screen//device',
       '在设备设置里体验配对和安静时段。相框离线时能看装好的照片，恢复联网后会收到家人新发来的照片。'],
-    ['old-friends', '故人共忆', 'share-memory',
-      '选择以陈远山本人身份体验，挑照片或影片，核对后生成分享卡。老朋友可以补上自己记得的那一面。'],
-    ['reunion', '共忆相册', 'reunion-albums',
-      '先在故人共忆生成分享卡，再回来查看相册和收录的内容。'],
-    ['restoration', 'AI 影像体验', 'share-memory',
-      '以本人身份挑选可修复的示例照片，打开分享预览，查看原片与修复或年轻模拟效果。'],
-    ['keepsake', '人工纪念书', 'books',
-      '打开纪念书示例，查看选材、定稿、样书和印制等交付环节。'],
-    ['gifts', '收到的心意', 'share-gifts',
-      '展开演示服务进度，体验老朋友主动预约、完成拍摄后登记双方的服务礼。'],
-    ['person', '人物档案', 'life/father',
-      '查看陈远山已开放的视频、照片、传记、作品与足迹。'],
-    ['vr', '故里 VR', 'space',
-      '移动视角、切换年代，再点一个老物件回看相关经历。'],
+    ['keepsake', '纸质纪念书介绍', 'house-book-intro/father',
+      '浏览样书和纸书服务说明，按需咨询。'],
+    ['person', '人物志', 'house-stories/father',
+      '查看陈远山的小传、留影、影录和作品。'],
     ['film', '人生故事片样片', 'archive-item/father-life-film',
       '播放示例影片，查看与人物和往事的关联。专业服务交付以确认后的成片为准。'],
     ['membership', '家庭会员与容量', 'membership',
@@ -92,23 +72,19 @@
     {
       id: 'together', title: '请家人补一句',
       groups: [
-        { title: '家人留话与补写', children: ['old-photo', 'messages'] },
-        { topic: 'old-friends', children: ['reunion', 'restoration', 'gifts'] }
+        { title: '家人留话与补写', children: ['messages'] }
       ]
     },
     {
-      id: 'daily', title: '专版与大屏',
+      id: 'daily', title: '传家相框',
       groups: [
-        { topic: 'baby', details: ['孕期与出生', '月龄相册', '成长里程碑'] },
-        { topic: 'elders', details: ['按年月回看', '原声回听', '家人代记', '人生节点'] },
-        { topic: 'couple', details: ['伴侣邀请确认', '私密双人相册', '双方确认后分享'] },
-        { title: '传家相框', children: ['screen-gift', 'screen-photo', 'screen-settings'] }
+        { title: '传家相框', children: ['screen-photo', 'screen-settings'] }
       ]
     },
     {
       id: 'legacy', title: '回看与传承',
       groups: [
-        { title: '人物与故里', children: ['person', 'vr'] },
+        { topic: 'person' },
         { title: '纸书与影片', children: ['keepsake', 'film'] }
       ]
     },

@@ -1,8 +1,8 @@
-/** 家史和人物志共用制作介绍，咨询继续走原定制服务单。 */
+/** 家史、人物志和传家定制共用制作介绍，咨询继续走原定制服务单。 */
 'use strict';
 {
   const P = window.App;
-  const {button: b, escape: e, icon: i, link: l} = P;
+  const {button: b, escape: e, icon: i} = P;
   const content = document.getElementById('app-content');
   const products = {
     'house-book-intro': {
@@ -54,11 +54,11 @@
 
   function view(product) {
     const item = P.Households.addonOffer(product.key);
-    const person = P.state.historyServiceFromPerson ? P.state.homeReaderPerson : '';
-    const filmViewer = person || (P.state.serviceIntroFromCatalog && product.key === 'film' ? P.state.actor : '');
-    const destination = filmViewer ? P.Households.personFilmDestination(filmViewer) : null;
-    const delivered = destination ? l(e(destination.label) + i('arrow'), e(destination.route),
-      'paper-link paper-outline history-service-button') : '';
+    // 家史和人物志按当前人物查找成片，通用定制目录按登录人查找，再统一检查查看权限。
+    const person = product.key === 'film'
+      ? (P.state.serviceIntroFromCatalog ? P.state.actor : P.state.homeReaderPerson)
+      : '';
+    const delivered = person ? P.Households.filmAccessControls(person, 'paper-link paper-outline history-service-button') : '';
     const consult = b(e(item.ask), 'house-addon-open', 'paper-link paper-outline history-service-button',
       `data-id="${product.key}" data-person="${e(person)}" data-return="${e(product.returnLabel)}" data-customization-request data-customization-direct aria-haspopup="dialog"`);
     return `<article class="history-service-intro" aria-labelledby="history-service-title">

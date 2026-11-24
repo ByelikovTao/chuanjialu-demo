@@ -10,19 +10,16 @@
   <link rel="stylesheet" href="screens.css">
   <link rel="stylesheet" href="details.css">
   <link rel="stylesheet" href="family-tree.css">
-  <link rel="stylesheet" href="memory-space.css">
   <link rel="stylesheet" href="digital-human.css">
   <link rel="stylesheet" href="person-archive.css">
   <link rel="stylesheet" href="content-chat.css">
   <link rel="stylesheet" href="family-features.css">
-  <link rel="stylesheet" href="keepsake-books.css">
   <link rel="stylesheet" href="entry-flow.css">
   <link rel="stylesheet" href="login-scroll.css">
   <link rel="stylesheet" href="demo-mindmap.css">
   <link rel="stylesheet" href="family-home.css">
   <link rel="stylesheet" href="zhumen-theme.css">
   <link rel="stylesheet" href="zhumen-pages.css">
-  <link rel="stylesheet" href="memory-share.css">
   <link rel="stylesheet" href="households.css">
   <link rel="stylesheet" href="house-screen-demo.css">
   <link rel="stylesheet" href="family-assistant.css">
@@ -30,6 +27,7 @@
   <link rel="stylesheet" href="family-paper.css">
   <link rel="stylesheet" href="family-journal.css">
   <link rel="stylesheet" href="house-screen-intro.css">
+  <link rel="stylesheet" href="family-home-xuan.css">
 </head>
 <body>
   <!-- 静态原型：业务资料只在内存中变化；数字人为无声形象演示，不连接真实 AI 或支付。 -->
@@ -56,7 +54,7 @@
       <section id="house-screen-demo" class="house-screen-demo" aria-label="传家相框演示" hidden></section>
       <div class="phone" id="phone">
         <div class="statusbar" aria-hidden="true"><b>9:41</b><div><span class="signal">▂▄▆</span><span class="wifi">◔</span><span class="battery"></span></div></div>
-        <header id="app-header" class="app-header"></header>
+        <header id="app-header" class="top-nav"></header>
         <div id="app-content" class="app-content" tabindex="-1"></div>
         <nav id="bottom-nav" class="bottom-nav" aria-label="主要导航"></nav>
         <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -75,12 +73,12 @@
       <div class="palette"><i style="background:var(--family-paper)"></i><i style="background:var(--family-brand)"></i><i style="background:var(--family-sage)"></i></div>
       <div class="review-rule"><strong>传家录</strong><p>人物与故事做主角。原声、整理和推演各有清楚的标记。</p></div>
       <details><summary>查看当前演示状态</summary><pre id="state-preview"></pre></details>
-      <div class="state-examples"><label for="scenario-select">查看边界状态</label><select id="scenario-select"><option value="normal">正常内容</option><option value="home-empty">首页待完善</option><option value="private">未获授权的故事</option><option value="quota">共享答复额度用尽</option><option value="failure">下一次整理失败</option></select><p>用于评审交互反馈，属于原型工具。</p></div>
+      <div class="state-examples"><label for="scenario-select">查看边界状态</label><select id="scenario-select"><option value="normal">正常内容</option><option value="home-empty">首页待完善</option><option value="private">未获授权的故事</option><option value="quota">共享答复额度用尽</option></select><p>用于评审交互反馈，属于原型工具。</p></div>
       <a class="overview-link" href="overview.html">查看三屏总览 ↗</a>
       <button id="open-demo-mindmap" class="review-report-link overview-link" type="button">陈家示例导图</button>
     </aside>
   </div>
-  <aside id="book-demo-controls" aria-label="定制制作演示工具" hidden></aside>
+  <aside id="customization-demo-controls" aria-label="定制制作演示工具" hidden></aside>
   <!-- 演示导图独立于业务弹窗和路由，关闭后保留当前身份、滚动位置及未提交表单。 -->
   <dialog id="demo-mindmap" class="demo-mindmap" aria-labelledby="demo-mindmap-title">
     <div class="demo-mindmap-heading"><h2 id="demo-mindmap-title">陈家示例导图</h2><div><button id="zoom-demo-mindmap" type="button" aria-pressed="false">放大查看</button><button id="close-demo-mindmap" type="button" autofocus>返回原型</button></div></div>
@@ -108,27 +106,14 @@
   <script src="questions.js" defer></script>
   <script src="material-library.js" defer></script>
   <script src="answer-feedback.js" defer></script>
-  <script src="keepsake-books.js" defer></script>
-  <script src="keepsake-book-views.js" defer></script>
-  <script src="memory-space.js" defer></script>
-  <script src="memory-share-codec.js" defer></script>
-  <script src="memory-share.js" defer></script>
-  <script src="memory-image-effects.js" defer></script>
-  <script src="memory-share-views.js" defer></script>
-  <script src="reunion-contract.js" defer></script>
-  <script src="reunion.js" defer></script>
-  <script src="reunion-views.js" defer></script>
   <script src="actions.js" defer></script>
   <script src="entry-flow.js" defer></script>
   <script src="login-scroll.js" defer></script>
   <script src="households.js" defer></script>
   <script src="family-customization.js" defer></script>
-  <script src="photo-card-store.js" defer></script>
   <script src="voice-recorder.js" defer></script>
-  <script src="photo-stories.js" defer></script>
   <script src="family-editions.js" defer></script>
   <script src="family-moment.js" defer></script>
-  <script src="family-couples.js" defer></script>
   <script src="house-screen-gift.js" defer></script>
   <script src="house-screen-reminders.js" defer></script>
   <script src="house-screen-demo.js" defer></script>

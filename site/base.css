@@ -49,17 +49,10 @@ button:active:not(:disabled){transform:translateY(1px)}
 .wifi{font-size:17px}
 .battery{height:9px;width:20px;border:1px solid currentColor;border-radius:2px;position:relative}
 .battery:before{content:"";position:absolute;inset:1px 2px 1px 1px;background:currentColor;border-radius:1px}
-.app-header{padding:6px 18px 10px;display:flex;align-items:center;gap:8px;min-height:58px;flex-shrink:0}
-.app-header h1{font-size:calc(18px * var(--unit));font-weight:600;flex:1;min-width:0;overflow-wrap:anywhere}
+
 .my-button{display:flex;align-items:center;gap:5px;padding:3px;background:none;font-size:calc(13px * var(--unit));white-space:nowrap;min-height:48px}
 .app-content{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#C9A99A transparent;outline:none;position:relative}
 .app-content:focus{outline:none}
-/* 五项主导航在两种字号下沿用相同位置，长栏目名可在各自按钮内换行。 */
-.bottom-nav{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);align-items:stretch;flex-shrink:0;padding:7px 8px 10px;background:var(--surface);border-top:1px solid #E8D9C9}
-.bottom-nav button{min-width:0;background:none;color:var(--subtle);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px;font-size:calc(12px * var(--unit));line-height:1.35;white-space:nowrap;padding:3px 2px;min-height:48px}
-.large-type .bottom-nav button span{max-width:100%;white-space:normal;overflow-wrap:anywhere}
-.bottom-nav button.active{color:var(--brand);font-weight:700}
-.bottom-nav .icon{width:23px;height:23px}
 .review-panel{padding:105px 25px 30px 20px;color:var(--secondary)}
 .eyebrow{font-size:10px;letter-spacing:2px;color:var(--copper)}
 .review-panel h2{font:23px/1.6 SimSun,serif;color:var(--ink);margin:15px 0}
@@ -159,20 +152,45 @@ body:not(.embedded) .stage:has(> .phone[data-route="home"]:not(.entry-mode)) > .
 .stage{padding:0;height:100dvh}
 .phone{width:100%!important;height:auto;flex:1;min-height:0;border:0;border-radius:0;box-shadow:none}
 .statusbar{display:none}
-.app-header{padding-top:10px}
+
 .stage-note{display:none}
 .page{padding-left:20px;padding-right:20px}
-.bottom-nav{padding-bottom:max(10px,env(safe-area-inset-bottom))}
 .modal{max-height:90dvh}
-.phone.space-mode .app-header{padding-top:14px}}
+}
 body.embedded{background:var(--canvas)}
 .embedded .studio{display:block;min-height:0}
 .embedded .studio-sidebar,.embedded .review-panel,.embedded .review-toolbar,.embedded .stage-note{display:none}
 .embedded .stage{padding:0}
 .embedded .phone{width:100%!important;height:100dvh;max-width:none;border:0;box-shadow:none;border-radius:0}
 .embedded .statusbar{display:flex}
-.embedded .app-header{padding-top:6px}
+
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 .phone .caption{font-size:calc(14px * var(--unit))}
 .phone .text-link{min-height:44px}
 .phone button,.modal button,.check-row{min-height:48px}
+
+/* 定制演示工具与业务页面独立显示。 */
+#customization-demo-controls {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 50;
+  width: 220px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 5px 20px #70202322;
+  font-size: 12px;
+}
+#customization-demo-controls[hidden] { display: none; }
+#customization-demo-controls p { margin: 8px 0 12px; }
+#customization-demo-controls .btn { font-size: 12px; }
+@media (max-width: 900px) {
+  #customization-demo-controls { right: 8px; bottom: 112px; width: 145px; padding: 10px; }
+}
+@media (max-width: 600px) {
+  #customization-demo-controls { bottom: 96px; width: 155px; }
+  #customization-demo-controls > strong { font-size: 11px; }
+  #customization-demo-controls > p { display: none; }
+}

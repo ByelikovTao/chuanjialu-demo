@@ -20,11 +20,17 @@
     people: { title: '按人找照片', icon: 'family', empty: '家人投来有关联人物的照片后，就能按人翻看。' },
     stories: { title: '讲讲这张', icon: 'mic', empty: '家人邀请你讲照片里的故事时，照片和问题会出现在这里。' }
   };
-  const entryReturnLabels = { home: '返回我家', profile: '返回我的', 'house-picks': '返回优选', 'home-album': '返回相册' };
+  const entryReturnLabels = {
+    home: '返回我家', profile: '返回我的', 'house-addons': '返回传家定制', 'house-picks': '返回优选',
+    'house-screen-intro': `返回${frameName}介绍`, 'home-album': '返回相册'
+  };
   const photoTypes = ['image/jpeg', 'image/png', 'image/webp'];
   const maxPhotoBytes = 8 * 1024 * 1024;
   const calendar = new Intl.DateTimeFormat('zh-CN', { month: 'long', day: 'numeric', weekday: 'long' });
-  const slideshowInterval = 9000;
+  const slideshowInterval = 4000;
+  const slideshowSlide = '.screen-gallery > .screen-carousel-photo';
+  const slideshowPhoto = '.screen-photo-paper > img:first-child';
+  const slideshowCaption = '.screen-photo-caption-stack > .screen-photo-caption:first-child';
   let demo;
   let actor;
   let route;
@@ -58,14 +64,29 @@
     return P.PEOPLE[id]?.name || '家人';
   }
 
-  function storyById(id) {
-    return P.state.stories.find(story => story.id === id);
+  /** 手机管理和绑定提示使用当前家庭的相框名。 */
+  function deviceName() {
+    const familyName = P.Households.familyDisplayName();
+    return familyName ? `${familyName}相框` : frameName;
+  }
+
+  /** 同一投送流程读取两类原照片，共用投送授权和照片编号。 */
+  function archivePhoto(item) {
+    if (item?.kind !== 'photo' || !item.materialManaged || item.inArchive === false || item.relatedFilmId) return null;
+    return {...item, houseImage: item.src || item.poster, archivePhoto: true};
+  }
+
+  function photoById(id) {
+    return P.state.stories.find(story => story.id === id) ||
+      archivePhoto(P.state.archiveAssets?.find(item => item.id === id));
   }
 
   /** 客厅设备是额外的展示对象，只接受本家庭作者明确投送的全家可见照片。 */
   function shareable(story) {
     return Boolean(story?.houseImage && !story.coupleId && story.scope === 'family' &&
-      P.state.members.every(id => story.viewers?.includes(id)));
+      (!story.archivePhoto || P.Billing.online(story.subject)) &&
+      P.state.members.every(id => story.viewers?.includes(id) &&
+        (!story.approvedViewers || story.approvedViewers.includes(id))));
   }
 
   function sendable(story) {
@@ -92,7 +113,7 @@
     };
     if (example) {
       for (const id of [oldPhoto, 'nian-first-new-year']) {
-        const story = storyById(id);
+        const story = photoById(id);
         if (shareable(story)) {
           const question = id === oldPhoto ? { text: '爸，你还记得第一天上班吗？' } : null;
           d.delivered.set(id, { sender: story.author, note: '', giftOnly: true, question });
@@ -105,7 +126,7 @@
       }
       // 模拟家人后来送达的照片，复用真实投送的未读规则和分享校验。
       const arrivals = sampleDeliveries.flatMap(([id, note]) => {
-        const story = storyById(id);
+        const story = photoById(id);
         return shareable(story) ? [[id, { sender: story.author, note }]] : [];
       });
       receivePhotos(d, arrivals);
@@ -127,9 +148,18 @@
     return { bound, route: `house-screen//${bound ? 'photos' : 'device'}/${source}` };
   }
 
+  /** 首页和定制目录共用购买、绑定判断，只携带各自的返回入口。 */
+  function offerEntry(source) {
+    const management = managementEntry(source);
+    if (management) {
+      return {route: management.route, label: management.bound ? `管理${frameName}` : `绑定${frameName}`};
+    }
+    const route = source === 'house-addons' ? 'house-screen-intro//addons' : 'house-screen-intro';
+    return {route, label: `查看${frameName}介绍`};
+  }
+
   function homeEntry() {
-    const target = managementEntry('home')?.route ?? 'house-screen-intro';
-    return l(`${i('screen')}<span>${frameName}</span>`, target, 'paper-link home-screen-entry');
+    return l(`${i('screen')}<span>${frameName}</span>`, offerEntry('home').route, 'paper-link home-screen-entry');
   }
 
   function quiet(d, now = new Date()) {
@@ -158,7 +188,7 @@
   function prune(d) {
     for (const entries of [d.delivered, d.queued]) {
       for (const id of entries.keys()) {
-        if (!shareable(storyById(id))) entries.delete(id);
+        if (!shareable(photoById(id))) entries.delete(id);
       }
     }
     if (!d.delivered.has(d.activeId)) d.activeId = d.delivered.keys().next().value || '';
@@ -174,8 +204,12 @@
     d.opening = false;
   }
 
+  function sendablePhotos() {
+    return [...P.state.stories, ...(P.state.archiveAssets || []).map(archivePhoto)].filter(sendable);
+  }
+
   function availablePhotos() {
-    return [...P.state.stories.filter(sendable), ...photoDrafts.values()];
+    return [...sendablePhotos(), ...photoDrafts.values()];
   }
 
   /** 选照片只产生当前操作人的本机草稿，确认装入或投送时才加入全家可见的往事。 */
@@ -213,7 +247,7 @@
   }
 
   function publishPhotos(d, ids, relatedMembers = []) {
-    const items = ids.map(id => photoDrafts.get(id) || storyById(id));
+    const items = ids.map(id => photoDrafts.get(id) || photoById(id));
     if (!items.length || !items.every(sendable)) {
       notice = '有照片已无法分享，请重新选一次。';
       return false;
@@ -277,7 +311,8 @@
     return d.residents.map(id => `<option value="${e(id)}" ${id === value ? 'selected' : ''}>${e(name(id))}</option>`).join('');
   }
 
-  function photoButton(story, { fromAlbum = false } = {}) {
+  function photoButton(item, { fromAlbum = false } = {}) {
+    const story = archivePhoto(item) || item;
     if (!sendable(story) || (fromAlbum && !isBound())) return '';
     const target = 'house-screen/' + e(story.id);
     if (fromAlbum) {
@@ -286,9 +321,10 @@
     return l(i('screen') + ` 投送到${frameName}`, target, 'text-link section screen-story-cast');
   }
 
-  function storyReplies(story) {
-    if (!P.state.stories.includes(story) || !P.FamilyContext.readable(story)) return [];
-    return workspaces.get(P.state)?.replies.get(story.id) || [];
+  function storyReplies(item) {
+    const photo = photoById(item?.id);
+    if (!P.FamilyContext.readable(photo)) return [];
+    return workspaces.get(P.state)?.replies.get(photo.id) || [];
   }
 
   function voices(story, inAlbum = false) {
@@ -328,7 +364,7 @@
   function screenPhotos(d) {
     const photos = [];
     for (const [id, delivery] of d.delivered) {
-      const story = storyById(id);
+      const story = photoById(id);
       if (shareable(story)) photos.push({ story, delivery });
     }
     return photos;
@@ -383,7 +419,8 @@
     const title = member ? `${name(member)}的照片` : section.title;
     const back = photo ? '返回列表' : member ? '返回家人' : '回到轮播';
     const cards = photo ? '' : type === 'people' && !member ? personCards(screenPhotos(d)) : photoCards(d, browsePhotos(d));
-    return `<section class="screen-browse" aria-label="${e(title)}">
+    const storyClass = type === 'stories' ? ' screen-story-browse' : '';
+    return `<section class="screen-browse screen-photo-browse${storyClass}" aria-label="${e(title)}">
       <header class="screen-browse-header"><h3 tabindex="-1">${e(title)}</h3>
         ${button(i('back') + back, 'browse-back', 'secondary screen-browse-back', draft ? 'disabled' : '')}</header>
       ${photo ? screenPhoto(d) : cards ? `<div class="screen-browse-grid">${cards}</div>` :
@@ -393,7 +430,7 @@
 
   function screenPhoto(d) {
     const id = visiblePhotoId(d);
-    const story = storyById(id);
+    const story = photoById(id);
     const delivery = d.delivered.get(id);
     if (!delivery || !shareable(story)) {
       return `<div class="screen-photo-empty">${i('photo')}<p>${d.bound ? '等家人送来一张照片' : '用手机绑定这台屏'}</p>
@@ -404,27 +441,34 @@
     const question = d.browse ? (draft ? draft.question : delivery.question)?.text : '';
     const canReply = d.online && d.bound;
     const photoYear = story.photoYear || (story.moment ? '' : story.year);
-    return `<div class="screen-photo">
+    const carousel = !d.browse && !draft;
+    const noteMarkup = delivery.note ? `<p class="screen-message">${e(delivery.note)}</p>` : '';
+    const reply = draft ? '' : button(i('mic') + (question ? ' 开始讲述' : ' 回一句'), 'reply', 'primary', canReply ? '' : 'disabled');
+    return `<div class="screen-photo${question ? '' : ' screen-photo-direct-reply'}${carousel ? ' screen-carousel-photo' : ''}">
       <figure class="screen-photo-paper"><img src="${e(story.houseImage)}" alt="${e(story.title)}"></figure>
       <div class="screen-photo-inscription">
-        <div class="screen-photo-caption">
-          ${photoYear ? `<p class="screen-photo-year">${e(photoYear)} 年</p>` : ''}
-          <h3>${e(story.title)}</h3>
-          <p class="screen-photo-sender">${e(name(delivery.sender))} ${delivery.giftOnly ? '选给爸妈的' : '发来'}</p>
+        <div class="screen-photo-context">
+          <div class="screen-photo-caption-stack"><div class="screen-photo-caption">
+            ${photoYear ? `<p class="screen-photo-year">${e(photoYear)} 年</p>` : ''}
+            <h3>${e(story.title)}</h3>
+            <p class="screen-photo-sender">${e(name(delivery.sender))} ${delivery.giftOnly ? '选给爸妈的' : '发来'}</p>
+            ${carousel ? noteMarkup : ''}
+          </div></div>
+          ${greeting && (d.opening || greeting.note || greeting.src) ? `<section class="screen-gift-intro">
+            <strong>${d.opening ? '给爸妈的开机礼物' : '家人的祝福'}</strong>
+            ${greeting.note ? `<p>${e(greeting.note)}</p>` : ''}
+            ${greeting.src ? `<audio controls preload="metadata" aria-label="听家人的祝福" src="${e(greeting.src)}"></audio>` : ''}
+            ${d.opening ? button('开始看照片', 'open-frame', 'secondary') : ''}
+          </section>` : ''}
+          ${question ? `<section class="screen-question"><strong>${e(name(delivery.sender))}想问你</strong><p>${e(question)}</p></section>` : ''}
+          ${carousel ? '' : noteMarkup}
         </div>
-        ${greeting && (d.opening || greeting.note || greeting.src) ? `<section class="screen-gift-intro">
-          <strong>${d.opening ? '给爸妈的开机礼物' : '家人的祝福'}</strong>
-          ${greeting.note ? `<p>${e(greeting.note)}</p>` : ''}
-          ${greeting.src ? `<audio controls preload="metadata" aria-label="听家人的祝福" src="${e(greeting.src)}"></audio>` : ''}
-          ${d.opening ? button('开始看照片', 'open-frame', 'secondary') : ''}
-        </section>` : ''}
-        ${question ? `<section class="screen-question"><strong>${e(name(delivery.sender))}想问你</strong><p>${e(question)}</p></section>` : ''}
-        ${delivery.note ? `<p class="screen-message">${e(delivery.note)}</p>` : ''}
         ${draft ? replyControls(d) : `<div class="screen-actions">
+          ${carousel ? reply : ''}
           ${delivery.note ? button(i('volume') + ' 听留言', 'listen') : ''}
           ${d.browse?.type === 'new' ? button(`<span aria-hidden="true">${delivery.liked ? '♥' : '♡'}</span> 喜欢这张`,
             'like-photo', 'secondary', `aria-pressed="${Boolean(delivery.liked)}" ${canReply ? '' : 'disabled'}`) : ''}
-          ${button(i('mic') + (question ? ' 开始讲述' : ' 回一句'), 'reply', 'primary', canReply ? '' : 'disabled')}
+          ${carousel ? '' : reply}
         </div>`}
         ${!d.browse && d.delivered.size > 1 ? `<div class="screen-photo-steps" aria-label="轮播照片">
           ${button(i('back'), 'prev-photo', 'plain', 'aria-label="上一张照片"' + (locked ? ' disabled' : ''))}
@@ -440,7 +484,6 @@
     return `<div class="screen-device" id="screen-device" tabindex="-1">
       <div class="screen-bezel"><div class="screen-glass">
         <header class="screen-device-header">
-          <strong>爸妈客厅</strong>
           ${reminders.entry(d, Boolean(draft))}
           <time class="screen-frame-clock">${clock(new Date())}</time>
           <span class="screen-chip ${d.online && d.bound ? 'is-online' : ''}">${connectionLabel(d)}</span>
@@ -475,13 +518,13 @@
   }
 
   function photoPanel(d) {
-    const stories = P.state.stories.filter(sendable);
+    const stories = sendablePhotos();
     const item = stories.find(story => story.id === selected);
     const replies = d.replies.get(item?.id) || [];
     const sent = item && d.delivered.get(item.id);
     const queued = item && d.queued.has(item.id);
-    const status = queued ? '待送达 · 大屏离线' : sent ? '已送达爸妈客厅' : '待投送';
-    const dailyPhotos = dailyDraftIds.map(id => photoDrafts.get(id) || storyById(id)).filter(Boolean);
+    const status = queued ? '待送达 · 大屏离线' : sent ? '已送达相框' : '待投送';
+    const dailyPhotos = dailyDraftIds.map(id => photoDrafts.get(id) || photoById(id)).filter(Boolean);
     return `<div class="screen-phone-content">
       <label class="screen-field screen-import-field"><span>从手机相册挑新照片</span>
         <input type="file" name="daily-files" multiple accept="image/jpeg,image/png,image/webp" ${loadingDaily ? 'disabled' : ''}></label>
@@ -500,14 +543,14 @@
         <div class="screen-selected"><img src="${e(item.houseImage)}" alt="${e(item.title)}"><div><strong>${e(item.title)}</strong><p>${status}</p></div></div>
         ${sent?.liked ? '<p class="screen-caption">爸妈喜欢这张照片</p>' : ''}
         <label class="screen-field"><span>捎句话或问个问题（选填）</span><input name="note" maxlength="80" value="${e(note)}" placeholder="爸，你还记得这张照片吗？"></label>
-        <button class="screen-button primary full" type="submit" ${d.bound ? '' : 'disabled'}>${i('send')} 投送到爸妈客厅</button>
+        <button class="screen-button primary full" type="submit" ${d.bound ? '' : 'disabled'}>${i('send')} 发送到相框</button>
         <div class="screen-story-form">
           <p class="screen-caption">在上面写个问题，爸妈就能在「讲讲这张」里回话。</p>
           <button class="screen-button secondary full" type="submit" name="delivery" value="question" ${d.bound ? '' : 'disabled'}>${i('mic')} 邀请爸妈讲讲</button>
         </div>
       </form>
       ${sent || queued || replies.length ? `<div class="screen-actions">
-        ${l('打开原照片', 'story/' + e(item.id), 'screen-button plain')}
+        ${l('打开原照片', (item.archivePhoto ? 'archive-item/' : 'story/') + e(item.id), 'screen-button plain')}
         ${sent || queued ? button('撤回投送', 'withdraw', 'plain') : ''}
       </div>` : ''}${photoReplies(replies)}` :
         ''}
@@ -516,7 +559,7 @@
   }
 
   function settingsPanel(d) {
-    return `<div class="screen-phone-content">
+    return `<div class="screen-phone-content screen-device-settings">
       <p class="screen-caption">首批照片装好就能看。直接寄回家时，请在场的家人帮爸妈连上家里的 Wi-Fi，再绑定相框，以后在外地也能添照片。</p>
       <p class="screen-caption">设备归属 · ${e(P.Households.current().name)}</p>
       ${Object.keys(P.state.accounts).length > 1 ? `<label class="screen-field"><span>换一位家人添照片（演示）</span>
@@ -542,25 +585,26 @@
     const label = `${i('back')} ${entryReturnLabels[source]}`;
     const className = 'screen-button plain screen-jump';
     // 从相册进入时返回原来的页码；直接打开深链时可回到入口页。
-    return P.state.history?.at(-1)?.split('/')[0] === source ? b(label, 'back', className) : l(label, source, className);
+    return P.returnLink(label, source, className);
   }
 
   function phoneView(d) {
     const panels = { photos: photoPanel, reminders: reminders.phone, device: settingsPanel };
     const title = gift ? `准备${frameName}礼物` : `管理${frameName}`;
-    const fromHome = route.split('/')[3] === 'home';
-    // 首页统一进入相框管理，备礼完成后回到同一个管理入口。
-    const managementRoute = `house-screen//${d.bound ? 'photos' : 'device'}${fromHome ? '/home' : ''}`;
+    const source = route.split('/')[3];
+    const offersGift = source === 'home' || source === 'house-addons';
+    // 备礼完成后回到同一个管理入口，并保留返回首页或定制目录的路径。
+    const managementRoute = `house-screen//${d.bound ? 'photos' : 'device'}${offersGift ? '/' + source : ''}`;
     return `<div class="screen-phone-wrap">
       <h2 id="screen-phone-title" class="screen-preview-label">${title}</h2>
       <aside class="screen-phone" id="screen-phone" aria-labelledby="screen-phone-title" tabindex="-1">
         ${phoneReturn()}
-        <header class="screen-phone-header"><div><h3>爸妈客厅</h3></div><span>${e(name(P.state.actor))}</span>
+        <header class="screen-phone-header"><div><h3>${e(deviceName())}</h3></div><span>${e(name(P.state.actor))}</span>
           ${button('看大屏', 'jump-device', 'plain screen-jump')}</header>
         ${gift ? gift.render(managementRoute) : `
-          <nav class="screen-tabs${fromHome ? ' has-gift' : ''}" aria-label="${frameName}管理功能">${Object.entries(managementTabs).map(([id, label]) =>
+          <nav class="screen-tabs${offersGift ? ' has-gift' : ''}" aria-label="${frameName}管理功能">${Object.entries(managementTabs).map(([id, label]) =>
             button(label, 'tab', 'plain', `data-tab="${id}" aria-pressed="${tab === id}"`)).join('')}
-            ${fromHome ? l('准备礼物', 'house-screen//gift/home', 'screen-button plain') : ''}</nav>
+            ${offersGift ? l('准备礼物', 'house-screen//gift/' + source, 'screen-button plain') : ''}</nav>
           ${panels[tab](d)}`}
         <details class="screen-price-note"><summary>${frameName}多少钱？需要开会员吗？</summary>
           <p>${frameName}演示价 699 元／台。试售总价、是否含预装和配送，以门店报价为准。</p>
@@ -579,11 +623,7 @@
     const field = focused?.name;
     const oldViewport = root.querySelector('.screen-device-grid');
     const oldScroll = oldViewport?.scrollTop;
-    root.innerHTML = `<header class="screen-demo-heading">
-      <div class="screen-demo-nav">${b(i('back') + ' 返回', 'back', 'screen-button secondary')}</div>
-      <div class="screen-demo-intro"><h1>${frameName}</h1></div>
-    </header>
-    <div class="screen-demo-grid"><div class="screen-demo-device-wrap">
+    root.innerHTML = `<div class="screen-demo-grid"><div class="screen-demo-device-wrap">
       <div class="screen-preview-bar"><h2 class="screen-preview-label">${frameName}预览</h2>
         ${button('去手机端 ' + i('arrow'), 'jump-phone', 'plain screen-jump')}</div>${deviceView(demo)}
       <p class="screen-demo-status" role="status">${e(notice)}</p>
@@ -609,7 +649,7 @@
   }
 
   function pick(id) {
-    const story = storyById(id);
+    const story = photoById(id);
     selected = sendable(story) ? id : '';
     const delivery = demo.queued.get(selected) || demo.delivered.get(selected);
     note = delivery?.question?.text || delivery?.note || story?.photoQuestion || (selected === oldPhoto ? '爸，你还记得第一天上班吗？' : '');
@@ -631,6 +671,44 @@
     if (ids.length < 2) return;
     d.activeId = ids[(ids.indexOf(d.activeId) + ids.length + step) % ids.length];
     d.opening = false;
+  }
+
+  /** 新照片解码后同步淡化照片、题注与留言，淡出的文字不参与按钮排版。 */
+  function fadeSlide(previous) {
+    const next = root.querySelector(slideshowSlide);
+    const previousImage = previous?.querySelector(slideshowPhoto);
+    const nextImage = next?.querySelector(slideshowPhoto);
+    if (!previousImage?.naturalWidth || !nextImage
+      || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const previousCaption = previous.querySelector(slideshowCaption);
+    const nextCaption = next.querySelector(slideshowCaption);
+    previousImage.alt = '';
+    for (const element of [previousImage, previousCaption]) {
+      element.setAttribute('aria-hidden', 'true');
+      element.classList.add('screen-photo-outgoing');
+    }
+    nextCaption.style.visibility = 'hidden';
+    nextImage.after(previousImage);
+    nextCaption.after(previousCaption);
+    const clear = () => {
+      previousImage.remove();
+      previousCaption.remove();
+      nextCaption.style.visibility = '';
+    };
+    void nextImage.decode().then(() => {
+      if (!previousImage.isConnected) return;
+      const timing = { duration: 240, easing: 'cubic-bezier(.22, .61, .36, 1)', fill: 'both' };
+      nextCaption.style.visibility = '';
+      const animations = [
+        previousImage.animate({ opacity: [1, 0] }, timing),
+        previousCaption.animate({ opacity: [1, 0] }, timing),
+        nextCaption.animate({ opacity: [0, 1] }, timing)
+      ];
+      void Promise.allSettled(animations.map(animation => animation.finished)).then(() => {
+        animations.forEach(animation => animation.cancel());
+        clear();
+      });
+    }, clear);
   }
 
   function openBrowse(d, type) {
@@ -685,7 +763,7 @@
       for (const [id, delivery] of entries) d.queued.set(id, delivery);
     }
     const content = question ? '讲述邀请' : '照片';
-    notice = d.online ? `${content}已送达爸妈客厅。` : `${content}已排队，相框联网后送达。`;
+    notice = d.online ? `${content}已送达相框。` : `${content}已排队，相框联网后送达。`;
     return true;
   }
 
@@ -706,7 +784,7 @@
   function openVoice(d) {
     const id = visiblePhotoId(d);
     const delivery = d.delivered.get(id);
-    const story = storyById(id);
+    const story = photoById(id);
     if (!d.bound || !d.online || !delivery || !shareable(story) || draft) return;
     if ('speechSynthesis' in window) speechSynthesis.cancel();
     const related = P.Households.relatedMemberIds(story);
@@ -745,7 +823,7 @@
   }
 
   function sendVoice(d) {
-    const story = storyById(draft?.id);
+    const story = photoById(draft?.id);
     if (!draft?.src || !d.online || !d.delivered.has(draft.id) || !shareable(story)) return;
     const replies = d.replies.get(story.id) || [];
     const { src, person, sample, question } = draft;
@@ -761,7 +839,7 @@
   function likePhoto(d) {
     const id = d.browse?.photo;
     const delivery = d.delivered.get(id);
-    if (!d.bound || !d.online || !delivery || !shareable(storyById(id))) return;
+    if (!d.bound || !d.online || !delivery || !shareable(photoById(id))) return;
     delivery.liked = !delivery.liked;
     notice = delivery.liked ? `已把喜欢送给${name(delivery.sender)}。` : '已取消喜欢。';
   }
@@ -821,9 +899,14 @@
         d.paused = false;
         break;
       case 'prev-photo':
-      case 'next-photo':
-        if (!draft) move(d, control.dataset.screenAction === 'prev-photo' ? -1 : 1);
-        break;
+      case 'next-photo': {
+        if (draft) return;
+        const previous = root.querySelector(slideshowSlide);
+        move(d, action === 'prev-photo' ? -1 : 1);
+        paint();
+        fadeSlide(previous);
+        return;
+      }
       case 'pause':
         d.paused = !d.paused;
         break;
@@ -874,7 +957,7 @@
         break;
       }
       case 'withdraw':
-        if (!sendable(storyById(selected))) return;
+        if (!sendable(photoById(selected))) return;
         if (draft?.id === selected) cancelVoice();
         d.queued.delete(selected);
         d.delivered.delete(selected);
@@ -906,7 +989,7 @@
         if (d.bound) return;
         d.bound = true;
         d.online = true;
-        notice = '爸妈客厅已绑定到 ' + P.Households.current().name + '。';
+        notice = `已绑定${deviceName()}。`;
         break;
       default:
         return;
@@ -973,7 +1056,7 @@
     const data = new FormData(form);
     const text = key => String(data.get(key) || '').trim();
     if (form.dataset.screenForm === 'cast') {
-      const story = storyById(text('photo'));
+      const story = photoById(text('photo'));
       if (!sendable(story)) return showError(form, '这张照片暂时无法投送。请重新选择全家可见的照片。');
       const question = event.submitter?.value === 'question';
       const message = text('note');
@@ -1048,10 +1131,10 @@
         }
       }) : null;
       notice = '';
-      const requested = storyById(photoId);
-      const defaultPhoto = storyById(oldPhoto);
+      const requested = photoById(photoId);
+      const defaultPhoto = photoById(oldPhoto);
       // 相册的投送入口只预选用户打开的那张照片，授权变更后交由用户重新选图。
-      const fallback = source === 'home-album' ? '' : sendable(defaultPhoto) ? oldPhoto : P.state.stories.find(sendable)?.id;
+      const fallback = source === 'home-album' ? '' : sendable(defaultPhoto) ? oldPhoto : sendablePhotos()[0]?.id;
       pick(sendable(requested) ? requested.id : fallback);
       slideshow = setInterval(() => {
         const now = new Date();
@@ -1063,10 +1146,12 @@
         if (d.browse || d.paused || d.opening && now.getTime() < d.openingUntil || draft || quiet(d, now) ||
           [...viewport.querySelectorAll('audio')].some(player => !player.paused) || d.delivered.size < 2 ||
           viewport.contains(document.activeElement)) return;
+        const previous = viewport.querySelector(slideshowSlide);
         move(d, 1);
         viewport.dataset.screenView = 'slideshow/' + d.activeId;
         viewport.querySelector('.screen-gallery').innerHTML = screenPhoto(d);
         viewport.scrollTop = 0;
+        fadeSlide(previous);
       }, slideshowInterval);
     }
     prune(d);
@@ -1087,5 +1172,5 @@
   }
 
   P.views['house-screen'] = () => '';
-  P.HouseScreen = { mount, reset, homeEntry, managementEntry, photoButton, voices, replyCount: story => storyReplies(story).length };
+  P.HouseScreen = { mount, reset, homeEntry, offerEntry, managementEntry, photoButton, voices, replyCount: story => storyReplies(story).length };
 }

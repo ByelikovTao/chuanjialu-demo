@@ -1,20 +1,12 @@
 .phone .family-picks-page {
-  padding-block: 12px 32px;
+  padding-block: 0 24px;
 }
 
-.phone .family-picks-page > .picks-heading {
-  inset-block-start: 5px;
-  inset-inline-start: 12px;
-  display: grid;
-  place-items: end start;
-  inline-size: max-content;
-  min-block-size: calc(24px * 1.35 * var(--unit));
-  margin-block-end: 4px;
-  padding-block-end: 1px;
-}
-
-.phone .family-picks-page > .picks-heading::before {
-  inset-block: calc(11px * var(--unit)) -5px;
+.phone .family-picks-page .picks-heading {
+  margin: 24px 0 8px;
+  color: var(--ink);
+  font: 700 calc(18px * var(--unit)) / 1.4 var(--home-xuan-song);
+  letter-spacing: normal;
 }
 
 .picks-categories {
@@ -38,54 +30,73 @@
 }
 
 .phone .picks-category[aria-pressed="true"] {
-  border-color: var(--brand);
+  border-block-end-color: var(--brand);
   color: var(--brand);
   font-weight: 600;
 }
 
-/* 大图沿用首页相角，左侧纸脊和竖排商品名与照片共用册页。 */
+/* 商品大图沿用相册的相纸和暖赭书脊，商品名与详情入口排在图下。 */
 .picks-feature.paper-card {
   display: block;
   width: 100%;
   min-width: 0;
-  padding: 14px 9px 0 21px;
-  border-color: #dfc7a9;
+  padding: 12px 12px 0 24px;
+  border-color: var(--line);
+  border-radius: 12px;
+  background: var(--surface);
   color: var(--ink);
+  box-shadow: 0 2px var(--home-xuan-paper), 0 3px var(--line), 0 7px 12px rgb(76 44 28 / 9%);
   text-align: start;
 }
 
 .picks-feature.bound-paper::before {
-  width: 15px;
+  width: 12px;
+  border: 0;
+  border-radius: 11px 0 0 11px;
+  background: var(--family-book-spine);
+  box-shadow: inset -2px 0 rgb(37 34 27 / 16%);
 }
 
 .picks-feature-spread {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 10px;
+  gap: 8px;
+}
+
+.picks-feature-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 8px;
 }
 
 .picks-feature-title {
-  display: block;
-  padding: 4px 0 4px 5px;
-  border-left: 1px solid var(--line);
-  font: 600 calc(18px * var(--unit)) / 1.35 var(--family-hand);
-  letter-spacing: .12em;
-  text-align: center;
-  text-orientation: upright;
-  writing-mode: vertical-rl;
+  font: 700 calc(20px * var(--unit)) / 1.4 var(--home-xuan-song);
+  overflow-wrap: anywhere;
 }
 
+.picks-feature-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--brand);
+  font-size: calc(12px * var(--unit));
+  line-height: 1.5;
+}
+
+.picks-feature-link .icon { width: 12px; height: 12px; }
+
 .picks-feature .photo-mount {
-  aspect-ratio: 1.4;
+  overflow: hidden;
+  aspect-ratio: 1.65;
+  padding: 4px;
   border-color: var(--line);
+  border-radius: 5px;
+  background: #fffbf3;
   box-shadow: none;
 }
 
-.picks-feature .photo-mount::before {
-  background-size: 11px 11px;
-  opacity: .74;
-}
+.picks-feature .photo-mount::before { content: none; }
 
 .picks-feature-caption {
   display: grid;
@@ -123,56 +134,20 @@
   font-size: inherit;
 }
 
-.picks-feature-detail small {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.picks-feature-detail .icon {
-  width: 12px;
-  height: 12px;
-}
-
-.picks-feature.picks-gift {
-  padding: 14px 13px 0 24px;
-}
-
 .picks-gift-product {
   width: 100%;
   padding: 0;
-  gap: 11px;
   background: transparent;
   text-align: start;
 }
 
 .picks-gift-info {
-  margin-block-start: 13px;
-  padding: 11px 1px 13px;
-  border-block-start: 1px solid rgb(128 75 47 / 17%);
-}
-
-.picks-gift-title {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 9px;
-  margin: 0;
-  font: 600 calc(17px * var(--unit)) / 1.45 var(--family-hand);
-  letter-spacing: .055em;
-}
-
-.picks-gift-title span {
-  padding-inline-start: 9px;
-  border-inline-start: 1px solid rgb(128 75 47 / 27%);
-  color: var(--secondary);
-  font: 400 calc(12px * var(--unit)) / 1.4 var(--family-hand);
-  letter-spacing: 0;
+  padding-block: 8px 10px;
 }
 
 .picks-gift-package {
-  margin: 6px 0 0;
-  font-size: calc(13px * var(--unit));
+  margin: 0;
+  font-size: calc(14px * var(--unit));
   line-height: 1.5;
 }
 
@@ -223,17 +198,19 @@
 .picks-thumbnails {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 9px 8px;
-  margin-block-start: 18px;
+  gap: 8px;
 }
 
 .picks-thumbnail {
   display: grid;
   min-width: 0;
   align-content: start;
-  gap: 6px;
+  gap: 4px;
   padding: 4px;
-  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
   font-size: calc(12px * var(--unit));
   line-height: 1.45;
   overflow-wrap: anywhere;
@@ -242,9 +219,9 @@
 .picks-thumbnail .photo-mount {
   overflow: hidden;
   aspect-ratio: 1.55;
-  padding: 2px;
-  border-color: transparent;
-  border-radius: 5px;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
   background: transparent;
   box-shadow: none;
 }
@@ -253,8 +230,9 @@
   content: none;
 }
 
-.picks-thumbnail[aria-pressed="true"] .photo-mount {
+.picks-thumbnail[aria-pressed="true"] {
   border-color: var(--brand);
+  background: var(--soft);
 }
 
 .picks-thumbnail[aria-pressed="true"] strong {
@@ -347,11 +325,12 @@
 }
 
 @media (hover: hover) {
-  .picks-feature:hover .picks-feature-detail small {
-    color: var(--brand);
+  :is(.picks-feature-spread, .picks-feature[data-action]):hover .picks-feature-link {
+    text-decoration: underline;
   }
 
-  .phone .picks-category:hover {
+  .phone .picks-category:hover,
+  .picks-thumbnail:hover {
     background-color: var(--soft);
   }
 }
@@ -360,22 +339,5 @@
   /* 窄屏大字模式给四字分类留足一行宽度。 */
   .large-text .picks-categories {
     grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.4fr);
-  }
-
-  .picks-feature.paper-card,
-  .picks-feature.picks-gift {
-    padding: 12px 8px 0 19px;
-  }
-
-  .picks-feature.bound-paper::before {
-    width: 13px;
-  }
-
-  .picks-feature-spread {
-    gap: 7px;
-  }
-
-  .picks-feature-title {
-    font-size: calc(16px * var(--unit));
   }
 }

@@ -69,10 +69,6 @@
     {id:'spring', title:'今年春节，全家又坐在一起', year:'2026', date:'2026年春节', recorded:'2026年2月20日', category:'天伦时光', image:'family', author:'xia', scope:'family', text:['爸爸说，团圆并不需要安排很多事。一家人围着桌子吃饭，就已经很好。','我这次才知道，那道每年都会做的菜，最早是奶奶教给妈妈的。下次，我也想学会。'], quote:'一家人围着桌子吃饭，就已经很好。', source:'陈知夏的家庭记录', duration:'02:15'},
     {id:'private', title:'留给自己的几句话', year:'2026', date:'2026年10月', recorded:'2026年10月18日', category:'个人记录', image:'room', author:'father', scope:'private', text:['有些话，我想先留给自己。等准备好了，再慢慢讲给家人听。'], quote:'有些话，想先留给自己。', source:'本人文字记录', duration:'01:00'}
   ];
-  /** 草稿同时记录对象和类型，自己的记录、补充与共同回忆各自保存，不随人物切换改归属。 */
-  function emptyRecord() {
-    return {text:'',title:'',eventYear:String(new Date().getFullYear()),scope:'private',viewers:[],kind:'own',subject:'',storyId:'',pendingId:null,archiveAddition:false,seconds:0,recording:false,paused:false,reviewed:false};
-  }
   /** 账号只维护身份与建档状态，年度权益由人物服务统一维护。 */
   function newAccount() {
     return {videoDelivered:false,hasDigital:false,setupIncluded:false};
@@ -98,14 +94,14 @@
         familyWorkspace:true,actor:'father',route:'home',idSequence:0,billingSeedDate:today,billingToday:today,
         members:['father'],accounts:{father:newAccount()},familyFocus:{},familyInvitations:{},
         familyAccess:{father:{archive:[],digital:[],space:[]}},familyRequests:[],
-        stories:[],invitations:[],pending:[],accessRequests:[],record:emptyRecord(),fontLarge:false,
+        stories:[],invitations:[],pending:[],accessRequests:[],fontLarge:false,
         familyHome:{family:{mottoOwner:'father',motto:null,suggestions:[]},profiles:{},drafts:{},review:null},
         archiveAssets:[],archiveProfiles:{},archivePerson:'father',lifeTab:'overview',videoFilter:'all',
         archivePlayback:{},biographyMode:'read',archiveChapterId:'',archiveItemId:'',year:'1986',hotspot:'desk',
         familyTab:'列表',chatTarget:'father',chatMessages:[],chatDrafts:{},questionDrafts:{},questions:[],
-        materialDrafts:{},materialTabs:{},materialSubmissions:[],answerFeedback:[],feedbackDrafts:{},
+        materialDrafts:{},materialSubmissions:[],answerFeedback:[],feedbackDrafts:{},
         feedbackReviewDrafts:{},
-        personServices:{},billingOrders:[],usageReceipts:[],billingPeople:{},keepsakeBooks:[]
+        personServices:{},billingOrders:[],usageReceipts:[],billingPeople:{}
       };
     }
     const members=['father','mother','xia','grandpa','nian','grandma'];
@@ -156,7 +152,28 @@
       text:['一家人围在桌前，有人擀皮，有人拌馅，念念学着把饺子边捏紧。'],
       source:'陈家的家庭记录 · 虚构示例'
     });
-    return {billingSeedDate:new Date().toISOString().slice(0,10),billingToday:new Date().toISOString().slice(0,10),personServices:{},familyHome:null,billingOrders:[],usageReceipts:[],billingPeople:{},familyFocus:{xia:'father',nian:'father'},familyInvitations:{xia:['father','mother'],nian:['father']},familyAccess:{father:{archive:['xia','nian'],digital:['xia','nian'],space:['xia','nian']},mother:{archive:['xia'],digital:[],space:[]}},familyRequests:[],keepsakeBooks:[],keepsakeBookId:'',actor:'father',route:'home',lifeTab:'overview',videoFilter:'all',archivePerson:'father',archiveAssets:null,archiveProfiles:null,archiveItemId:'',archiveChapterId:'',biographyMode:'read',archiveReturn:null,archivePlayback:{},familyTab:'列表',year:'1986',hotspot:'desk',guide:false,chatTarget:'father',chatContext:null,chatMessages:[],chatDrafts:{},questionDrafts:{},storyId:'first-order',stories,members,invitations:[],pending:[],questions:tasks.questions,accessRequests:[],idSequence:0,materialDrafts:{},materialTabs:{},materialSubmissions:[],answerFeedback:tasks.answerFeedback,feedbackDrafts:{},feedbackReviewDrafts:{},feedbackReviewId:null,accounts:{father:{...newAccount(),videoDelivered:true,hasDigital:true,setupIncluded:true},xia:newAccount(),nian:newAccount()},record:emptyRecord(),fontLarge:false,modal:null,notice:''};
+    // 陈家的相框示例沿用陈远山署名的全家可见照片，打开后可以直接选来投送。
+    stories.push(...[{
+      id: 'chen-frame-reunion', title: '2026 年 · 除夕的全家福', category: '团圆时刻',
+      year: '2026', date: '2026年除夕', relatedMembers: ['father', 'mother', 'xia', 'nian'],
+      houseImage: 'assets/family-home/reference/family-reunion.webp',
+      text: ['合影前，念念挨个喊大家坐好，拍完就跑来问我能不能再拍一张。']
+    }, {
+      id: 'chen-frame-old-lane', title: '2025 年 · 回老街看枣树', category: '故乡记忆',
+      year: '2025', date: '2025年秋', relatedMembers: ['father', 'grandpa'],
+      houseImage: 'assets/family-home/reference/old-lane.webp',
+      text: ['拐进老街，一眼就认出了门口那棵枣树。我小时候常和父亲在树下乘凉。']
+    }, {
+      id: 'chen-frame-journey', title: '2018 年 · 和林慧一起去旅行', category: '山河同行',
+      year: '2018', date: '2018年', relatedMembers: ['father', 'mother'],
+      houseImage: 'assets/zhumen/couple-first-trip-demo.webp',
+      text: ['有一段路我们走得很慢，看到好风景就停下来，顺便请路人帮忙拍了张合影。']
+    }].map(story => ({
+      ...story, author: 'father', subject: 'father', confirmedBy: 'father',
+      scope: 'family', viewers: [...members], fromFamily: true, houseBytes: 0,
+      recorded: '2026年10月29日', source: '陈远山的家庭记录 · 虚构示例'
+    })));
+    return {billingSeedDate:new Date().toISOString().slice(0,10),billingToday:new Date().toISOString().slice(0,10),personServices:{},familyHome:null,billingOrders:[],usageReceipts:[],billingPeople:{},familyFocus:{xia:'father',nian:'father'},familyInvitations:{xia:['father','mother'],nian:['father']},familyAccess:{father:{archive:['xia','nian'],digital:['xia','nian'],space:['xia','nian']},mother:{archive:['xia'],digital:[],space:[]}},familyRequests:[],actor:'father',route:'home',lifeTab:'overview',videoFilter:'all',archivePerson:'father',archiveAssets:null,archiveProfiles:null,archiveItemId:'',archiveChapterId:'',biographyMode:'read',archiveReturn:null,archivePlayback:{},familyTab:'列表',year:'1986',hotspot:'desk',chatTarget:'father',chatContext:null,chatMessages:[],chatDrafts:{},questionDrafts:{},storyId:'first-order',stories,members,invitations:[],pending:[],questions:tasks.questions,accessRequests:[],idSequence:0,materialDrafts:{},materialSubmissions:[],answerFeedback:tasks.answerFeedback,feedbackDrafts:{},feedbackReviewDrafts:{},feedbackReviewId:null,accounts:{father:{...newAccount(),videoDelivered:true,hasDigital:true,setupIncluded:true},xia:newAccount(),nian:newAccount()},fontLarge:false,modal:null,notice:''};
   }
   /** 两个还原入口同时清除动态人物与业务状态，保留头像等消费者持有的对象引用。 */
   function resetDemoState() {
@@ -171,7 +188,11 @@
   function button(label, action, cls='btn', extra='') { return `<button type="button" class="${cls}" data-action="${action}" ${extra}>${label}</button>`; }
   /** 生成站内导航按钮，保持静态文件也可进行页面切换。 */
   function link(label, route, cls='text-link', extra='') { return `<button type="button" class="${cls}" data-nav="${route}" ${extra}>${label}</button>`; }
-  /** 示例头像按人物取自设计稿；新增人物使用姓名缩写。 */
+  /** 有入口时返回实际页面，直接打开详情时使用指定地址。 */
+  function returnLink(label, route, cls='text-link', extra='') {
+    return button(label, 'back', cls, `data-return-route="${escape(route)}" ${extra}`);
+  }
+  /** 优先显示该账号上传的头像，其次沿用示例肖像和姓名缩写。 */
   function avatar(id, size='', { originalPortrait = false } = {}) {
     const p=PEOPLE[id];
     if (!p) return `<span class="avatar ${size}">家</span>`;
@@ -183,10 +204,13 @@
       xia: 'assets/family-home/reference/xia.webp',
       nian: 'assets/zhumen/portrait-nian.webp'
     }[id];
-    const source = originalPortrait && portrait && ['grandpa', 'father', 'mother', 'xia'].includes(id)
+    const uploaded = App.Households?.profileAvatar(id);
+    const exampleSource = originalPortrait && portrait && ['grandpa', 'father', 'mother', 'xia'].includes(id)
       ? 'assets/zhumen/portrait-' + id + '.webp'
       : portrait;
-    return source ? `<span class="avatar ${size} ${id}"><img src="${source}" alt="${escape(p.name)}，设计稿中的示例人物"></span>` : `<span class="avatar ${size} ${p.color || ''}">${escape(p.short)}</span>`;
+    const source = uploaded || exampleSource;
+    const label = uploaded ? p.name : p.name + '，设计稿中的示例人物';
+    return source ? `<span class="avatar ${size} ${id}"><img src="${escape(source)}" alt="${escape(label)}"></span>` : `<span class="avatar ${size} ${p.color || ''}">${escape(p.short)}</span>`;
   }
   /** 内容标记同时使用文字，避免仅靠颜色传达意义。 */
   function badge(label, cls='') { return `<span class="badge ${cls}">${label}</span>`; }
@@ -200,5 +224,5 @@
   function nextId(prefix) {App.state.idSequence++;return `${prefix}-${App.state.idSequence}`;}
   /** 按秒转换为录制时间显示。 */
   function duration(seconds) { return `${Math.floor(seconds/60).toString().padStart(2,'0')}:${(seconds%60).toString().padStart(2,'0')}`; }
-  window.App={state:initialState(),initialState,resetDemoState,emptyRecord,newAccount,nextId,PEOPLE,HOME_NAME,icon,escape,button,link,avatar,badge,account,visibleStories,duration,views:{}};
+  window.App={state:initialState(),initialState,resetDemoState,newAccount,nextId,PEOPLE,HOME_NAME,icon,escape,button,link,returnLink,avatar,badge,account,visibleStories,duration,views:{}};
 }

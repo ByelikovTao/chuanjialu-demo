@@ -5,17 +5,10 @@ body{background:#EAE1D4;font-family:"Source Han Serif SC","Noto Serif SC","Songt
 .studio-nav button.active{background:var(--soft);color:var(--brand)}
 .studio-nav button:hover{background:#EFE1D4}
 .phone{border-color:#FFFCF6;box-shadow:0 0 0 1px #C5B29C,0 22px 55px #632D201A}
-/* 系统状态栏统一米白底深色图标，与朱红业务标题栏分开。 */
+/* 预览状态栏使用深色图标。 */
 .statusbar{color:var(--ink);background:var(--canvas)}
-.app-header{position:relative;isolation:isolate;background:var(--brand);color:#FFF6E5;border:0;padding:8px 16px;min-height:56px}
-/* 标题栏保留简洁构图，门庭主视觉集中在首页封面和个人中心。 */
-.app-header:before{content:none}
-.app-header :is(.my-button,.chat-message-trigger,.icon-button){color:inherit}
-.app-header h1{font-family:inherit;letter-spacing:1px;text-align:center;font-size:calc(20px * var(--unit))}
+
 .app-content{background:var(--canvas) url("assets/zhumen/ivory-rice-paper.webp") center top/780px auto;background-blend-mode:soft-light;scrollbar-color:#C7A99A transparent}
-.bottom-nav{background:var(--surface);border-color:var(--line)}
-.bottom-nav button{color:#786A5F}
-.bottom-nav button.active{color:var(--brand)}
 .btn{border-radius:8px;background:var(--action)}
 .btn:hover:not(:disabled){filter:brightness(.96)}
 .btn.secondary{background:var(--soft);color:var(--brand);border:1px solid #D7B6A8}
@@ -61,13 +54,9 @@ body{background:#EAE1D4;font-family:"Source Han Serif SC","Noto Serif SC","Songt
 .archive-shortcut,.archive-media-card,.plan-card{background:var(--surface);border-color:var(--line)}
 .archive-shortcut.active,.plan-card.featured{background:var(--soft);border-color:var(--brand)}
 .profile-service-summary{border:1px solid #D5B6A0;background:#F2E1D2}
-.profile-main-menu{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:0 14px}
-.profile-main-menu>.menu-row:last-child{border-bottom:0}
-.video-type-filters button,.material-stage-tabs,.material-stage-tabs>button{border-radius:6px}
+.video-type-filters button{border-radius:6px}
 /* 空间页收回原悬浮页眉，给标题和年代说明留出真实布局高度。 */
-.space-mode .statusbar{position:relative}
-.space-mode .app-header{position:relative;top:auto;left:auto;right:auto;padding:4px 18px 12px;pointer-events:auto}
-.space-mode .app-header .icon-button{background:transparent;border:0;color:#FFF6E5}
+
 .space-mode .memory-top{top:16px}
 .space-mode .scene-title{margin:0 0 12px}
 .space-mode .scene-title h1{display:none}
@@ -86,7 +75,6 @@ body{background:#EAE1D4;font-family:"Source Han Serif SC","Noto Serif SC","Songt
 .phone :is(.page-subtitle,.caption,.small,.muted,.archive-card-copy small,.archive-card-copy em,.profile-service-summary small,.profile-service-summary em,.heritage-caption){font-size:calc(14px * var(--unit));line-height:1.5;color:var(--secondary)}
 .phone :is(.story-paragraph,.message,.source-transcript,.heritage-reader){font-size:calc(18px * var(--unit));line-height:1.5556}
 .phone :is(.menu-row,.btn,.heritage-text-button,.suggestion,.video-type-filters button,.archive-shortcut){font-size:calc(16px * var(--unit));line-height:1.5}
-.phone .bottom-nav button{font-size:calc(14px * var(--unit));line-height:1.5;white-space:normal;overflow-wrap:anywhere}
 
 /* 中国结为非交互装饰，不遮挡标题、触控区域或辅助阅读顺序。 */
 .page>.page-title,.section-heading>h2,.home-section-title,.entry-section-title{position:relative;padding-left:32px}
@@ -118,17 +106,10 @@ input[type=checkbox],input[type=radio]{accent-color:var(--brand)}
 
 /* 参考稿采用黑色宋体标题、通透纸卡与朱红轮廓，避免所有内容泛黄泛红。 */
 .phone .page{padding-top:16px}
-.phone .bottom-nav{padding:8px 8px 16px;background:#FFFDFA}
-.phone .bottom-nav .icon{width:44px;height:28px;max-width:100%;padding-block:1px;border-radius:999px}
-.phone .bottom-nav button{color:#414950;font-size:calc(12px * var(--unit));gap:4px}
-.phone .bottom-nav button.active{color:var(--brand)}
-.phone .bottom-nav button.active .icon{background:var(--soft)}
 .phone .heritage-kinship{border-color:#C95347;background:transparent;border-radius:8px;padding:16px}
 
-/* 交流页采用设计稿的米白标题栏、长人物画幅与圆角输入，保留已有视频和对话。 */
-.phone[data-route=chat] .app-header{background:var(--canvas);color:var(--ink);padding-left:40px;min-height:56px}
-.phone[data-route=chat] .app-header:before{content:"";position:absolute;left:8px;top:0;width:24px;height:48px;background:url("assets/zhumen/chinese-knot-transparent.webp") center/contain no-repeat}
-.phone[data-route=chat] .app-header h1{font-weight:600}
+/* 交流页保留长人物画幅与圆角输入。 */
+
 .phone[data-route=chat] .my-button{font-size:calc(12px * var(--unit));padding:0}
 .phone[data-route=chat] .chat-message-trigger{font-size:calc(14px * var(--unit));padding:0 0 0 8px}
 .phone .avatar-page{padding:0 16px 12px}

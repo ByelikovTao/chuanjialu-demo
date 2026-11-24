@@ -454,7 +454,7 @@
   }
   /** 新旧链接读取同一份正式文章，仍按人物档案授权展示。 */
   function readOrigin(person) {
-    if (!F.readable(person)) return '<div class="page empty"><h1>家史暂未开放</h1></div>';
+    if (!F.readable(person)) return P.unavailable('home', '这份家史暂未向你开放。');
     const doc = F.document('origin', person);
     if (!doc) {
       const edit = F.editable('origin', person)

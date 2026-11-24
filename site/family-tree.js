@@ -48,8 +48,15 @@
 
   function homeAddNode(groupId, position = '') {
     const group = homeRelationGroups[groupId];
-    return b(i('plus'), 'tree-choose-home-relation', 'heritage-pedigree-add',
-      `data-group="${groupId}" aria-label="在${e(group.position)}添加成员" aria-haspopup="dialog" ${position}`);
+    const inHome = P.state.route === 'home';
+    // 侧边同时接收配偶和其他家人，短标签与完整的读屏提示分别表达。
+    const caption = group.extra ? '亲属' : group.label;
+    const actionLabel = inHome
+      ? `添加${group.extra ? '配偶或其他亲属' : group.label}`
+      : `在${group.position}添加成员`;
+    const label = inHome ? `<span class="heritage-pedigree-add-label" aria-hidden="true">${e(caption)}</span>` : '';
+    return b(i('plus') + label, 'tree-choose-home-relation', 'heritage-pedigree-add',
+      `data-group="${groupId}" aria-label="${e(actionLabel)}" aria-haspopup="dialog" ${position}`);
   }
 
   function relationChoices({label, choices}) {

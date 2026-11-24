@@ -94,7 +94,8 @@
           </details>
         </div>
         <div class="fm-consult">${consult}</div>
-        ${P.state.serviceIntroFromCatalog ? `<div class="fm-consult">${l(`体验${frameName} ` + i('arrow'), 'house-screen', 'fm-button')}</div>` : ''}
+        ${P.Households.current() ? `<div class="fm-consult">${l('准备这份礼物' + i('arrow'), 'house-screen//gift/house-screen-intro', 'fm-button')}</div>
+          <div class="fm-consult">${l(`体验${frameName} ` + i('arrow'), 'house-screen', 'fm-button')}</div>` : ''}
       </section>
     </article>`;
   }

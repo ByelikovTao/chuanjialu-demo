@@ -34,7 +34,7 @@
     return (standalone||established(person))&&(person===P.state.actor||Boolean(invited(person)&&P.state.familyAccess[person]?.[kind]?.includes(P.state.actor)));}
   /** 提供者保留原稿；家人补充进入他人档案后，分享名单取双方确认范围的交集。 */
   function readable(item) {
-    if(item?.coupleId)return P.Couples.familyReadable(item);
+    if(item?.coupleId)return false;
     if(!item||!P.Billing.online(item.subject||item.author))return false;
     const actor=P.state.actor;if(item.author===actor)return true;
     if(item.inArchive===false||item.scope==='private'||!item.viewers.includes(actor))return false;
@@ -53,10 +53,10 @@
   /** 人物切换同时重置话题与场景，保留各账号自己的草稿。 */
   function select(person) {
     if(!selectable().includes(person))return P.toast('这位家人的档案暂未向你开放。');
-    P.captureRecord();P.DigitalHuman.captureDraft();P.DigitalHuman.prepare(false);
+    P.DigitalHuman.captureDraft();P.DigitalHuman.prepare(false);
     P.state.familyFocus[P.state.actor]=person;P.state.archivePerson=person;P.state.chatTarget=person;
-    P.state.chatContext=null;P.state.chatMessages=[];P.state.spaceStoryOpen=false;P.state.lifeTab='overview';
-    P.closeModal();P.navigate(['home','life','chat','space'].includes(P.state.route)?P.state.route:'home');
+    P.state.chatContext=null;P.state.chatMessages=[];
+    P.closeModal();P.navigate(['home','chat'].includes(P.state.route)?P.state.route:'home');
   }
   /** 同一选择器在三个主要内容页和首页复用；自己的记录始终从我的进入。 */
   function picker() {
@@ -66,28 +66,61 @@
   /** 页面级拒绝不输出场景或人物媒体，不能靠地址栏绕过授权。 */
   function locked(kind,person=current()) {
     if(P.state.familyWorkspace&&kind!=='archive'){
-      const key=kind==='digital'?'digital':'vr',label=kind==='digital'?'互动数字人':'家庭 VR 建模';
+      const route=kind==='digital'?'house-assistant':'house-addons',label=kind==='digital'?'互动数字人':'家庭 VR 建模';
       const target=kind==='space'?'father':person;
       const hasService=Boolean(P.state.accounts[target]?.[kind==='space'?'hasSpace':'hasDigital']);
-      const next=hasService&&target!==P.state.actor?b('向本人申请开放','family-request','btn',`data-person="${e(target)}" data-kind="${kind}"`):l('了解'+label,'house-service/'+key,'btn');
+      const next=hasService&&target!==P.state.actor?b('向本人申请开放','family-request','btn',`data-person="${e(target)}" data-kind="${kind}"`):l('了解'+label,route,'btn');
       return `<div class="page empty"><h2>${label}${hasService?'暂未授权':'待开通'}</h2><p>由顾问制作交付，按对应家人的授权开放。</p>${next}${l('返回传家定制','house-addons','text-link full section')}</div>`;
     }
     if(!established(person))return `<div class="page empty"><h2>这位家人尚未完成拍摄建档</h2><p>仅加入家庭或出现在家谱中，不能开通完整人生空间；可继续保留个人记录和共同回忆。</p>${l('返回首页','home','btn')}</div>`;
     // 档案已开放但交流未开放时，提供仍可访问的档案入口，不借另一人的形象代替。
-    if(kind==='digital'&&allowed(person,'archive'))return `<div class="page person-unavailable"><div class="empty">${P.avatar(person,'large')}<h3>${e(P.PEOPLE[person].name)} · ${e(P.relation(person))}</h3><h2>这位家人暂未开放数字人</h2><p>可以继续查看已向你开放的人生档案。</p>${l('查看已开放的档案','life/'+person,'btn full')}${l('返回首页','home','btn outline full section')}${b('申请开放交流','family-request','text-link full section',`data-person="${e(person)}" data-kind="digital"`)}</div></div>`;
+    if(kind==='digital'&&allowed(person,'archive'))return `<div class="page person-unavailable"><div class="empty">${P.avatar(person,'large')}<h3>${e(P.PEOPLE[person].name)} · ${e(P.relation(person))}</h3><h2>这位家人暂未开放数字人</h2><p>可以继续查看已向你开放的人生档案。</p>${l('查看已开放的档案','house-stories/'+person,'btn full')}${l('返回首页','home','btn outline full section')}${b('申请开放交流','family-request','text-link full section',`data-person="${e(person)}" data-kind="digital"`)}</div></div>`;
     const labels={archive:'人生档案',digital:'数字人交流',space:'回忆场景'};
     return `<div class="page"><div class="empty">${i('lock')}<h2>${e(labels[kind])}暂未开放</h2><p>${e(P.PEOPLE[person]?.name||'这位家人')}尚未向你开放这项内容。会员不会扩大查看权限。</p>${b('申请开放','family-request','btn',`data-person="${e(person)}" data-kind="${kind}"`)}${l('返回首页','home','text-link full')}</div></div>`;
   }
   /** 独立名单配合人物头像核对身份；勾选只修改对应权限，不把付费当作授权。 */
   function permissions() {
     const actor=P.state.actor,access=P.state.familyAccess[actor];
-    const requests=P.state.familyRequests.filter(item=>item.person===actor&&item.kind!=='digital'&&item.status==='pending');
+    const requests=P.state.familyRequests.filter(item=>item.person===actor&&item.kind==='archive'&&item.status==='pending');
     P.PersonArchive.assets(actor,'photo');
     const shared=[...P.state.stories,...P.state.archiveAssets.filter(item=>item.materialManaged)].filter(item=>item.commonWith===actor&&item.scope!=='private'&&item.viewers.includes(actor)||item.subject===actor&&item.author!==actor);
-    const sent = P.state.familyRequests.filter(item => item.actor === actor && item.kind !== 'digital');
-    const progress = sent.length ? `<section class="section"><h2>我的授权申请</h2>${sent.map(item =>
-      `<p>${e(P.PEOPLE[item.person]?.name || '家人')} · ${item.kind === 'space' ? '回忆场景' : '人物档案'} · ${{pending:'等待开放',accepted:'已同意',declined:'暂未开放'}[item.status]}</p>`).join('')}</section>` : '';
-    return `<div class="page"><h1 class="page-title">空间授权与核对</h1><p>分别设置档案和回忆场景的查看权限。每份资料仍遵循原分享范围。</p>${requests.map(item=>`<div class="card section"><p>${e(P.PEOPLE[item.actor].name)}申请开放${{archive:'档案',digital:'交流',space:'场景'}[item.kind]}</p>${b('仅向这位家人开放','family-request-approve','btn',`data-id="${item.id}"`)}${b('暂不开放','family-request-deny','text-link',`data-id="${item.id}"`)}</div>`).join('')}${access?`<form data-feature-form data-actor="${actor}" id="family-permissions-form" class="section">${Object.entries({archive:'人生档案',space:'回忆场景'}).map(([kind,label])=>`<fieldset><legend>${label}</legend>${P.state.members.filter(id=>id!==actor&&P.state.familyInvitations[id]?.includes(actor)).map(id=>`<label class="check-row"><input type="checkbox" name="${kind}" value="${id}" ${access[kind].includes(id)?'checked':''}>${P.avatar(id)}<span>${e(P.PEOPLE[id].name)}</span></label>`).join('')}</fieldset>`).join('')}<button type="submit" class="btn full">保存授权名单</button></form>`:'<p class="note section">尚未完成拍摄及空间开通。可以免费参与家人分享的内容，开通自己的完整人生空间需先完成视频服务。</p>'}<h2 class="section">家人提供的经历</h2>${shared.map(item=>`<div class="card section"><h3>${e(item.title)}</h3><p>${e(P.PEOPLE[item.author].name)}讲述 · ${inArchive(item,actor)?'已纳入':'尚未纳入／已移出'}</p>${b('核对纳入与分享范围','family-consent','text-link',`data-id="${item.id}"`)}</div>`).join('')||'<p>暂无家人提交的经历。</p>'}${progress}</div>`;
+    const sent = P.state.familyRequests.filter(item => item.actor === actor && item.kind === 'archive');
+    const progress = sent.length ? `<section class="section family-admin-group"><h2 class="family-admin-heading">我的授权申请</h2>${sent.map(item =>
+      `<p>${e(P.PEOPLE[item.person]?.name || '家人')} · 人物档案 · ${{pending:'等待开放',accepted:'已同意',declined:'暂未开放'}[item.status]}</p>`).join('')}</section>` : '';
+    const requestCards = requests.map(item => `<article class="card">
+      <h3>${e(P.PEOPLE[item.actor].name)}申请开放档案</h3>
+      <div class="family-admin-actions">
+        ${b('仅向这位家人开放', 'family-request-approve', 'btn', `data-id="${e(item.id)}"`)}
+        ${b('暂不开放', 'family-request-deny', 'text-link', `data-id="${e(item.id)}"`)}
+      </div>
+    </article>`).join('');
+    // 授权名单只列出已建立家庭邀请关系的成员。
+    const eligible = P.state.members.filter(id => id !== actor && P.state.familyInvitations[id]?.includes(actor));
+    const accessForm = access ? `<form data-feature-form data-actor="${e(actor)}" id="family-permissions-form" class="section family-admin-group">
+      <fieldset>
+        <legend>人生档案</legend>
+        ${eligible.map(id => `<label class="check-row">
+          <input type="checkbox" name="archive" value="${e(id)}" ${access.archive.includes(id) ? 'checked' : ''}>
+          ${P.avatar(id)}<span>${e(P.PEOPLE[id].name)}</span>
+        </label>`).join('') || '<p class="caption">目前没有可授权的家人。</p>'}
+      </fieldset>
+      <button type="submit" class="btn full">保存授权名单</button>
+    </form>` : '<p class="note section">尚未完成拍摄及空间开通。可以免费参与家人分享的内容，开通自己的完整人生空间需先完成视频服务。</p>';
+    const experiences = shared.map(item => `<article class="card">
+      <h3>${e(item.title)}</h3>
+      <p class="caption">${e(P.PEOPLE[item.author].name)}讲述 · ${inArchive(item, actor) ? '已纳入' : '尚未纳入／已移出'}</p>
+      ${b('核对纳入与分享范围', 'family-consent', 'text-link', `data-id="${e(item.id)}"`)}
+    </article>`).join('');
+    return `<div class="page family-permissions-page">
+      <p class="page-subtitle">设置家人查看人生档案的权限。每份资料仍遵循原分享范围。</p>
+      ${requestCards ? `<section class="section family-admin-group"><h2 class="family-admin-heading">家人的授权申请</h2>${requestCards}</section>` : ''}
+      ${accessForm}
+      <section class="section family-admin-group">
+        <h2 class="family-admin-heading">家人提供的经历</h2>
+        ${experiences || '<p class="caption family-admin-empty">暂无家人提交的经历。</p>'}
+      </section>
+      ${progress}
+    </div>`;
   }
   /** 纳入档案时仅核对原稿提供者允许的分享范围。 */
   function consent(id) {
@@ -103,12 +136,12 @@
     if(action==='family-focus'){select(el.dataset.person);return true;}
     if(action==='family-consent'){consent(el.dataset.id);return true;}
     if(action==='family-request'){
-      const {person,kind}=el.dataset;if(!invited(person)||!['archive','space'].includes(kind))return true;
+      const {person,kind}=el.dataset;if(!invited(person)||kind!=='archive')return true;
       if(!s.familyRequests.some(item=>item.person===person&&item.kind===kind&&item.actor===s.actor&&item.status==='pending'))s.familyRequests.push({id:P.nextId('permission'),person,kind,actor:s.actor,status:'pending'});
       P.toast('申请已提交，可在「空间授权与核对」查看进度。');return true;
     }
     if(action==='family-request-approve'||action==='family-request-deny'){
-      const request=s.familyRequests.find(item=>item.id===el.dataset.id&&item.person===s.actor&&item.kind!=='digital'&&item.status==='pending');
+      const request=s.familyRequests.find(item=>item.id===el.dataset.id&&item.person===s.actor&&item.kind==='archive'&&item.status==='pending');
       if(request){request.status=action.endsWith('approve')?'accepted':'declined';if(request.status==='accepted')s.familyAccess[s.actor][request.kind]=[...new Set([...s.familyAccess[s.actor][request.kind],request.actor])];P.render();}return true;
     }
     return false;
@@ -119,7 +152,7 @@
     if(form.featureState!==P.state||form.dataset.actor!==P.state.actor)return true;
     const s=P.state,data=new FormData(form);
     if(form.id==='family-permissions-form'){
-      const access=s.familyAccess[s.actor];if(access)for(const kind of ['archive','space'])access[kind]=data.getAll(kind).filter(id=>s.familyInvitations[id]?.includes(s.actor));P.render();P.toast('分项授权已保存，私聊不会向家人公开。');return true;
+      const access=s.familyAccess[s.actor];if(access)access.archive=data.getAll('archive').filter(id=>s.familyInvitations[id]?.includes(s.actor));P.render();P.toast('分项授权已保存，私聊不会向家人公开。');return true;
     }
     if(form.id!=='family-consent-form')return false;
     const item=[...s.stories,...(s.archiveAssets||[])].find(value=>value.id===form.dataset.id&&(value.commonWith===s.actor&&value.scope!=='private'&&value.viewers.includes(s.actor)||value.subject===s.actor&&value.author!==s.actor));if(!item)return true;

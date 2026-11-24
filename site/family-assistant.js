@@ -26,7 +26,7 @@
   const words = typeof Intl.Segmenter === 'function' ? new Intl.Segmenter('zh', { granularity: 'word' }) : null;
   const sessions = new WeakMap();
 
-  /** 只保留问题和草稿。切家、切身份或撤回权限后，答案始终按当前资料重新查找。 */
+  /** 答案每次按当前资料重新查询，问题、草稿和阅读位置按家庭与账号保存。 */
   function session() {
     if (!sessions.has(P.state)) sessions.set(P.state, new Map());
     const accounts = sessions.get(P.state);
@@ -67,9 +67,10 @@
     const surname = family.surnameDetails(owner);
     const origin = family.document('origin', owner);
     const originRoute = 'home-origin/' + owner;
+    const surnameRoute = 'home-surname/' + owner;
     const heritage = [
-      { title: '家训', types: ['motto'], passages: [motto?.text], route: 'home', cover: motto?.cover },
-      { title: TYPES.surname[0], types: ['surname'], passages: [surname?.name && `这个家的姓氏是${surname.name}。`, surname?.text], route: 'home' },
+      { title: '家训', types: ['motto'], passages: [motto?.text], route: P.FamilyHomeViews.mottoRoute, cover: motto?.cover },
+      { title: TYPES.surname[0], types: ['surname'], passages: [surname?.name && `这个家的姓氏是${surname.name}。`, surname?.text], route: surnameRoute },
       { title: TYPES.origin[0], types: ['origin'], passages: [
         origin?.trace?.ancestralHome && `祖籍与支系记载为 ${origin.trace.ancestralHome}。`,
         origin?.text, origin?.trace?.earliest, origin?.trace?.migration
@@ -188,8 +189,9 @@
     return `<section class="assistant-welcome">
       <div class="assistant-intro">
         <div>
-          <h2>想找家里的<br>哪段往事？</h2>
-          <p>家训、照片、视频和语音都能查。</p>
+          <span class="assistant-intro-seal">${i('book')}</span>
+          <h2>想找家里的哪段往事？</h2>
+          <p>从家人共享的资料里找答案。</p>
         </div>
         <img class="assistant-cover" src="assets/zhumen/service-album-corner.webp" alt="">
       </div>
@@ -230,6 +232,22 @@
   function capture() {
     const form = document.getElementById(FORM_ID);
     if (active(form)) session().draft = form.elements.question.value;
+  }
+
+  /** 阅读出处前记住原问答位置，返回时将焦点交还给那条出处。 */
+  function rememberSource(viewport, route) {
+    const links = [...viewport.querySelectorAll('.assistant-source-link')];
+    session().sourceReturn = {route, top: viewport.scrollTop, index: links.indexOf(document.activeElement)};
+  }
+
+  function restoreSource(viewport, route) {
+    const conversation = session();
+    const position = conversation.sourceReturn;
+    if (position?.route !== route) return;
+    delete conversation.sourceReturn;
+    viewport.scrollTop = position.top;
+    const link = viewport.querySelectorAll('.assistant-source-link')[position.index];
+    if (link?.dataset.nav === route) link.focus({preventScroll: true});
   }
 
   /** 只对刚提交的回答逐步显示。切换页面或重绘后，旧节点失效并停止计时。 */
@@ -299,5 +317,5 @@
   }
 
   P.views[ROUTE] = view;
-  P.FamilyAssistant = { title: TITLE, capture, submit, handleAction, openQuestion };
+  P.FamilyAssistant = { title: TITLE, capture, submit, handleAction, openQuestion, rememberSource, restoreSource };
 }

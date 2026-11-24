@@ -3,6 +3,7 @@
 {
   const P=window.App;
   const EXAMPLE_MEMBERS = new Set(P.state.members);
+  const EXAMPLE_PEDIGREE_MEMBERS = new Set(['father', 'grandpa', 'mother', 'xia']);
   const EXAMPLE_SURNAME_ACCOUNT = {
     text: '爷爷说，他小时候住在老街东头。那时家门口有棵枣树，过年回来，远远就能认出来。',
     source: '陈远山口述'
@@ -140,11 +141,12 @@
     }
     return groups;
   }
-  /** 陈家预置人物供往事与地图演示，首页关系树从当前账号和用户录入的成员开始。 */
+  /** 陈家家谱默认展示一组已知直系与配偶，继续纳入当前账号和手动添加的成员。 */
   function pedigree(owner) {
     if (!P.Households.isExample()) return { person: owner, groups: relatives(owner) };
     const person = P.state.actor;
-    const members = P.state.members.filter(id => id === person || !EXAMPLE_MEMBERS.has(id));
+    const members = P.state.members.filter(id =>
+      id === person || EXAMPLE_PEDIGREE_MEMBERS.has(id) || !EXAMPLE_MEMBERS.has(id));
     return { person, groups: relatives(person, members) };
   }
   /** 仅原型工具使用：清空新首页资料，保留既有故事、授权和记录草稿。 */

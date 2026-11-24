@@ -58,9 +58,9 @@
     const item=resolve(value);if(!item)return P.toast('这份资料暂未向当前账号开放。');
     const ref=item.ref;
     if(ref.kind==='story')return P.navigate('story/'+ref.storyId);
-    if(ref.kind==='biography'){P.state.archivePerson=ref.personId;P.state.lifeTab='biography';P.state.biographyMode='read';P.state.archiveChapterId=ref.chapterId;return P.navigate('life/'+ref.personId);}
+    if(ref.kind==='biography')return P.navigate('house-stories/'+ref.personId);
     if(item.asset.duration && Number.isFinite(ref.position)){const progress=P.state.archivePlayback[P.state.actor] ||= {};progress[ref.assetId]=Math.min(ref.position,item.asset.duration);}
-    const origin=ref.origin || {person:item.person,tab:item.asset.kind==='photo'?'photo':item.asset.kind==='work'?'work':item.asset.kind==='document'?'biography':'video',videoFilter:'all'};
+    const origin=ref.origin || {person:item.person,tab:item.asset.kind==='photo'?'photo':item.asset.kind==='work'?'work':'video',videoFilter:'all'};
     P.PersonArchive.open(ref.assetId,origin.person,origin.tab,origin.storyId,origin.videoFilter);
   }
   /** 文字原型只整理当前说明、章节、演示字幕及已获授权的关联故事，不分析图片画面。 */
