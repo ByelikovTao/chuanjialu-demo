@@ -100,10 +100,16 @@
     const extension = editing ? `<path class="is-add-link" d="${extensionPath}"/>` : '';
     return `<svg class="heritage-pedigree-branches" data-pedigree-links="${kind}" viewBox="0 0 ${columns*2} 24" preserveAspectRatio="none" aria-hidden="true">${confirmed}${extension}</svg>`;
   }
-  /** 人物卡随字号和姓名自然增高，首页沿首列连起三代。 */
-  function readablePedigree(person,{parents,children},partners,editing,framed=false) {
+  /** 祖辈连到有记录的父母节点，父母各自所在的列不随祖辈人数变化。 */
+  function grandparentBranches(grandparents, columns) {
+    const paths = grandparents.flatMap(({ parentIndexes }, index) => parentIndexes.map(parentIndex =>
+      `M${index * 2 + 1} 0V12H${parentIndex * 2 + 1}V24`)).join('');
+    return `<svg class="heritage-pedigree-branches" data-pedigree-links="grandparents" viewBox="0 0 ${columns * 2} 24" preserveAspectRatio="none" aria-hidden="true"><path d="${paths}"/></svg>`;
+  }
+  /** 人物卡随字号和姓名自然增高，各代按已知亲缘关系连接。 */
+  function readablePedigree(person, { parents, children, grandparents = [] }, partners, editing, framed = false) {
     const hasSide = partners.length > 0 || (framed && editing);
-    const columns = Math.max(parents.length + Number(editing), children.length + Number(editing), hasSide ? 2 : 1);
+    const columns = Math.max(grandparents.length, parents.length + Number(editing), children.length + Number(editing), hasSide ? 2 : 1);
     const renderNode = id => kinNode(id, person, '', editing, framed);
     const renderNodes = members => members.map(renderNode).join('');
     const slot = group => editing ? P.FamilyTree.homeAddNode(group) : '';
@@ -118,6 +124,7 @@
          ${hasSide ? `<div class="heritage-pedigree-side">${side}${slot('partner')}</div>` : ''}`
       : center + side + slot('partner');
     return `<div class="heritage-pedigree-canvas heritage-pedigree-readable${editing?' is-editing':''}" style="--pedigree-columns:${columns};--pedigree-slot-width:${PEDIGREE_SLOT_WIDTH}px;--pedigree-slot-gutter:${PEDIGREE_SLOT_GUTTER}px">
+      ${grandparents.length ? `<div class="heritage-pedigree-row" role="group" aria-label="祖辈成员">${renderNodes(grandparents.map(entry => entry.id))}</div>${grandparentBranches(grandparents, columns)}` : ''}
       ${parents.length||editing?row(parents,'上方成员','parents')+pedigreeBranches(parents.length,columns,'parents',editing):''}
       <div class="heritage-pedigree-row heritage-pedigree-focus-row" role="group" aria-label="${partners.length?'家谱中心人物与配偶':'家谱中心人物'}">${focus}</div>
       ${children.length||editing?pedigreeBranches(children.length,columns,'children',editing)+row(children,'下方成员','children'):''}
@@ -133,7 +140,7 @@
       </div>
     </div>`;
   }
-  /** 直系与配偶按已知关系连线，隔代与旁系单列，避免画出未经确认的关系。 */
+  /** 已知亲子和配偶关系连线，其余家人单列。 */
   function kinship(owner, viewSwitch = '', map = false) {
     const { person, groups } = map ? { person: owner, groups: P.FamilyHome.relatives(owner) } : P.FamilyHome.pedigree(owner);
     const partners = groups.couple.filter(id => id !== person);
@@ -141,7 +148,7 @@
     const single = !map && !editing && !groups.parents.length && !partners.length && !groups.children.length && !groups.others.length;
     const name=e(P.PEOPLE[person]?.name||'家人');
     const framed = P.state.route === 'home' && !map;
-    const diagram = framed || P.state.fontLarge
+    const diagram = framed || P.state.fontLarge || groups.grandparents?.length
       ? readablePedigree(person, groups, partners, editing, framed)
       : compactPedigree(person, groups, partners, editing);
     const others = !map && groups.others.length

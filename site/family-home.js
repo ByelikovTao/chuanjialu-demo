@@ -4,6 +4,7 @@
   const P=window.App;
   const EXAMPLE_MEMBERS = new Set(P.state.members);
   const EXAMPLE_PEDIGREE_MEMBERS = new Set(['father', 'grandpa', 'mother', 'xia']);
+  const PARENT_RELATIONS = new Set(['父亲', '母亲', '爸爸', '妈妈']);
   const EXAMPLE_SURNAME_ACCOUNT = {
     text: '爷爷说，他小时候住在老街东头。那时家门口有棵枣树，过年回来，远远就能认出来。',
     source: '陈远山口述'
@@ -129,25 +130,32 @@
   }
   /** 图片仅来自当前事件关联且获授权的照片，不拿装饰图冒充史料佐证。 */
   function photo(story,person) {return P.PersonArchive.assets(person,'photo').find(item=>item.relatedStoryId===story.id)||null;}
-  /** 已记载的孙辈和旁系放在「其他家人」，不绘制未经确认的父母连线。 */
+  /** 以当前人物的直接称谓分组，隔代关系留待家谱核对中间一代。 */
   function relatives(person, members = P.state.members) {
     const groups={parents:[],couple:[],children:[],others:[]};
     for(const id of members.filter(id=>P.PEOPLE[id])){
       const relation=P.relation(id,person);
-      if(['父亲','母亲','爸爸','妈妈'].includes(relation))groups.parents.push(id);
+      if(PARENT_RELATIONS.has(relation))groups.parents.push(id);
       else if(id===person||['妻子','丈夫'].includes(relation))groups.couple.push(id);
       else if(['儿子','女儿'].includes(relation))groups.children.push(id);
       else groups.others.push(id);
     }
     return groups;
   }
-  /** 陈家家谱默认展示一组已知直系与配偶，继续纳入当前账号和手动添加的成员。 */
+  /** 只有祖辈到当前人物父母的亲子关系已知，才把该成员连入主家谱。 */
   function pedigree(owner) {
-    if (!P.Households.isExample()) return { person: owner, groups: relatives(owner) };
-    const person = P.state.actor;
-    const members = P.state.members.filter(id =>
-      id === person || EXAMPLE_PEDIGREE_MEMBERS.has(id) || !EXAMPLE_MEMBERS.has(id));
-    return { person, groups: relatives(person, members) };
+    const example = P.Households.isExample();
+    const person = example ? P.state.actor : owner;
+    const members = example ? P.state.members.filter(id =>
+      id === person || EXAMPLE_PEDIGREE_MEMBERS.has(id) || !EXAMPLE_MEMBERS.has(id)) : P.state.members;
+    const groups = relatives(person, members);
+    const grandparents = groups.others.map(id => ({
+      id,
+      parentIndexes: groups.parents.flatMap((parent, index) =>
+        PARENT_RELATIONS.has(P.relation(id, parent)) ? [index] : [])
+    })).filter(entry => entry.parentIndexes.length > 0);
+    const connected = new Set(grandparents.map(entry => entry.id));
+    return { person, groups: { ...groups, grandparents, others: groups.others.filter(id => !connected.has(id)) } };
   }
   /** 仅原型工具使用：清空新首页资料，保留既有故事、授权和记录草稿。 */
   function empty() {
