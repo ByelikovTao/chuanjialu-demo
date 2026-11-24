@@ -11,10 +11,10 @@
   [data-route="house-assistant"], [data-route="house-picks"], [data-route="profile"], [data-route="house-switch"], [data-route="materials"],
   [data-route="welcome"], [data-route="house-create"], [data-route="profile-family"], [data-route="family"],
   [data-route="invitation"], [data-route="family-permissions"],
-  [data-route="questions"], [data-route="question-history"], :has(.story-reading-page)):not(.entry-mode),
+  [data-route="questions"], [data-route="question-history"], :has(.story-reading-page)),
 .modal:has(.story-source-record, .history-sample-reader),
 .top-nav,
-.phone:not(.entry-mode) > .statusbar,
+.phone > .statusbar,
 .bottom-nav {
   --home-xuan-paper: #faecdf;
   --home-xuan-wash: linear-gradient(#eeb9b11a, #eeb9b11a);
@@ -35,7 +35,7 @@
 }
 
 /* 三项服务介绍共用暖宣纸，影片与纸书共用制作流程样式。 */
-.phone:is([data-route="house-film-intro"], [data-route="house-book-intro"], [data-route="house-screen-intro"]).product-intro:not(.entry-mode) {
+.phone:is([data-route="house-film-intro"], [data-route="house-book-intro"], [data-route="house-screen-intro"]).product-intro {
   --service-intro-surface: #fff4e3;
   background: var(--home-xuan-background);
   color: var(--home-xuan-ink);
@@ -515,22 +515,22 @@
   outline-color: var(--home-xuan-red);
 }
 
-.phone[data-route="home"]:not(.entry-mode):has(.family-dashboard) .app-content {
+.phone[data-route="home"]:has(.family-dashboard) .app-content {
   background: var(--home-xuan-background);
   color: var(--home-xuan-ink);
 }
 
 /* 留言列表使用暖宣纸，打开往事后沿用通用详情页。 */
-.phone:is([data-route="questions"], [data-route="question-history"]):not(.entry-mode) {
+.phone:is([data-route="questions"], [data-route="question-history"]) {
   background: var(--home-xuan-background);
 }
 
-.phone:is([data-route="questions"], [data-route="question-history"]):not(.entry-mode)
+.phone:is([data-route="questions"], [data-route="question-history"])
   .app-content {
   background: transparent;
 }
 
-.phone:is([data-route="house-assistant"], [data-route="house-picks"], [data-route="profile"]):not(.entry-mode) {
+.phone:is([data-route="house-assistant"], [data-route="house-picks"], [data-route="profile"]) {
   --ink: var(--home-xuan-ink);
   --secondary: var(--home-xuan-muted);
   --brand: var(--home-xuan-red);
@@ -540,7 +540,7 @@
   background: var(--home-xuan-wash), var(--home-xuan-grain) center top / 470px auto var(--home-xuan-paper);
 }
 
-.phone:is([data-route="house-assistant"], [data-route="house-picks"], [data-route="profile"]):not(.entry-mode)
+.phone:is([data-route="house-assistant"], [data-route="house-picks"], [data-route="profile"])
   .app-content {
   background: transparent;
   color: var(--ink);
@@ -553,13 +553,13 @@
 
 /* 姓源、家史和家训编辑的正文沿用暖宣纸。 */
 .phone:is([data-route="home-surname"], [data-route="home-origin"], [data-route="home-origin-edit"],
-  [data-route="home-motto-edit"]):not(.entry-mode) {
+  [data-route="home-motto-edit"]) {
   background: var(--home-xuan-wash), var(--home-xuan-grain) center top / 470px auto var(--home-xuan-paper);
   color: var(--home-xuan-ink);
 }
 
 .phone:is([data-route="home-surname"], [data-route="home-origin"], [data-route="home-origin-edit"],
-  [data-route="home-motto-edit"]):not(.entry-mode) .app-content {
+  [data-route="home-motto-edit"]) .app-content {
   background: transparent;
   color: var(--home-xuan-ink);
 }
@@ -678,7 +678,7 @@
 .phone:is([data-route="house-stories"]:has(.family-story-collection, .story-person-volume), [data-route="house-add"],
   [data-route="house-moment"]:has(.moment-standard),
   [data-route="material-edit"]:has(.family-media-upload),
-  [data-route="archive-item"]:has(.archive-paper-detail)):not(.entry-mode) .app-content {
+  [data-route="archive-item"]:has(.archive-paper-detail)) .app-content {
   background: var(--home-xuan-wash), var(--home-xuan-grain) center top / 470px auto var(--home-xuan-paper);
   background-blend-mode: normal;
   color: var(--home-xuan-ink);
@@ -1190,7 +1190,7 @@
 }
 
 /* 家庭档案直接排在宣纸上，分类目录放在新记和媒体预览之前。 */
-.phone[data-route="house-stories"]:has(.family-story-collection):not(.entry-mode) {
+.phone[data-route="house-stories"]:has(.family-story-collection) {
   --ink: var(--home-xuan-ink);
   --secondary: var(--home-xuan-muted);
   --brand: var(--home-xuan-red);
@@ -1305,7 +1305,7 @@
   line-height: 1.5;
 }
 
-.phone[data-route="home"]:not(.entry-mode):has(.family-dashboard) .app-content {
+.phone[data-route="home"]:has(.family-dashboard) .app-content {
   background-attachment: local;
   scrollbar-width: none;
 }
@@ -1980,13 +1980,13 @@
 }
 
 /* 顶栏左右留出等宽空间，操作变化时标题仍对准页面中心。 */
-.phone:not(.entry-mode) > .statusbar,
+.phone > .statusbar,
 .top-nav {
   background: var(--home-xuan-grain) center top / 470px auto var(--home-xuan-paper);
   color: var(--home-xuan-ink);
 }
 
-.phone:not(.entry-mode) > .statusbar {
+.phone > .statusbar {
   height: 30px;
   padding: 5px 20px 1px;
 }
@@ -2151,7 +2151,7 @@
     [data-route="house-moment"]:has(.moment-standard),
     [data-route="material-edit"]:has(.family-media-upload),
     [data-route="archive-item"]:has(.archive-paper-detail),
-    [data-route="house-assistant"], [data-route="house-picks"], [data-route="profile"]):not(.entry-mode) { --home-xuan-gutter: 16px; }
+    [data-route="house-assistant"], [data-route="house-picks"], [data-route="profile"]) { --home-xuan-gutter: 16px; }
   .phone[data-route="home"] .home-cover > h1 { font-size: calc(34px * var(--unit)); }
   .phone[data-route="home"] .home-cover::before { width: min(57%, 178px); }
 }
@@ -2294,11 +2294,11 @@
 }
 
 /* 首页弹层和「我的」切换页复用同一套名单，建家入口留在完整页面。 */
-.phone[data-route="house-switch"]:not(.entry-mode) {
+.phone[data-route="house-switch"] {
   background: var(--home-xuan-background);
 }
 
-.phone[data-route="house-switch"]:not(.entry-mode) .app-content {
+.phone[data-route="house-switch"] .app-content {
   background: transparent;
 }
 
@@ -2374,12 +2374,12 @@
 }
 
 /* 我上传的：所有进度沿同一张宣纸排列，每条资料独立标记状态。 */
-.phone[data-route="materials"]:not(.entry-mode) {
+.phone[data-route="materials"] {
   background: var(--home-xuan-grain) center top / 470px auto var(--home-xuan-paper);
   color: var(--home-xuan-ink);
 }
 
-.phone[data-route="materials"]:not(.entry-mode) .app-content {
+.phone[data-route="materials"] .app-content {
   background: transparent;
   color: var(--home-xuan-ink);
 }
@@ -2535,12 +2535,12 @@
 }
 
 /* 往事详情的题头和正文在各入口共用同一张宣纸。 */
-.phone:not(.entry-mode):has(.story-reading-page) {
+.phone:has(.story-reading-page) {
   background: var(--home-xuan-background);
   color: var(--home-xuan-ink);
 }
 
-.phone:not(.entry-mode):has(.story-reading-page) .app-content {
+.phone:has(.story-reading-page) .app-content {
   background: transparent;
   color: var(--home-xuan-ink);
 }
@@ -2788,7 +2788,7 @@
 .phone .story-reading-page .house-form .form-field { margin: 0; gap: 4px; }
 .phone .story-reading-page .house-form .form-field span { color: var(--home-xuan-ink); }
 
-.phone:not(.entry-mode) .story-reading-page .house-form textarea {
+.phone .story-reading-page .house-form textarea {
   min-height: 64px;
   padding: 8px;
   border-color: var(--home-xuan-line);
@@ -2809,13 +2809,13 @@
   font: 600 calc(14px * var(--unit)) / 1.4 var(--home-xuan-sans);
 }
 
-.phone:not(.entry-mode):has(.story-reading-page) .story-reading-page :is(button, summary, textarea):focus-visible {
+.phone:has(.story-reading-page) .story-reading-page :is(button, summary, textarea):focus-visible {
   outline: 2px solid var(--home-xuan-red);
   outline-offset: 2px;
 }
 
 @media (max-width: 350px) {
-  .phone:not(.entry-mode):has(.story-reading-page) { --home-xuan-gutter: 16px; }
+  .phone:has(.story-reading-page) { --home-xuan-gutter: 16px; }
 }
 
 /* 原始记录沿用往事详情的暖宣纸，正文留在同一弹窗内滚动。 */
@@ -3162,7 +3162,7 @@
 
 /* 建家、名册及审核共用首页宣纸。资料、邀请和名册使用装订纸面。 */
 .phone:is([data-route="welcome"], [data-route="house-create"], [data-route="profile-family"], [data-route="family"],
-  [data-route="invitation"], [data-route="family-permissions"]):not(.entry-mode) {
+  [data-route="invitation"], [data-route="family-permissions"]) {
   --family-admin-surface: #fff8ec;
   --profile-paper: var(--family-admin-surface);
   --ink: var(--home-xuan-ink);
@@ -3175,13 +3175,13 @@
 }
 
 .phone:is([data-route="welcome"], [data-route="house-create"], [data-route="profile-family"], [data-route="family"],
-  [data-route="invitation"], [data-route="family-permissions"]):not(.entry-mode) > .app-content {
+  [data-route="invitation"], [data-route="family-permissions"]) > .app-content {
   background: var(--home-xuan-background);
   background-blend-mode: normal;
 }
 
 .phone:is([data-route="welcome"], [data-route="house-create"], [data-route="profile-family"], [data-route="family"],
-  [data-route="invitation"], [data-route="family-permissions"]):not(.entry-mode) .app-content > .page {
+  [data-route="invitation"], [data-route="family-permissions"]) .app-content > .page {
   padding: 20px clamp(16px, 5.65vw, 22px) 32px;
   font-family: var(--home-xuan-sans);
   overflow-wrap: anywhere;
@@ -3325,7 +3325,7 @@
 .phone:is([data-route="home-album"], [data-route="home-diary"], [data-route="membership"],
   [data-route="billing-plan"], [data-route="house-addons"], [data-route="service-orders"], [data-route="service-order"],
   [data-route="archive-item"]:has(.archive-photo-page),
-  [data-route="material-edit"]:has(.material-editor-page)):not(.entry-mode, .space-mode) {
+  [data-route="material-edit"]:has(.material-editor-page)):not(.space-mode) {
   --xuan-card-paper: #fff8ec;
   --xuan-page-gutter: clamp(14px, 4.65vw, 20px);
   background: var(--home-xuan-background);
@@ -3335,7 +3335,7 @@
 .phone:is([data-route="home-album"], [data-route="home-diary"]:has(.family-diary), [data-route="membership"],
   [data-route="billing-plan"], [data-route="house-addons"], [data-route="service-orders"], [data-route="service-order"],
   [data-route="archive-item"]:has(.archive-photo-page),
-  [data-route="material-edit"]:has(.material-editor-page)):not(.entry-mode, .space-mode) > .app-content {
+  [data-route="material-edit"]:has(.material-editor-page)):not(.space-mode) > .app-content {
   background: var(--home-xuan-background);
   background-blend-mode: normal;
   scrollbar-width: none;

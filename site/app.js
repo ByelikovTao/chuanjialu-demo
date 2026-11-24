@@ -305,8 +305,7 @@
   }
   /** 导航前保存当前输入与位置，离开页面时关闭弹层。 */
   function navigate(route,{replace=false, archiveContext, mainTab, reset=false, restoreParent}={}) {
-    if(!P.EntryFlow.authenticated()){P.FamilyMoment.close();P.EntryFlow.render();return;}
-    P.LoginScroll.close(false);captureInputs();
+    captureInputs();
     if(P.Households.current()&&P.state.actor!=='father'&&route==='life')P.state.archivePerson=P.FamilyContext.current();
     const previousUrl = location.href;
     const current=location.hash.slice(1) || 'home';
@@ -404,7 +403,7 @@
   }
   /** 首页和往事详情在滚动初段逐渐收窄，回到页首时恢复完整顶栏。 */
   function syncTopNavHeight() {
-    const progress = !phone.classList.contains('entry-mode') && collapsibleTopNavRoutes.has(P.state.route)
+    const progress = collapsibleTopNavRoutes.has(P.state.route)
       ? Math.min(1, Math.max(0, appContent.scrollTop) / topNavCollapseDistance)
       : 0;
     if (progress === topNavCollapse) return;
@@ -412,14 +411,13 @@
     topNav.style.setProperty('--top-nav-collapse', String(progress));
   }
 
-  /** 业务页和登录前的演示步骤共用同一个顶栏节点。 */
+  /** 各业务页复用同一个顶栏节点。 */
   function renderTopNav(title, leading = '', trailing = '') {
     syncTopNavHeight();
     const label = e(title);
     topNav.innerHTML = `<div class="top-nav-start">${leading}</div>
       <h1 class="top-nav-title" title="${label}">${label}</h1>
       <div class="top-nav-end">${trailing}</div>`;
-    return topNav;
   }
 
   /** 各页只提供标题、返回入口和右侧操作，布局由公共顶栏负责。 */
@@ -493,25 +491,22 @@
     P.FamilyHomeViews.unmountAlbum();
     P.FamilyTree.syncHomeEditor();
     syncFontMode();
-    const authenticated = P.EntryFlow.authenticated();
     // 非维护人打开旧编辑链接或在编辑中切换身份时，回首页阅读正式稿。
-    if (authenticated && P.state.route === 'home-motto-edit' && !P.FamilyHome.editable('motto')) {
+    if (P.state.route === 'home-motto-edit' && !P.FamilyHome.editable('motto')) {
       P.state.route = 'home';
       window.history.replaceState(null, '', '#home');
       document.getElementById('app-content').scrollTop = 0;
     }
-    const screenDemo = authenticated && P.state.route === 'house-screen';
+    const screenDemo = P.state.route === 'house-screen';
     // 相框演示替换手机内容区，顶栏和底栏随画面切换并继续复用原节点。
     const navigation = document.getElementById('bottom-nav');
     const contentAnchor = document.getElementById(screenDemo ? 'house-screen-demo' : 'app-content');
-    if (authenticated && contentAnchor.previousElementSibling !== topNav) contentAnchor.before(topNav);
+    if (contentAnchor.previousElementSibling !== topNav) contentAnchor.before(topNav);
     if (contentAnchor.nextElementSibling !== navigation) contentAnchor.after(navigation);
     P.HouseScreen.mount(screenDemo);
     P.HistoryServiceIntro.stopPlayback();
-    phone.classList.toggle('profile-secondary', authenticated && PROFILE_SECONDARY_ROUTES.has(P.state.route));
-    phone.classList.toggle('product-intro', authenticated && isServiceIntro(P.state.route));
-    if(!authenticated){P.FamilyMoment.close();P.EntryFlow.render();return;}
-    document.getElementById('phone').classList.remove('entry-mode');
+    phone.classList.toggle('profile-secondary', PROFILE_SECONDARY_ROUTES.has(P.state.route));
+    phone.classList.toggle('product-intro', isServiceIntro(P.state.route));
     const s=P.state;
     if (s.route === 'home-origin-edit' && !P.FamilyHome.editable('origin', s.homeReaderPerson)) s.route = 'home-origin';
     // 路由标识仅用于还原各页设计稿的封面和标题栏，不参与业务判断。
@@ -577,7 +572,6 @@
     if (!s.accounts[id]) return;
     // 换家前已在原工作区捕获输入，旧表单仍在 DOM 时不能读取到新身份。
     if (!switchingHousehold) {
-      P.LoginScroll.close(false);
       captureInputs();
       P.PersonArchive?.stopPlayback();
       P.DigitalHuman?.stop();
@@ -597,7 +591,7 @@
   }
   /** 字号开关只改变阅读尺寸，不清除正在编辑的文字。 */
   function toggleFont() {captureInputs();P.state.fontLarge=!P.state.fontLarge;render();}
-  Object.assign(P,{modal,closeModal,closeAddon,toast,unavailable,navigate,replaceDiaryListRoute,back,render,renderTopNav,changeActor,toggleFont,syncFontMode,captureInputs,updatePreview:updateStatePreview});
+  Object.assign(P,{modal,closeModal,closeAddon,toast,unavailable,navigate,replaceDiaryListRoute,back,render,changeActor,toggleFont,syncFontMode,captureInputs,updatePreview:updateStatePreview});
   /** 所有交互集中注册，反复渲染页面不会叠加监听器。 */
   document.addEventListener('click',event=>{
     const nav=event.target.closest('[data-nav]');
@@ -627,8 +621,7 @@
     if(value==='normal'){closeModal();P.Households.reset();navigate('home');}
   });
   // 重置家庭演示返回建家入口，旧版应用市场可从独立工具重开。
-  document.getElementById('reset-demo').addEventListener('click',()=>{closeModal();P.Households.reset();P.state.history=[];P.EntryFlow.reset();navigate('home');toast('演示已还原，当前没有保存到本地或云端。');});
-  document.getElementById('restart-entry').addEventListener('click',()=>P.EntryFlow.reset(true));
+  document.getElementById('reset-demo').addEventListener('click',()=>{closeModal();P.Households.reset();P.state.history=[];navigate('home');toast('演示已还原，当前没有保存到本地或云端。');});
   phone.addEventListener('keydown', event => {
     if (event.key !== 'Escape' || event.defaultPrevented || event.isComposing || (!addonModal.open && !baseModal.open)) return;
     event.preventDefault();

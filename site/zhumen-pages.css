@@ -1,7 +1,7 @@
 /* 逐页还原二级页面与状态；装饰来自原设计切图，数据和交互仍由业务模块维护。 */
 .phone .avatar img,.phone .avatar.father img,.phone .avatar.daughter img{object-position:center}
 
-.phone:not(.entry-mode) .page{position:relative;isolation:isolate}
+.phone .page{position:relative;isolation:isolate}
 .phone .page-title{font-size:calc(24px * var(--unit));line-height:1.333;font-weight:600;letter-spacing:0}
 .phone .page>.page-title{margin-bottom:12px}
 .phone .card-title,.phone .card h2,.phone .feature-item h3{font-size:calc(18px * var(--unit));line-height:1.5556}
@@ -10,7 +10,7 @@
 .phone .form-field>label,.phone .feature-page form>label:not(.check-row),.phone .keepsake-page form>label:not(.book-consent){position:relative;padding-left:28px;font-size:calc(16px * var(--unit));line-height:1.5;font-weight:600}
 .phone .form-field>label:before,.phone .feature-page form>label:not(.check-row):before,.phone .keepsake-page form>label:not(.book-consent):before{content:"";position:absolute;left:0;top:0;width:20px;height:24px;background:url("assets/zhumen/chinese-knot-mark.svg") center/contain no-repeat;pointer-events:none}
 .phone .feature-page form>label:not(.check-row) :is(input:not([type=checkbox]):not([type=radio]),textarea,select),.phone .keepsake-page form>label:not(.book-consent) :is(input:not([type=checkbox]):not([type=radio]),textarea){margin-left:-28px;width:calc(100% + 28px)}
-.phone:not(.entry-mode) :is(input:not([type=checkbox]):not([type=radio]),textarea,select){border-color:#CBBEB1;background:#FFFDFA;border-radius:6px}
+.phone :is(input:not([type=checkbox]):not([type=radio]),textarea,select){border-color:#CBBEB1;background:#FFFDFA;border-radius:6px}
 .phone .form-field{margin:16px 0}
 .phone .form-field>label{margin-bottom:8px}
 .phone .tabs{padding:0;background:transparent;border:1px solid #D7B2A1;border-radius:999px;overflow:hidden}

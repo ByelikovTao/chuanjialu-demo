@@ -18,7 +18,7 @@ body {
 }
 
 .phone,
-.phone:is([data-route], .entry-mode),
+.phone[data-route],
 .modal {
   --canvas: var(--family-paper);
   --surface: var(--family-surface);
@@ -34,16 +34,16 @@ body {
   background: var(--family-blush);
 }
 
-.phone:not(.entry-mode, .space-mode) .app-content {
+.phone:not(.space-mode) .app-content {
   background: var(--family-texture) center top / 720px auto var(--family-paper);
   background-blend-mode: multiply;
 }
 
-.phone[data-route]:not(.entry-mode, .space-mode) .app-content > .page:not(.journal-sheet) {
+.phone[data-route]:not(.space-mode) .app-content > .page:not(.journal-sheet) {
   background-color: transparent;
 }
 
-.phone[data-route]:not(.entry-mode, .space-mode) .app-content > .page:not(.journal-sheet)::before {
+.phone[data-route]:not(.space-mode) .app-content > .page:not(.journal-sheet)::before {
   content: none;
 }
 
@@ -54,8 +54,8 @@ body {
 .phone .btn.secondary { background: var(--soft); border-color: var(--line); }
 
 .phone:is([data-route="home"], [data-route="house-stories"], [data-route="house-assistant"],
-  [data-route="house-picks"], [data-route="profile"]):not(.entry-mode) .app-content,
-.phone.profile-secondary:not(.entry-mode) .app-content,
+  [data-route="house-picks"], [data-route="profile"]) .app-content,
+.phone.profile-secondary .app-content,
 .phone.journal-mode .app-content {
   background: var(--family-canvas);
   background-attachment: local;
@@ -1269,18 +1269,18 @@ body {
 /* 阅读页使用完整册页尺寸，页码和翻页按钮在窄屏下仍分列可操作。 */
 
 /* 家史全文沿用内页的暖纸，返回入口与正文共用这一张纸。 */
-.phone:is([data-route="home-origin"], [data-route="home-origin-edit"]):not(.entry-mode) {
+.phone:is([data-route="home-origin"], [data-route="home-origin-edit"]) {
   --history-gutter: clamp(16px, min(var(--phone-width), 100vw) - 348px, 24px);
   background: var(--family-texture) center top / 540px auto var(--family-surface);
   background-blend-mode: soft-light;
 }
-.phone:is([data-route="home-origin"], [data-route="home-origin-edit"]):not(.entry-mode) .app-content {
+.phone:is([data-route="home-origin"], [data-route="home-origin-edit"]) .app-content {
   background: transparent;
 }
 
 .phone[data-route="home-origin"] .app-content { scrollbar-color: var(--family-line) transparent; }
 
-.phone[data-route="home-origin-edit"]:not(.entry-mode) {
+.phone[data-route="home-origin-edit"] {
   --history-gutter: 16px;
   --history-editor-paper: #fff8ed;
 }
@@ -1288,11 +1288,11 @@ body {
 .phone[data-route="home-origin-edit"] .app-content { scroll-padding-block-end: 72px; }
 
 /* 相册导航和册页之间保留完整的纸面底色。 */
-.phone[data-route="home-album"]:not(.entry-mode) {
+.phone[data-route="home-album"] {
   background: var(--family-paper);
 }
-.phone[data-route="home-album"]:not(.entry-mode) .app-content { background: transparent; }
-.phone[data-route="home-album"]:not(.entry-mode) .app-content { scrollbar-width: none; }
+.phone[data-route="home-album"] .app-content { background: transparent; }
+.phone[data-route="home-album"] .app-content { scrollbar-width: none; }
 
 /* 家册内页与定制进度卡片共用浅色宣纸底纹。 */
 .family-diary,
@@ -1832,11 +1832,11 @@ body {
 }
 
 /* 正文滚动区沿用首页的浅粉青灰底色。 */
-.phone:is([data-route="service-orders"], [data-route="service-order"]):not(.entry-mode) {
+.phone:is([data-route="service-orders"], [data-route="service-order"]) {
   background: var(--family-canvas);
 }
 
-.phone:is([data-route="service-orders"], [data-route="service-order"]):not(.entry-mode) .app-content {
+.phone:is([data-route="service-orders"], [data-route="service-order"]) .app-content {
   background: transparent;
 }
 
@@ -2751,11 +2751,3 @@ body {
 }
 
 .phone.large-type .home-family-panel-tools { flex-wrap: wrap; }
-
-/* 下载与登录入口的状态栏和卡片沿用家册主题色。 */
-.phone.entry-mode .statusbar {
-  border-bottom: 1px solid var(--line);
-  background: var(--family-blush);
-  color: var(--ink);
-}
-.entry-page .market-feature h2 { color: var(--brand); }

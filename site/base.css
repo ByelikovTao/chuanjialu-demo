@@ -147,7 +147,7 @@ button:active:not(:disabled){transform:translateY(1px)}
 @media(max-width:760px), (max-width:960px) and (hover:none) and (pointer:coarse){.studio{display:block}
 .studio-sidebar,.review-panel,.review-toolbar{display:none}
 /* 手机上只在独立原型首页展示汇报入口，内嵌演示保持完整的手机画面。 */
-body:not(.embedded) .stage:has(> .phone[data-route="home"]:not(.entry-mode)) > .review-toolbar{display:flex;align-self:stretch;justify-content:flex-end;margin:0;max-width:none;padding:4px 12px;background:var(--surface);border-bottom:1px solid var(--line)}
+body:not(.embedded) .stage:has(> .phone[data-route="home"]) > .review-toolbar{display:flex;align-self:stretch;justify-content:flex-end;margin:0;max-width:none;padding:4px 12px;background:var(--surface);border-bottom:1px solid var(--line)}
 .review-toolbar > :not(.review-report-link){display:none}
 .stage{padding:0;height:100dvh}
 .phone{width:100%!important;height:auto;flex:1;min-height:0;border:0;border-radius:0;box-shadow:none}

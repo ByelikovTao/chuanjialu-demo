@@ -1,9 +1,9 @@
 /* 产品介绍共用浅粉青灰铺底，返回沿用应用的公共标题栏。 */
-.phone.product-intro:not(.entry-mode) {
+.phone.product-intro {
   background: radial-gradient(ellipse 130% 430px at 100% 0, #dce5db, transparent) #f9ebe6;
 }
 
-.phone.product-intro:not(.entry-mode) > .app-content {
+.phone.product-intro > .app-content {
   background: transparent;
 }
 

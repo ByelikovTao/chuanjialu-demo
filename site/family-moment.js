@@ -254,5 +254,5 @@
   });
   window.addEventListener('pagehide', close);
   window.addEventListener('pageshow', event => { if (event.persisted) mount(); });
-  P.FamilyMoment = { view, mount, close, handleAction, submit, playback };
+  P.FamilyMoment = { view, mount, handleAction, submit, playback };
 }

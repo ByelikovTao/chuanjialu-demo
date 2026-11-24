@@ -47,8 +47,6 @@ body{background:#EAE1D4;font-family:"Source Han Serif SC","Noto Serif SC","Songt
 .heritage-text-button:hover{background:#F0E0D1}
 .heritage-editor :is(input:not([type=checkbox]),textarea,select){border-color:#C8A58D;background:var(--surface);color:var(--ink)}
 .heritage-review-copy{background:var(--canvas);border-color:var(--line)}
-/* 入口页的独立构图由 entry-flow.css 维护，保留市场与勾选协议的交互。 */
-.entry-mode{background:var(--canvas)}
 /* 列表、档案和制作流程共用细框纸卡，圆形人像与录音控制保留自身形状。 */
 .archive-shortcut,.archive-media-card,.plan-card,.recording-card,.keepsake-entry,.profile-service-summary,.feature-choices{border-radius:8px}
 .archive-shortcut,.archive-media-card,.plan-card{background:var(--surface);border-color:var(--line)}
