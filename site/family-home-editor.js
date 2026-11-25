@@ -134,7 +134,10 @@
       <div class="motto-manuscript">
         <div class="motto-editor-heading-row">
           <h2 class="motto-editor-heading" id="motto-editor-text-title"><label for="heritage-text">家训正文</label></h2>
-          ${polishButton('motto-polish-result', value.text, 'paper-link motto-polish-toggle')}
+          <div class="motto-writing-actions" role="group" aria-label="家训写作辅助">
+            ${b(i('sparkles') + 'AI 生成', 'heritage-ai-start', 'paper-link motto-writing-action', 'aria-haspopup="dialog"')}
+            ${polishButton('motto-polish-result', value.text, 'paper-link motto-writing-action')}
+          </div>
         </div>
         <div class="motto-text-entry" data-content="${e(value.text)}">
           <textarea id="heritage-text" name="text" rows="3" aria-invalid="${length > MOTTO_TEXT_LIMIT}" aria-describedby="motto-editor-text-count motto-editor-error" placeholder="写下想和家人一起记住的话。" required>\n${e(value.text)}</textarea>
@@ -223,10 +226,12 @@
     P.modal(title,`<p class="heritage-caption">${notice}</p>${editorForm(kind,person,value)}`);
   }
   /** 预览只可写回原编辑页、原账号的对应草稿，切换页面或角色后失效。 */
-  function currentOriginForm() {
-    const form = document.querySelector('#app-content [data-home-form][data-kind="origin"]');
-    if (P.state.route !== ORIGIN_EDIT_ROUTE || !form || form.featureState !== P.state) return null;
-    if (form.dataset.actor !== P.state.actor || !allowed('origin', form.dataset.person)) return null;
+  function currentWritingForm() {
+    const kind = P.state.route === MOTTO_EDIT_ROUTE ? 'motto' : 'origin';
+    if (kind === 'origin' && P.state.route !== ORIGIN_EDIT_ROUTE) return null;
+    const form = document.querySelector('#app-content [data-home-form]');
+    if (!form || form.dataset.kind !== kind || form.featureState !== P.state) return null;
+    if (form.dataset.actor !== P.state.actor || !allowed(kind, form.dataset.person)) return null;
     return form;
   }
   function clearPolish(form) {
@@ -243,49 +248,78 @@
     else form.querySelector('.heritage-form-error').textContent = '';
     clearPolish(form);
   }
-  function showWritingSheet(title, content) {
+  function showWritingSheet(title, content, kind = 'origin') {
     P.modal(title, `<div class="history-writing-sheet">${content}</div>`, 'sheet', undefined,
-      {familySheet: true, closeLabel: '返回编辑家史'});
+      {familySheet: true, closeLabel: '返回编辑' + LABELS[kind]});
   }
   function startAiDraft(form) {
     importRequests.delete(form);
     clearPolish(form);
     writingPreviews.delete(form);
     capture();
-    showWritingSheet('AI 帮写', `
-      <label for="history-ai-notes">你想记下什么？</label>
-      <textarea id="history-ai-notes" rows="4" maxlength="${ORIGIN_NOTES_LIMIT}" placeholder="写几条线索，比如谁、在哪里、发生了什么。"></textarea>
+    const kind = form.dataset.kind;
+    const motto = kind === 'motto';
+    const choices = motto ? `
+      <label for="motto-ai-form">生成体裁</label>
+      <select id="motto-ai-form" aria-describedby="motto-ai-theme">
+        ${P.FamilyHistoryWriting.mottoDraftForms.map(({ value, label, detail }) =>
+          `<option value="${e(value)}">${e(detail ? label + '（' + detail + '）' : label)}</option>`).join('')}
+      </select>
+      <p class="heritage-caption" id="motto-ai-theme" hidden>诗体可按诚信、勤俭、敬亲、和睦或读书生成示例。</p>` : '';
+    const label = motto ? '你们家看重哪些做法？' : '你想记下什么？';
+    const placeholder = motto ? '例如，家里看重守信，答应别人的事尽力做到。' : '写几条线索，比如谁、在哪里、发生了什么。';
+    showWritingSheet(motto ? 'AI 生成家训' : 'AI 帮写', `
+      ${choices}
+      <label for="history-ai-notes">${label}</label>
+      <textarea id="history-ai-notes" rows="4" maxlength="${ORIGIN_NOTES_LIMIT}" placeholder="${placeholder}"></textarea>
       <p class="heritage-form-error" role="alert" hidden></p>
-      <div class="history-editor-actions">${b('生成初稿', 'heritage-ai-generate', 'paper-link paper-outline')}</div>`);
-    document.getElementById('history-ai-notes').focus();
+      <div class="history-editor-actions">${b('生成初稿', 'heritage-ai-generate', 'paper-link paper-outline')}</div>`, kind);
+    document.getElementById(motto ? 'motto-ai-form' : 'history-ai-notes').focus();
   }
-  function previewDraft(form) {
-    const notes = document.getElementById('history-ai-notes');
+  function previewDraft(form, sheet) {
+    const notes = sheet.querySelector('#history-ai-notes');
     if (!notes) return;
-    if (!notes.value.trim()) {
-      const error = notes.nextElementSibling;
+    const writer = P.FamilyHistoryWriting;
+    const clues = notes.value.trim();
+    const format = sheet.querySelector('#motto-ai-form')?.value;
+    const verse = writer.mottoDraftForms.find(({ value, detail }) => value === format && detail);
+    const text = format ? writer.draftMotto(clues, format, '') : clues && writer.draftFromNotes(clues);
+    // 家训正文沿用编辑页的字数上限，超限初稿保留线索供用户精简。
+    if (!text || (format && mottoTextLength(text) > MOTTO_TEXT_LIMIT)) {
+      const error = sheet.querySelector('[role="alert"]');
+      if (text) error.textContent = MOTTO_LENGTH_ERROR;
+      else if (verse) error.textContent = '请在线索中写下诚信、勤俭、敬亲、和睦或读书等主题。';
+      else error.textContent = format ? '先写下一点家里的做法。' : '先写下一点想记的往事。';
       error.hidden = false;
-      error.textContent = '先写下一点想记的往事。';
       notes.focus();
       return;
     }
-    showCandidate(form, 'draft', P.FamilyHistoryWriting.draftFromNotes(notes.value));
+    showCandidate(form, 'draft', text, { verse });
   }
-  function showCandidate(form, type, text, filename = '') {
+  function showCandidate(form, type, text, { filename = '', verse } = {}) {
     const original = form.querySelector(TEXT_INPUT).value;
     const hasText = Boolean(original.trim());
-    const attr = 'data-history-apply';
+    const kind = form.dataset.kind;
+    const motto = kind === 'motto';
+    const importing = type === 'import';
+    const mode = motto ? 'replace' : 'append';
+    const title = importing ? '核对导入文字' : verse ? '核对初稿 · ' + verse.label : '核对初稿';
+    let caption = '示例初稿，请核对人物和往事。';
+    if (importing) caption = filename;
+    else if (motto) caption = verse ? '按主题选用的诗体示例，可采用后继续修改。' : '请核对家训初稿，可采用后继续修改。';
+    const applyLabel = motto ? (hasText ? '替换正文草稿' : '使用初稿')
+      : hasText ? '追加到正文' : importing ? '导入正文' : '使用初稿';
     clearPolish(form);
     writingPreviews.set(form, {type, text, original});
-    showWritingSheet(type === 'import' ? '核对导入文字' : '核对初稿', `
-      <p class="heritage-caption">${type === 'import' ? e(filename) : '示例初稿，请核对人物和往事。'}</p>
-      <div class="history-writing-copy" role="region" aria-label="正文预览" tabindex="0">${articleParagraphs(text)}</div>
+    showWritingSheet(title, `
+      <p class="heritage-caption">${e(caption)}</p>
+      <div class="history-writing-copy${motto ? ' motto-draft-copy' : ''}" role="region" aria-label="正文预览" tabindex="0">${motto ? e(text) : articleParagraphs(text)}</div>
       <div class="history-editor-actions">
-        ${hasText && type === 'import' ? b('替换正文', 'heritage-writing-apply', 'paper-link', `${attr}="replace"`) : ''}
-        ${b(hasText ? '追加到正文' : type === 'import' ? '导入正文' : '使用初稿',
-          'heritage-writing-apply', 'paper-link paper-outline', `${attr}="append"`)}
-      </div>`);
-    document.querySelector('#modal [data-history-apply="append"]').focus({preventScroll: true});
+        ${hasText && importing ? b('替换正文', 'heritage-writing-apply', 'paper-link', 'data-history-apply="replace"') : ''}
+        ${hasText && motto ? b('保留原文', 'close-modal', 'paper-link') : ''}
+        ${b(applyLabel, 'heritage-writing-apply', 'paper-link paper-outline', `data-history-apply="${mode}"`)}
+      </div>`, kind);
+    document.querySelector(`#modal [data-history-apply="${mode}"]`).focus({preventScroll: true});
   }
   async function importDocument(input, form) {
     const file = input.files[0];
@@ -297,7 +331,7 @@
       const text = await P.FamilyHistoryWriting.readDocument(file, ORIGIN_TEXT_LIMIT);
       if (request !== importRequests.get(form) || form !== activeForm()) return;
       capture();
-      showCandidate(form, 'import', text, file.name);
+      showCandidate(form, 'import', text, { filename: file.name });
     } catch (error) {
       if (request !== importRequests.get(form) || form !== activeForm()) return;
       form.querySelector('.heritage-form-error').textContent = error.message;
@@ -355,21 +389,26 @@
     input.focus();
   }
   function handleWriting(action, element) {
-    const mottoForm = element.closest('[data-home-form][data-kind="motto"]');
-    const form = mottoForm ? (mottoForm === activeForm() ? mottoForm : null) : currentOriginForm();
+    const form = currentWritingForm();
     if (!form) return;
-    if (!mottoForm) {
+    const sheet = element.closest('#modal[open] .history-writing-sheet');
+    if (sheet) {
+      if (action === 'heritage-ai-generate') previewDraft(form, sheet);
+      if (action === 'heritage-writing-apply') applyCandidate(form, element.dataset.historyApply);
+      return;
+    }
+    if (!form.contains(element) || form !== activeForm()) return;
+    if (form.dataset.kind === 'origin') {
       if (action === 'heritage-write') form.querySelector(TEXT_INPUT).focus();
       if (action === 'heritage-import') form.querySelector('#history-file').click();
-      if (action === 'heritage-ai-start') startAiDraft(form);
-      if (action === 'heritage-ai-generate') previewDraft(form);
     }
+    if (action === 'heritage-ai-start') startAiDraft(form);
     if (action === 'heritage-polish') previewPolish(form);
     if (action === 'heritage-polish-dismiss') {
       clearPolish(form);
       form.querySelector('[data-action="heritage-polish"]').focus();
     }
-    if (action === 'heritage-writing-apply') applyCandidate(form, mottoForm ? 'replace' : element.dataset.historyApply);
+    if (action === 'heritage-writing-apply') applyCandidate(form, element.dataset.historyApply);
   }
   /** 正文与落款共同保存，署名的变动不影响确认人、来源及编辑权限。 */
   function saveMotto(form) {
@@ -527,11 +566,21 @@
   });
   document.addEventListener('input', event => {
     const input = event.target;
+    if (input.id === 'history-ai-notes') {
+      const alert = input.closest('#modal[open] .history-writing-sheet')?.querySelector('[role="alert"]');
+      if (alert) alert.hidden = true;
+    }
     if (input.id !== 'heritage-text' || !input.form || input.form !== activeForm()) return;
     if (['motto', 'origin'].includes(input.form.dataset.kind)) updateWritingText(input);
   });
   document.addEventListener('change', event => {
     const input = event.target;
+    if (input.id === 'motto-ai-form') {
+      const sheet = input.closest('#modal[open] .history-writing-sheet');
+      if (!sheet) return;
+      sheet.querySelector('#motto-ai-theme').hidden = input.value === 'plain';
+      sheet.querySelector('[role="alert"]').hidden = true;
+    }
     if (input.id === 'history-file' && input.form === activeForm()) importDocument(input, input.form);
   });
   P.FamilyHomeEditor={capture,enterPage,handleAction,submit};

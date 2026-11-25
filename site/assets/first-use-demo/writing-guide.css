@@ -45,11 +45,13 @@
 }
 
 .writing-meta label,
-#writing-target-field label {
+#writing-target-field label,
+#writing-motto-form-field label {
   font-size: 0.875rem;
 }
 
-#writing-target {
+#writing-target,
+#writing-motto-form {
   width: 100%;
   min-height: 48px;
   padding: 8px 12px;

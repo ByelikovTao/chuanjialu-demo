@@ -52,6 +52,11 @@
       <button class="button" id="writing-polish" type="button">AI 润色</button>
     </div>
     <div class="writing-panel field" id="writing-composer" hidden>
+      <div class="field" id="writing-motto-form-field" hidden>
+        <label for="writing-motto-form">生成体裁</label>
+        <select id="writing-motto-form" aria-describedby="writing-motto-theme"></select>
+        <p class="note" id="writing-motto-theme" hidden>诗体可按诚信、勤俭、敬亲、和睦或读书生成示例。</p>
+      </div>
       <label for="writing-clues" id="writing-clue-label"></label>
       <textarea id="writing-clues" rows="3" maxlength="1000"></textarea>
       <p class="notice" id="writing-clue-error" role="alert" hidden></p>
@@ -62,7 +67,7 @@
     </div>
     <section class="writing-panel" id="writing-review" aria-labelledby="writing-review-title" hidden>
       <h3 id="writing-review-title" tabindex="-1"></h3>
-      <p class="note">演示稿依据你提供的文字整理，核对后可采用。</p>
+      <p class="note" id="writing-review-note"></p>
       <dl class="writing-comparison">
         <div><dt>原文</dt><dd id="writing-original"></dd></div>
         <div><dt>建议稿</dt><dd id="writing-candidate"></dd></div>
@@ -87,11 +92,6 @@
     if (kind === 'history') {
       return writing.draftFromNotes(clues);
     }
-    if (kind === 'motto') {
-      // 把用户给出的做法整理成条目，避免为新家虚构祖训或出处。
-      const notes = clues.split(/[；;\n]+/u).map((item) => item.trim()).filter(Boolean).join('\n');
-      return writing.polish(writing.polishMotto(notes).text).text;
-    }
     return writing.polish(clues).text;
   }
 
@@ -106,6 +106,9 @@
     const composer = element('writing-composer');
     const clues = element('writing-clues');
     const clueError = element('writing-clue-error');
+    const mottoForm = element('writing-motto-form');
+    const mottoTheme = element('writing-motto-theme');
+    const writing = window.App.FamilyHistoryWriting;
     const review = element('writing-review');
     const reviewTitle = element('writing-review-title');
     const reviewError = element('writing-review-error');
@@ -115,6 +118,12 @@
 
     element('writing-clue-label').textContent = guide.hint;
     clues.placeholder = guide.placeholder;
+    if (kind === 'motto') {
+      for (const { value, label, detail } of writing.mottoDraftForms) {
+        mottoForm.add(new Option(detail ? label + '（' + detail + '）' : label, value));
+      }
+      element('writing-motto-form-field').hidden = false;
+    }
 
     function updatePolishAction() {
       polishButton.disabled = !currentInput().value.trim();
@@ -128,10 +137,13 @@
       setError(reviewError);
     }
 
-    function showReview(mode, candidate) {
+    function showReview(mode, candidate, verseForm) {
       const input = currentInput();
       preview = { mode, input, original: input.value, candidate };
-      reviewTitle.textContent = mode === 'draft' ? '核对初稿' : '核对润色稿';
+      const title = mode === 'draft' ? '核对初稿' : '核对润色稿';
+      reviewTitle.textContent = verseForm ? title + ' · ' + verseForm.label : title;
+      element('writing-review-note').textContent = verseForm
+        ? '按主题选用的诗体示例，可采用后继续修改。' : '演示稿依据你提供的文字整理，核对后可采用。';
       element('writing-original').textContent = input.value || '还没有原文';
       element('writing-candidate').textContent = candidate;
       composer.hidden = true;
@@ -152,20 +164,28 @@
       clues.focus();
     });
     polishButton.addEventListener('click', () => {
-      const writing = window.App.FamilyHistoryWriting;
       const original = currentInput().value;
       const result = kind === 'motto' ? writing.polishMotto(original) : writing.polish(original);
       showReview('polish', result.text);
     });
+    mottoForm.addEventListener('change', () => {
+      mottoTheme.hidden = mottoForm.value === 'plain';
+      setError(clueError);
+    });
     clues.addEventListener('input', () => setError(clueError));
     element('writing-preview-draft').addEventListener('click', () => {
-      const candidate = buildDraft(kind, clues.value.trim(), window.App.FamilyHistoryWriting);
-      if (!clues.value.trim() || !candidate.trim()) {
-        setError(clueError, '先写下一点家里的做法或经历，才能整理成初稿。');
+      const notes = clues.value.trim();
+      const form = mottoForm.value;
+      const verseForm = writing.mottoDraftForms.find(({ value, detail }) => value === form && detail);
+      const candidate = kind === 'motto' ? writing.draftMotto(notes, form, mottoDetails().topic)
+        : notes && buildDraft(kind, notes, writing);
+      if (!candidate.trim()) {
+        setError(clueError, verseForm ? '请在主题或线索中填入诚信、勤俭、敬亲、和睦或读书。'
+          : '先写下一点家里的做法或经历，才能整理成初稿。');
         clues.focus();
         return;
       }
-      showReview('draft', candidate);
+      showReview('draft', candidate, verseForm);
     });
     element('writing-cancel').addEventListener('click', () => {
       closePanels();
@@ -190,6 +210,7 @@
     });
 
     fieldListeners = new AbortController();
+    element('motto-topic')?.addEventListener('input', () => setError(clueError), { signal: fieldListeners.signal });
     for (const { input } of targets) {
       input.addEventListener('input', updatePolishAction, { signal: fieldListeners.signal });
     }

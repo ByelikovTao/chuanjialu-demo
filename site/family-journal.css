@@ -1727,7 +1727,7 @@ body {
   }
 }
 .history-edit-page .heritage-editor :is(input, textarea):focus-visible,
-.history-writing-sheet textarea:focus-visible,
+.history-writing-sheet :is(textarea, select):focus-visible,
 .history-writing-copy:focus-visible {
   outline: 1px solid var(--family-brand);
   outline-offset: 3px;
@@ -1804,6 +1804,10 @@ body {
 }
 .history-writing-copy p { margin: 0; text-indent: 2em; }
 .history-writing-copy p + p { margin-block-start: .65em; }
+.history-writing-copy.motto-draft-copy {
+  max-block-size: 9lh;
+  white-space: pre-wrap;
+}
 .history-writing-copy mark {
   border-block-end: 1px dotted var(--family-brand);
   background: transparent;
@@ -1814,7 +1818,7 @@ body {
   color: var(--family-ink);
   font: 600 calc(18px * var(--unit)) / 1.35 var(--family-hand);
 }
-.phone .history-writing-sheet textarea,
+.phone .history-writing-sheet :is(textarea, select),
 .history-writing-sheet .history-writing-copy {
   padding: 8px 10px;
   border: 1px solid var(--family-line);
@@ -1822,6 +1826,12 @@ body {
   background: var(--family-surface);
 }
 .phone .history-writing-sheet textarea { resize: vertical; }
+.phone .history-writing-sheet select {
+  min-inline-size: 0;
+  min-block-size: 44px;
+  color: var(--family-ink);
+  font: inherit;
+}
 .history-writing-sheet .history-editor-actions { margin-block-start: 0; }
 @container (max-width: 340px) {
   .history-manuscript { padding-inline-start: 24px; }
@@ -1897,13 +1907,18 @@ body {
   font-size: calc(12px * var(--unit));
 }
 .phone .motto-manuscript-footer .motto-editor-text-count.is-at-limit { color: var(--family-brand); }
-.phone .motto-polish-toggle {
+.motto-writing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 8px;
+}
+.phone .motto-writing-action {
   padding-inline: 0;
   color: var(--home-xuan-red);
 }
-.phone .motto-polish-toggle:hover,
-.phone .motto-polish-toggle[aria-expanded="true"] { background: transparent; color: var(--family-pressed); }
-.phone .motto-polish-toggle:disabled { opacity: .55; }
+.phone .motto-writing-action:hover,
+.phone .motto-writing-action[aria-expanded="true"] { background: transparent; color: var(--family-pressed); }
+.phone .motto-writing-action:disabled { opacity: .55; }
 
 .motto-polish-result {
   min-width: 0;
