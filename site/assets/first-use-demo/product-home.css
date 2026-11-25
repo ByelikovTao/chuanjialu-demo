@@ -1,0 +1,18 @@
+.embedded .stage {
+  min-height: 100dvh;
+}
+
+.product-cover-album-choice {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.product-cover-album-choice input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--family-brand, #a9311f);
+}

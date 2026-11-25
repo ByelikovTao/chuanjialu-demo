@@ -1,0 +1,83 @@
+#family-invite-form select {
+  min-width: 0;
+  min-height: 48px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+
+#family-invite-form [aria-invalid="true"] {
+  border-color: var(--cinnabar);
+}
+
+.invitation-preview {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.invitation-preview h2 {
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+
+.invitation-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  overflow-wrap: anywhere;
+}
+
+.invitation-state {
+  flex-shrink: 0;
+  color: var(--cinnabar);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.invitation-tree {
+  display: grid;
+  gap: 8px;
+}
+
+.invitation-tree-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.invitation-tree-row[data-generation="other"] {
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.invitation-tree-node {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 2px;
+  min-width: 80px;
+  max-width: 100%;
+  min-height: 56px;
+  padding: 8px;
+  overflow-wrap: anywhere;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  text-align: center;
+}
+
+.invitation-tree-owner {
+  border-color: var(--cinnabar);
+}

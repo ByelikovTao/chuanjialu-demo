@@ -1,0 +1,112 @@
+#writing-intro,
+#writing-tools {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+#writing-intro h2 {
+  font-size: 1.125rem;
+}
+
+.writing-examples {
+  display: grid;
+  gap: 8px;
+  margin: 4px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.writing-examples > div {
+  display: grid;
+  grid-template-columns: 2em minmax(0, 1fr);
+  gap: 8px;
+}
+
+.writing-examples dt {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.writing-examples dd {
+  margin: 0;
+  color: var(--muted);
+}
+
+.writing-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 8px;
+}
+
+.writing-meta label,
+#writing-target-field label {
+  font-size: 0.875rem;
+}
+
+#writing-target {
+  width: 100%;
+  min-height: 48px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+
+.writing-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.writing-buttons > .button {
+  color: var(--cinnabar);
+  font-size: 0.875rem;
+}
+
+.writing-panel {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff9f0;
+}
+
+.writing-panel h3 {
+  font-size: 1.125rem;
+}
+
+.writing-comparison {
+  display: grid;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.writing-comparison > div {
+  min-width: 0;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+
+.writing-comparison dt {
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.writing-comparison dd {
+  margin: 0;
+  white-space: pre-wrap;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}

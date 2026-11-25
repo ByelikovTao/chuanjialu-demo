@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
+  <meta name="theme-color" content="#faecdf">
+  <meta name="description" content="留住全家福、长辈讲过的话和家里的往事。以后孩子翻看，也能读到那天的故事。">
+  <meta name="robots" content="noindex">
+  <title>传家录 · 家庭初始化演示</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="writing-guide.css">
+  <link rel="stylesheet" href="invitation.css">
+  <script src="memory-store.js" defer></script>
+  <script src="writing-guide.js" defer></script>
+  <script src="../../family-history-writing.js" defer></script>
+  <script src="invitation.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <div class="status-bar" aria-hidden="true">
+      <span>9:41</span>
+      <span class="status-icons"><span class="signal">▂▄▆</span><span class="battery"></span></span>
+    </div>
+    <header class="topbar">
+      <button class="text-button" id="step-back" type="button" hidden>返回</button>
+      <div class="wordmark">
+        <span class="wordmark-default"><span class="seal" aria-hidden="true">傳</span>传家录</span>
+        <span class="wordmark-home">我家</span>
+        <span class="wordmark-guide" id="guide-family-name"></span>
+        <span class="wordmark-store">应用商店</span>
+      </div>
+      <button class="text-button" id="start-over" type="button" hidden>重新演示</button>
+    </header>
+
+    <main class="stage" id="main-content">
+      <p class="notice" id="global-error" role="alert" hidden></p>
+
+      <section class="step store-page" data-step="app-store" aria-labelledby="app-store-title">
+        <div class="store-listing">
+          <header class="store-product">
+            <span class="seal store-app-icon" aria-hidden="true">傳</span>
+            <div class="store-product-info">
+              <h1 id="app-store-title" tabindex="-1">传家录</h1>
+              <p>家里的照片和往事</p>
+            </div>
+            <button class="button primary store-get" id="app-get" type="button">获取</button>
+          </header>
+          <p class="note store-install-status" id="install-status" role="status">模拟下载安装</p>
+        </div>
+        <section class="store-previews" aria-labelledby="store-previews-title">
+          <h2 id="store-previews-title">应用预览</h2>
+          <ul class="store-preview-list" tabindex="0" aria-label="横向浏览传家录截图">
+            <li>
+              <figure>
+                <img src="assets/store-preview-home.webp" width="390" height="844" alt="我家首页展示家名、全家福、家训和底部导航">
+                <figcaption>我家</figcaption>
+              </figure>
+            </li>
+            <li>
+              <figure>
+                <img src="assets/store-preview-welcome.webp" width="390" height="844" alt="创建后先看到首页照片的摆放效果，再选择自己的照片">
+                <figcaption>首页照片预览</figcaption>
+              </figure>
+            </li>
+            <li>
+              <figure>
+                <img src="assets/store-preview-media.webp" width="390" height="844" alt="选择照片或视频的页面，也可以记家事、留家训或给家谱添一位家人">
+                <figcaption>添加照片或视频</figcaption>
+              </figure>
+            </li>
+          </ul>
+        </section>
+        <section class="store-about" aria-labelledby="store-about-title">
+          <h2 id="store-about-title">关于此应用</h2>
+          <p>把全家福和视频收进<span class="copy-term">「我家」</span>，也把长辈讲过的往事、家训和家庭日记记下来。以后再翻到一张照片，还能读到那天的人和事。</p>
+          <dl class="store-specs">
+            <div><dt>类别</dt><dd>家庭记录</dd></div>
+            <div><dt>语言</dt><dd>简体中文</dd></div>
+          </dl>
+        </section>
+      </section>
+
+      <section class="step login-page" data-step="login" aria-labelledby="login-title" hidden>
+        <header class="page-heading">
+          <h1 id="login-title" tabindex="-1">给家人留住那一天</h1>
+          <p class="intro">从你留下的第一张全家福开始，<span class="copy-term">别让记忆丢失。</span></p>
+        </header>
+        <section class="login-home-preview" aria-labelledby="login-preview-title">
+          <header class="login-preview-heading">
+            <span class="seal" aria-hidden="true">陳</span>
+            <h2 id="login-preview-title">我们陈家</h2>
+            <p class="note">家庭主页预览</p>
+          </header>
+          <figure class="photo-frame login-photo">
+            <img src="assets/family-reunion.webp" width="549" height="346" alt="新年装饰下，一家人笑着依偎在一起">
+            <figcaption class="login-photo-caption">陈家除夕</figcaption>
+          </figure>
+          <ul class="login-preview-features">
+            <li><strong>家史</strong><span class="note">记下家族走过的路</span></li>
+            <li><strong>家训</strong><span class="note">留下长辈的话</span></li>
+            <li><strong>家谱</strong><span class="note">理清几代人的关系</span></li>
+          </ul>
+        </section>
+        <div class="page-actions story-actions login-actions">
+          <button class="button primary" type="button" data-go="name">我来创建我们的家</button>
+          <button class="text-button" type="button" data-go="invite">我收到家庭邀请</button>
+        </div>
+      </section>
+
+      <section class="step flow-step" data-step="invite" aria-labelledby="invite-title" hidden>
+        <header class="page-heading">
+          <h1 id="invite-title" tabindex="-1">收到家庭邀请</h1>
+          <p class="intro" id="invite-sender"></p>
+        </header>
+        <section class="login-home-preview" aria-labelledby="invite-family-name">
+          <header class="login-preview-heading">
+            <span class="seal" aria-hidden="true">陳</span>
+            <h2 id="invite-family-name"></h2>
+          </header>
+          <figure class="photo-frame login-photo">
+            <img src="assets/family-reunion.webp" width="549" height="346" alt="陈家人在除夕夜的全家福">
+            <figcaption class="login-photo-caption">陈家除夕</figcaption>
+          </figure>
+        </section>
+        <p class="notice" id="invite-error" role="alert" hidden></p>
+        <div class="page-actions story-actions">
+          <button class="button primary" id="accept-invitation" type="button">接受邀请</button>
+          <p class="note">演示邀请，仅在当前浏览器生效。</p>
+        </div>
+      </section>
+
+      <section class="step name-page" data-step="name" aria-labelledby="name-title" hidden>
+        <header class="page-heading">
+          <h1 id="name-title" tabindex="-1">这个家，由你来创建</h1>
+          <p class="intro">你定的名字，会和一家人的故事一起留下。</p>
+        </header>
+        <form class="form-page" id="family-form">
+          <div class="field name-input">
+            <label for="family-name">家名</label>
+            <input id="family-name" name="family-name" type="text" placeholder="比如「陈」或「外婆家」" maxlength="24" autocomplete="off" aria-describedby="family-name-hint name-error" required>
+            <p class="note" id="family-name-hint">填写姓氏时，可以选用推荐的家名。</p>
+            <button class="text-button" id="family-name-suggestion" type="button" hidden></button>
+          </div>
+          <section class="login-home-preview" aria-labelledby="family-name-preview">
+            <header class="login-preview-heading">
+              <span class="seal" aria-hidden="true">家</span>
+              <div>
+                <h2 id="family-name-preview">你的家名</h2>
+                <p class="note name-preview-credit" id="family-name-credit" hidden>由你定名</p>
+              </div>
+              <p class="note">家庭主页预览</p>
+            </header>
+            <figure class="photo-frame login-photo">
+              <img src="assets/family-reunion.webp" width="549" height="346" alt="陈家除夕合影，用作家庭主页的配图示意">
+              <figcaption class="login-photo-caption">陈家除夕 · 预览配图</figcaption>
+            </figure>
+          </section>
+          <p class="notice" id="name-error" role="alert" hidden></p>
+          <button class="button primary" id="confirm-family-name" type="submit" disabled>就叫这个名字</button>
+        </form>
+      </section>
+
+      <section class="step flow-step" data-step="media" aria-labelledby="media-title" hidden>
+        <header class="page-heading">
+          <h1 id="media-title" tabindex="-1">今天想给家里留下什么？</h1>
+          <p class="intro">照片和视频默认放进「留影」。人物、时间和故事可以以后再补。</p>
+        </header>
+        <div class="media-picker">
+          <div class="picker-actions">
+            <input class="file-input" id="memory-file" type="file" accept="image/*,video/*">
+            <label class="button primary" id="media-picker-label" for="memory-file">从手机选照片或视频</label>
+            <button class="text-button" id="choose-sample" type="button">用示例照片体验</button>
+          </div>
+          <div class="media-draft" id="media-draft" hidden>
+            <div id="media-preview" hidden></div>
+            <p class="note" id="media-caption" role="status"></p>
+            <label class="cover-choice" id="cover-choice" hidden><input id="use-as-cover" type="checkbox"> 设为全家福</label>
+          </div>
+          <p class="notice" id="media-error" role="alert" hidden></p>
+          <div id="media-continue" hidden>
+            <button class="button primary" id="next-memory" type="button" disabled>保存到我家</button>
+          </div>
+        </div>
+        <section class="memory-options" aria-labelledby="memory-options-title">
+          <h2 id="memory-options-title">还可以留下</h2>
+          <div class="options">
+            <div>
+              <input class="file-input" id="cover-file" type="file" accept="image/*">
+              <label class="option" for="cover-file">留一张全家福</label>
+            </div>
+            <button class="option" type="button" data-extra="journal">
+              <span class="option-copy">记一件家事<small>那天谁在场、发生了什么</small></span>
+            </button>
+            <button class="option" type="button" data-extra="motto">
+              <span class="option-copy">留一句家训<small>长辈常说、你一直记得的那句话</small></span>
+            </button>
+            <button class="option" type="button" data-extra="history">记一段家史</button>
+            <button class="option" type="button" data-extra="tree">
+              <span class="option-copy">给家谱添一位家人<small>先记下家人的姓名或称呼</small></span>
+            </button>
+          </div>
+        </section>
+      </section>
+
+      <section class="step flow-step" data-step="home" aria-labelledby="home-family-name" hidden>
+        <header class="family-heading">
+          <h1 class="family-title" id="home-family-name" tabindex="-1">我的家</h1>
+          <p class="home-membership-label" id="home-membership-label"></p>
+        </header>
+        <header class="home-creator" id="home-creator" hidden>
+          <h2 id="home-creator-title">这个家，是你建起来的。</h2>
+          <p class="intro" id="home-photo-intro"></p>
+        </header>
+        <section class="home-photos" aria-labelledby="home-photo-title">
+          <div class="home-photo-heading">
+            <h2 id="home-photo-title">首页照片</h2>
+            <p class="note" id="home-photo-swipe" hidden>左右滑动看更多</p>
+          </div>
+          <div class="home-photo-rail" id="home-photo-rail" tabindex="0"></div>
+          <div class="home-photo-meta">
+            <p class="note" id="home-photo-caption"></p>
+            <div class="home-photo-pages" id="home-photo-pages" aria-label="翻看照片">
+              <button class="text-button home-photo-arrow" id="home-photo-prev" type="button" aria-label="上一张"><span aria-hidden="true">‹</span></button>
+              <span id="home-photo-count" aria-live="polite"></span>
+              <button class="text-button home-photo-arrow" id="home-photo-next" type="button" aria-label="下一张"><span aria-hidden="true">›</span></button>
+            </div>
+          </div>
+        </section>
+        <p class="sr-only" id="home-save-status" role="status"></p>
+        <div class="home-photo-actions">
+          <input id="home-photo-file" type="file" accept="image/*" multiple hidden>
+          <label class="cover-choice" id="home-photo-album-choice" hidden>
+            <input id="home-photo-album" type="checkbox" checked> 同时保存到留影
+          </label>
+          <button class="button primary" id="add-home-photos" type="button" aria-describedby="home-photo-intro">添加首页照片</button>
+          <p class="notice" id="home-photo-error" role="alert" hidden></p>
+          <div class="home-setup-actions" id="home-setup-actions" hidden>
+            <button class="button guide-action" type="button" data-go="guide">继续完善资料</button>
+            <button class="button primary" type="button" data-enter-home>进入我家</button>
+          </div>
+          <p class="notice" id="home-entry-error" role="alert" hidden></p>
+        </div>
+      </section>
+
+      <section class="step flow-step onboarding-guide" data-step="guide" aria-labelledby="guide-title" hidden>
+        <header class="page-heading">
+          <h1 id="guide-title" tabindex="-1">继续完善资料</h1>
+          <p class="intro">想补哪项就选哪项，也可以直接进我家。</p>
+        </header>
+        <ul class="guide-list">
+          <li>
+            <button class="option" type="button" data-extra="motto">
+              <span class="option-copy"><strong>记录家训</strong><small>把这个家的教诲和做事准则留给后人。</small></span>
+            </button>
+          </li>
+          <li>
+            <button class="option" type="button" data-extra="history">
+              <span class="option-copy"><strong>家史</strong><small>写下一件家里常提起的往事。</small></span>
+            </button>
+          </li>
+          <li>
+            <button class="option" type="button" data-extra="profile">
+              <span class="option-copy"><strong>个人资料</strong><small>从基本资料开始，慢慢补上你的小传和经历。</small></span>
+            </button>
+          </li>
+          <li>
+            <button class="option" type="button" data-go="family-invite">
+              <span class="option-copy"><strong id="guide-invitation-label">邀请第一位家人</strong><small>让家人加入，并把你们的关系记进家谱。</small></span>
+            </button>
+          </li>
+        </ul>
+        <div class="page-actions">
+          <p class="note" id="guide-save-status" role="status" hidden></p>
+          <p class="notice" id="guide-error" role="alert" hidden></p>
+          <button class="button primary" type="button" data-enter-home>进入我家</button>
+        </div>
+      </section>
+
+      <section class="step flow-step" id="family-invite-page" data-step="family-invite" aria-labelledby="family-invite-title" hidden></section>
+
+      <section class="step flow-step" data-step="extra" aria-labelledby="extra-title" hidden>
+        <header class="page-heading">
+          <h1 id="extra-title" tabindex="-1">留下记忆</h1>
+        </header>
+        <form class="form-page" id="extra-form">
+          <div id="writing-intro" hidden></div>
+          <div class="field entry-field" id="extra-field">
+            <label id="extra-label" for="extra-value">内容</label>
+            <textarea id="extra-value" name="memory" rows="3" maxlength="2000" required></textarea>
+          </div>
+          <fieldset class="profile-fields" id="profile-field" aria-label="人物志资料" hidden disabled>
+            <fieldset class="profile-fields">
+              <legend>基本资料</legend>
+              <div class="field">
+                <label for="profile-value">姓名</label>
+                <input id="profile-value" name="name" type="text" maxlength="24" autocomplete="name" required>
+              </div>
+              <div class="field">
+                <label for="profile-birthday">生日（选填）</label>
+                <input id="profile-birthday" name="birthday" type="date" min="1900-01-01" autocomplete="bday">
+              </div>
+              <div class="field">
+                <label for="profile-hometown">籍贯（选填）</label>
+                <input id="profile-hometown" name="hometown" type="text" maxlength="48" placeholder="例如 贵州贵阳">
+              </div>
+            </fieldset>
+            <div class="field">
+              <label for="profile-intro">小传（选填）</label>
+              <textarea id="profile-intro" name="intro" rows="3" maxlength="600" placeholder="写下想让家人记住的几句话"></textarea>
+            </div>
+            <fieldset class="profile-fields profile-experience">
+              <legend>经历</legend>
+              <div class="field">
+                <label for="profile-education">求学（选填）</label>
+                <textarea id="profile-education" name="education" rows="3" maxlength="1200" placeholder="例如上过的学校、所学的专业"></textarea>
+              </div>
+              <div class="field">
+                <label for="profile-work">从业（选填）</label>
+                <textarea id="profile-work" name="work" rows="3" maxlength="1200" placeholder="例如工作年份、单位和岗位"></textarea>
+              </div>
+            </fieldset>
+          </fieldset>
+          <div id="writing-tools" hidden></div>
+          <p class="notice" id="extra-error" role="alert" hidden></p>
+          <div class="page-actions">
+            <button class="button primary" id="extra-submit" type="submit">保存到我家</button>
+            <button class="button" id="extra-enter-home" type="button" data-enter-home hidden>稍后再填，进入我家</button>
+          </div>
+        </form>
+      </section>
+    </main>
+    <div class="gesture-bar" aria-hidden="true"></div>
+    <section class="product-landing" id="product-landing" aria-label="首次体验后的产品页面" hidden>
+      <div class="product-preview-controls">
+        <button class="text-button" id="product-reset" type="button">重新演示</button>
+      </div>
+      <div class="product-view" id="product-view">
+        <div class="product-loading" id="product-loading">
+          <p class="intro" id="product-status" role="status">正在打开我家…</p>
+          <button class="button" id="product-retry" type="button" hidden>重新加载</button>
+        </div>
+      </div>
+    </section>
+    <dialog class="photo-setup-dialog" id="photo-setup-dialog" aria-labelledby="photo-setup-title">
+      <form class="form-page" id="photo-setup-form">
+        <h2 id="photo-setup-title">保存首页照片</h2>
+        <img class="record-media" id="photo-setup-preview" alt="所选首页照片">
+        <p class="note" id="photo-setup-count"></p>
+        <div class="field">
+          <label for="photo-setup-name">你的姓名（选填）</label>
+          <input id="photo-setup-name" name="name" type="text" maxlength="24" autocomplete="name">
+          <p class="note">家人收到邀请时，会看到这个名字。</p>
+        </div>
+        <label class="cover-choice">
+          <input id="photo-setup-album" type="checkbox" checked> 同时保存到留影
+        </label>
+        <p class="notice" id="photo-setup-error" role="alert" hidden></p>
+        <button class="button primary" id="photo-setup-save" type="submit">保存照片</button>
+        <button class="button" id="photo-setup-cancel" type="button">取消</button>
+      </form>
+    </dialog>
+    <dialog class="welcome-dialog" id="welcome-dialog" aria-labelledby="welcome-title" aria-describedby="welcome-wish">
+      <div class="welcome-paper">
+        <span class="seal welcome-seal" aria-hidden="true">家</span>
+        <p class="welcome-name" id="welcome-family-name"></p>
+        <img id="welcome-photo" class="welcome-photo" alt="刚添加的首页照片" hidden>
+        <h2 id="welcome-title">这个家，是你建起来的。</h2>
+        <p class="welcome-wish" id="welcome-wish">愿家人常相聚，好时光留得住。</p>
+        <p class="note welcome-timer">3 秒后自动进入</p>
+        <button class="text-button" id="close-welcome" type="button">立即进入</button>
+      </div>
+    </dialog>
+  </div>
+
+  <dialog id="reset-dialog" aria-labelledby="reset-title">
+    <h2 id="reset-title">重新开始演示</h2>
+    <p>清空这次初始化演示里的家名和记忆，从下载开始。</p>
+    <div class="actions">
+      <button class="button secondary" id="cancel-reset" type="button" autofocus>取消</button>
+      <button class="button primary" id="confirm-reset" type="button">重新开始</button>
+    </div>
+  </dialog>
+</body>
+</html>

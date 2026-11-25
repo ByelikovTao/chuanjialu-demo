@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="no-referrer">
+  <base href="../../">
+  <title>传家录 · 我家</title>
+  <link rel="stylesheet" href="base.css">
+  <link rel="stylesheet" href="screens.css">
+  <link rel="stylesheet" href="details.css">
+  <link rel="stylesheet" href="family-tree.css">
+  <link rel="stylesheet" href="digital-human.css">
+  <link rel="stylesheet" href="person-archive.css">
+  <link rel="stylesheet" href="content-chat.css">
+  <link rel="stylesheet" href="family-features.css">
+  <link rel="stylesheet" href="family-home.css">
+  <link rel="stylesheet" href="zhumen-theme.css">
+  <link rel="stylesheet" href="zhumen-pages.css">
+  <link rel="stylesheet" href="households.css">
+  <link rel="stylesheet" href="house-screen-demo.css">
+  <link rel="stylesheet" href="family-assistant.css">
+  <link rel="stylesheet" href="family-picks.css">
+  <link rel="stylesheet" href="family-paper.css">
+  <link rel="stylesheet" href="family-journal.css">
+  <link rel="stylesheet" href="house-screen-intro.css">
+  <link rel="stylesheet" href="family-home-xuan.css">
+  <link rel="stylesheet" href="assets/first-use-demo/product-home.css">
+</head>
+<body class="embedded">
+  <div class="studio">
+    <main class="stage">
+      <section id="house-screen-demo" class="house-screen-demo" aria-label="传家相框演示" hidden></section>
+      <div class="phone" id="phone">
+        <div class="statusbar" aria-hidden="true"><b>9:41</b><div><span class="signal">▂▄▆</span><span class="wifi">◔</span><span class="battery"></span></div></div>
+        <header id="app-header" class="top-nav"></header>
+        <div id="app-content" class="app-content" tabindex="-1"></div>
+        <nav id="bottom-nav" class="bottom-nav" aria-label="主要导航"></nav>
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+        <div class="phone-dialog-layer">
+          <dialog id="modal" class="modal" aria-labelledby="modal-title"><div id="modal-content"></div></dialog>
+        </div>
+        <div class="phone-dialog-layer">
+          <dialog id="addon-modal" class="modal addon-modal" aria-labelledby="addon-modal-title"><div></div></dialog>
+        </div>
+      </div>
+    </main>
+  </div>
+  <!-- 完整版运行时共用的预览节点保留在内部，不进入手机界面。 -->
+  <div hidden>
+    <nav id="studio-nav"></nav>
+    <select id="actor-select"></select>
+    <select id="width-select"></select>
+    <select id="scenario-select"></select>
+    <button id="font-toggle" type="button"></button>
+    <button id="reset-demo" type="button"></button>
+    <h2 id="review-title"></h2>
+    <p id="review-description"></p>
+    <pre id="state-preview"></pre>
+  </div>
+  <aside id="customization-demo-controls" hidden></aside>
+  <script src="assets/first-use-demo/product-home-bootstrap.js" defer></script>
+  <script src="data.js" defer></script>
+  <script src="archive-data.js" defer></script>
+  <script src="person-archive.js" defer></script>
+  <script src="content-chat.js" defer></script>
+  <script src="family-context.js" defer></script>
+  <script src="family-home.js" defer></script>
+  <script src="family-home-views.js" defer></script>
+  <script src="family-history-writing.js" defer></script>
+  <script src="family-home-editor.js" defer></script>
+  <script src="billing.js" defer></script>
+  <script src="billing-views.js" defer></script>
+  <script src="family-memories.js" defer></script>
+  <script src="views.js" defer></script>
+  <script src="family-tree.js" defer></script>
+  <script src="family-map.js" defer></script>
+  <script src="family-views.js" defer></script>
+  <script src="portrait-motion.js" defer></script>
+  <script src="digital-human.js" defer></script>
+  <script src="questions.js" defer></script>
+  <script src="material-library.js" defer></script>
+  <script src="answer-feedback.js" defer></script>
+  <script src="actions.js" defer></script>
+  <script src="households.js" defer></script>
+  <script src="family-customization.js" defer></script>
+  <script src="voice-recorder.js" defer></script>
+  <script src="family-editions.js" defer></script>
+  <script src="family-moment.js" defer></script>
+  <script src="house-screen-gift.js" defer></script>
+  <script src="house-screen-reminders.js" defer></script>
+  <script src="house-screen-demo.js" defer></script>
+  <script src="house-screen-intro.js" defer></script>
+  <script src="history-book-samples.js" defer></script>
+  <script src="history-service-intro.js" defer></script>
+  <script src="family-assistant.js" defer></script>
+  <script src="family-picks.js" defer></script>
+  <script src="family-journal.js" defer></script>
+  <script src="app.js" defer></script>
+  <script src="assets/first-use-demo/product-home-data.js" defer></script>
+  <script src="assets/first-use-demo/product-home-bridge.js" defer></script>
+</body>
+</html>
