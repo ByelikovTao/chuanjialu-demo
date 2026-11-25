@@ -3,7 +3,7 @@
 {
   const P = window.App, { escape: e, button: b, link: l, icon: i } = P;
   const ROUTE = 'house-assistant';
-  const TITLE = 'AI问家';
+  const TITLE = 'AI助手';
   const FORM_ID = 'family-assistant-form';
   const LIMIT = 160;
   const STREAM_INTERVAL_MS = 48;

@@ -426,6 +426,7 @@
   function renderHeader() {
     const s = P.state;
     const fromAssistant = readingFromAssistant(s);
+    const assistantReturnLabel = `返回${P.FamilyAssistant.title}`;
     const backButton = (label, fallback) => {
       const attrs = `aria-label="${e(label)}"`;
       return fallback ? P.returnLink(i('back'), fallback, 'top-nav-icon', attrs)
@@ -459,7 +460,7 @@
       const edit = P.FamilyHome.editable('origin', person) && P.FamilyHome.document('origin', person)
         ? b(i('edit') + '编辑', 'heritage-edit', 'history-header-edit', `data-kind="origin" data-person="${e(person)}"`)
         : '';
-      renderTopNav(ROUTE_NAMES[s.route], fromAssistant ? backButton('返回AI问家') : backButton('返回我家', 'home'), edit);
+      renderTopNav(ROUTE_NAMES[s.route], fromAssistant ? backButton(assistantReturnLabel) : backButton('返回我家', 'home'), edit);
       return;
     }
     if (s.route === 'home-origin-edit') {
@@ -467,7 +468,7 @@
       return;
     }
     if (homeReaders.includes(s.route)) {
-      const destination = fromAssistant ? '返回AI问家' : '返回我家';
+      const destination = fromAssistant ? assistantReturnLabel : '返回我家';
       const closeLabel = `aria-label="关闭并${destination}"`;
       const close = fromAssistant ? b(i('close'), 'back', 'top-nav-icon', closeLabel)
         : P.returnLink(i('close'), 'home', 'top-nav-icon', closeLabel);
@@ -484,7 +485,7 @@
       ? P.Households.current()?.name || '传家录'
       : uploadTitle || ROUTE_NAMES[s.route];
     const returnLabel = s.route === 'archive-item' ? P.PersonArchive.detailBackLabel()
-      : fromAssistant ? '返回AI问家' : '返回上一页';
+      : fromAssistant ? assistantReturnLabel : '返回上一页';
     renderTopNav(title || '传家录', main ? '' : backButton(returnLabel), messages + messageHistory);
   }
   /** 渲染当前页面，保持状态、预览说明与页面一致。 */

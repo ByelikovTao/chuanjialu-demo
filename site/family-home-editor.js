@@ -474,7 +474,7 @@
       <footer class="history-article-footer">
         <div class="history-article-actions" role="group" aria-label="家史制作服务">
           ${l(i('book') + '制作纸质书', 'house-book-intro/' + e(person), 'paper-link paper-outline')}
-          ${l(i('play') + '制作家庭影片', 'house-film-intro/' + e(person), 'paper-link paper-outline')}
+          ${l(i('play') + '制作家庭纪录片', 'house-film-intro/' + e(person), 'paper-link paper-outline')}
         </div>
       </footer>
     </article>`;
